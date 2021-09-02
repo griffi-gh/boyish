@@ -1,12 +1,19 @@
+body {
+	background: #e8f4f8;
+}
 #gb-canvas {
 	border: 1px solid black;
+	width: 160;
+	height: 144;
 }
 button {
+	display: inline-block;
+	width: unset;
 	background: lightblue;
 	border: 2px solid rgba(0,0,0,.1);
 	padding: .33rem .5rem;
 	border-radius: 99999rem;
-	transition: transform .25s ease;
+	transition: transform 50ms ease;
 }
 button:active {
 	transform: scale(0.9);

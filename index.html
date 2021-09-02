@@ -9,31 +9,52 @@
 	<link rel="stylesheet" href="/index.css">
 	<script type="module">
 		import {Gameboy} from './gb/index.js';
-		window.initGB = function() {
-			console.clear();
-			const gb = new Gameboy("gb-canvas");
-			window.gb = gb;
-			window.gbPaused = 1;
+
+		function button(id, fn) {
+			const btn = document.getElementById(id);
+			btn.onclick = () => { fn(btn); };
+			btn.style.cssText += `width: ${(btn.getBoundingClientRect().width + 10).toString()}px !important;`;
+			return btn;
 		}
-		window.addEventListener('load', function () {
-			window.initGB();
-			let int = setInterval(() => {
-				if(!window.gbPaused){
-					for(let i = 0; i < 2; i++) {
-						gb.step();
-					}
-				}
-			}, 0)
-		})
+		function newGameboy() {
+			return new Gameboy("gb-canvas");
+		}
+
+		let gb = newGameboy();
+
+		let btn_step = button("btn-step", () => {
+			gb.step();
+		});
+		let btn_pause =button("btn-pause", (btn) => { 
+			if(gb.paused) {
+				gb.resume();
+			} else {
+				gb.pause();
+			}
+			btn.textContent = gb.paused ? 'Play' : 'Pause';
+		});
+		let btn_reset = button("btn-reset", (btn) => {
+			console.clear(); 
+			gb = newGameboy();
+			const OK = 'OK!';
+			let orig = btn.textContent;
+			if(orig!==OK) {
+				btn.textContent = OK;
+				setTimeout(() => { btn.textContent = orig; }, 1000)
+			}
+			btn_pause.textContent = 'Play';
+		});
+		
+
 	</script>
 </head>
 <body>
 	<div id="gb-wrapper"> 
-		<canvas id="gb-canvas"></canvas><br>
-		<div>
-			<button onclick="window.gb.step()">Step</button>
-			<button onclick="window.gbPaused ^= true">PausePlay</button>
-			<button onclick="window.initGB()">Reset</button>
+		<canvas id="gb-canvas"></canvas><!--
+		--><div>
+			<button id="btn-step">Step</button>
+			<button id="btn-pause">Play</button>
+			<button id="btn-reset">Reset</button>
 		</div>
 	</div>
 </body>

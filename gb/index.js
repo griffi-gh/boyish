@@ -4,6 +4,7 @@ import PPU from './ppu.js';
 
 export class Gameboy {
   constructor(id) {
+    this.stop = true;
     this.mmu = new MMU(this);
     this.cpu = new CPU(this);
     this.ppu = new PPU(this, id);
@@ -11,6 +12,20 @@ export class Gameboy {
     for (const v of ['mmu','cpu','ppu']) {
       const init = this[v].postInit;
       if (typeof init === "function") { init.apply(this[v]); }
+    }
+    this.paused = true;
+  }
+  resume() {
+    if(this.paused === true) {
+      this.paused = false;
+      this.interval = setInterval(() => { this.step(); }, 0);
+    }
+  }
+  pause() {
+    if(this.paused === false) {
+      clearTimeout(this.interval);
+      this.interval = null;
+      this.paused = true;
     }
   }
   step() {

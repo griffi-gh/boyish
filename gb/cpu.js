@@ -59,7 +59,9 @@ export default class CPU {
       this.reg.pc = pc;
     } else {
       console.error("Unimplemented instruction!");
-      this.reg.pc++;
+      throw new Error("Unimplemented instruction!");
+      //this.gb.stop = true;
+      return;
     }
   }
 }

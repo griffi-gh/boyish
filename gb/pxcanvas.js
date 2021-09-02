@@ -9,6 +9,7 @@ export default class PixelCanvas {
     this.ctx = this.canvas.getContext('2d');
     this.img = this.ctx.createImageData(width, height);
     this.clear(255,255,255);
+    this.blit();
     console.log(`PixelCanvas created with size ${width}x${height}`);
   }
   clear(r, g, b, a = 255) {
