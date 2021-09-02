@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Gameboy</title>
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/png" href="/favicon.png">
+	<link rel="stylesheet" href="/index.css">
+	<script type="module">
+		import {Gameboy} from './gb/index.js';
+		window.initGB = function() {
+			console.clear();
+			const gb = new Gameboy("gb-canvas");
+			window.gb = gb;
+			window.gbPaused = 1;
+		}
+		window.addEventListener('load', function () {
+			window.initGB();
+			let int = setInterval(() => {
+				if(!window.gbPaused){
+					for(let i = 0; i < 2; i++) {
+						gb.step();
+					}
+				}
+			}, 0)
+		})
+	</script>
+</head>
+<body>
+	<div id="gb-wrapper"> 
+		<canvas id="gb-canvas"></canvas><br>
+		<div>
+			<button onclick="window.gb.step()">Step</button>
+			<button onclick="window.gbPaused ^= true">PausePlay</button>
+			<button onclick="window.initGB()">Reset</button>
+		</div>
+	</div>
+</body>
+</html>
