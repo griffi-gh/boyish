@@ -29,7 +29,12 @@ export class Gameboy {
     }
   }
   step() {
-    this.cpu.step();
+    try {
+      this.cpu.step();
+    } catch(e) {
+      this.pause();
+      return;
+    }
   }
 }
 

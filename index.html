@@ -20,31 +20,33 @@
 			return new Gameboy("gb-canvas");
 		}
 
-		let gb = newGameboy();
+		window.addEventListener("load", function(){
+			let gb = newGameboy();
 
-		let btn_step = button("btn-step", () => {
-			gb.step();
-		});
-		let btn_pause =button("btn-pause", (btn) => { 
-			if(gb.paused) {
-				gb.resume();
-			} else {
+			let btn_step = button("btn-step", () => {
+				gb.step();
+			});
+			let btn_pause =button("btn-pause", (btn) => { 
+				if(gb.paused) {
+					gb.resume();
+				} else {
+					gb.pause();
+				}
+				btn.textContent = gb.paused ? 'Play' : 'Pause';
+			});
+			let btn_reset = button("btn-reset", (btn) => {
 				gb.pause();
-			}
-			btn.textContent = gb.paused ? 'Play' : 'Pause';
+				console.clear(); 
+				gb = newGameboy();
+				const OK = 'OK!';
+				let orig = btn.textContent;
+				if(orig!==OK) {
+					btn.textContent = OK;
+					setTimeout(() => { btn.textContent = orig; }, 1000)
+				}
+				btn_pause.textContent = 'Play';
+			});
 		});
-		let btn_reset = button("btn-reset", (btn) => {
-			console.clear(); 
-			gb = newGameboy();
-			const OK = 'OK!';
-			let orig = btn.textContent;
-			if(orig!==OK) {
-				btn.textContent = OK;
-				setTimeout(() => { btn.textContent = orig; }, 1000)
-			}
-			btn_pause.textContent = 'Play';
-		});
-		
 
 	</script>
 </head>
