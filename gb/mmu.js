@@ -23,7 +23,9 @@ export default class MMU {
     this.init();
   }
   init() {
-    this.rom = new Array(0x2000).fill(0);
+    this.rom = new Array(0x8000).fill(0);
+    this.wram = new Array(0x2000).fill(0);
+    this.eram = new Array(0x2000).fill(0);
     this.disableBios = false;
   }
   read(addr) {
@@ -39,7 +41,15 @@ export default class MMU {
             return this.rom[addr];
           }
         } else if (addr <= 0x7FFF) {
-          return this.rom[addr]
+          return this.rom[addr];
+        } else if (addr <= 0x9FFF) {
+          return this.gb.ppu.readVRAM(addr - 0x8000);
+        } else if (addr <= 0xBFFF) {
+          return eram[addr - 0xA000]; // External RAM
+        } else if (addr <= 0xDFFF) {
+          return wram[addr - 0xD000]; // Work RAM
+        } else if (addr <= 0xFDFF) {
+          return wram[addr - 0xE000]; // Echo
         }
     }
     console.warn(`addr ${addr} isn't mapped to anything`);
@@ -57,6 +67,14 @@ export default class MMU {
           }
         } else if (addr <= 0x7FFF) {
           this.rom[addr] = val;
+        } else if (addr <= 0x9FFF) {
+          this.gb.ppu.writeVRAM(addr - 0x8000, val);
+        } else if (addr <= 0xBFFF) {
+          eram[addr - 0xA000] = val; // External RAM
+        } else if (addr <= 0xDFFF) {
+          wram[addr - 0xD000] = val; // Work RAM
+        } else if (addr <= 0xFDFF) {
+          wram[addr - 0xE000] = val; // Echo
         }
     }
   }
