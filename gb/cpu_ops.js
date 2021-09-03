@@ -8,21 +8,21 @@ function construct(body) {
 
 function NOP() {
   return construct(`
-    return [4, ++pc]; 
+    return [4, this.u16(pc+1)]; 
   `);
 }
 
 function LD_AHL_U8() {
   return construct(`
-    this.gb.mmu.write(this.reg.hl, this.gb.mmu.read(++pc));
-    return [12, pc+1]; 
+    this.mmu.write(this.reg.hl, this.mmu.read(this.u16(pc+1)));
+    return [12, this.u16(pc+2)]; 
   `);
 }
 
 function LD_R_U8(r) {
   return construct(`
-    this.reg.${r} = this.gb.mmu.read(++pc);
-    return [8, pc+1]; 
+    this.reg.${r} = this.mmu.read(this.u16(pc+1));
+    return [8, this.u16(pc+2)]; 
   `);
 }
 
@@ -32,25 +32,37 @@ function LD_R_R(a, b) {
   }
   return construct(`
     this.reg.${a} = this.reg.${b};
-    return [4, pc+1]; 
+    return [4, this.u16(pc+1)]; 
   `);
 }
 
 function LD_R_AHL(r) {
   return construct(`
-    this.reg.${r} = this.gb.mmu.read(this.reg.hl);
-    return [8, pc+1]; 
+    this.reg.${r} = this.mmu.read(this.reg.hl);
+    return [8, this.u16(pc+1)]; 
   `);
 }
 
 function LD_AHL_R(r) {
   return construct(`
-    this.gb.mmu.write(this.reg.hl, this.reg.${r});
-    return [8, pc+1]; 
+    this.mmu.write(this.reg.hl, this.reg.${r});
+    return [8, this.u16(pc+1)]; 
   `);
 }
 
+function LD_RR_U16(r) {
+  return construct(`
+    this.reg.${r} = this.mmu.readWord(pc+1);
+    return [12, this.u16(pc+3)];
+  `) 
+}
+
 OPS[0x00] = NOP();
+
+OPS[0x01] = LD_RR_U16('bc');
+OPS[0x11] = LD_RR_U16('de');
+OPS[0x21] = LD_RR_U16('hl');
+OPS[0x31] = LD_RR_U16('sp');
 
 OPS[0x06] = LD_R_U8('b');
 OPS[0x0E] = LD_R_U8('c');
@@ -124,10 +136,10 @@ OPS[0x7D] = LD_R_R('a','l');
 OPS[0x7E] = LD_R_AHL('a');
 OPS[0x7F] = LD_R_R('a','a');
 
-OPS[0x70] = LD_HL_R('b');
-OPS[0x71] = LD_HL_R('c');
-OPS[0x72] = LD_HL_R('d');
-OPS[0x73] = LD_HL_R('e');
-OPS[0x74] = LD_HL_R('h');
-OPS[0x75] = LD_HL_R('l');
-OPS[0x77] = LD_HL_R('a');
+OPS[0x70] = LD_AHL_R('b');
+OPS[0x71] = LD_AHL_R('c');
+OPS[0x72] = LD_AHL_R('d');
+OPS[0x73] = LD_AHL_R('e');
+OPS[0x74] = LD_AHL_R('h');
+OPS[0x75] = LD_AHL_R('l');
+OPS[0x77] = LD_AHL_R('a');

@@ -1,4 +1,5 @@
 import {OPS, CB_OPS} from './cpu_ops.js';
+import * as c from './common.js';
 
 export class Registers {
   constructor() {
@@ -50,13 +51,25 @@ export default class CPU {
   constructor(gb) {
     this.gb = gb;
     this.reg = new Registers();
+    this.halt = false;
+  }
+  postInit() {
+    this.OPContext = {
+      c: c,
+      gb: this.gb,
+      cpu: this,
+      reg: this.reg,
+      ppu: this.gb.ppu,
+      mmu: this.gb.mmu,
+    };
+    Object.assign(this.OPContext, c); //copy all Common functions
   }
   step() {
     const op = this.gb.mmu.read(this.reg.pc);
     console.log(`op 0x${op.toString(16)} at 0x${this.reg.pc.toString(16)}`);
     if(op in OPS) {
-      let [cycles, pc] = OPS[op].apply(this, [this.reg.pc]);
-      this.reg.pc = pc;
+      let [cycles, next] = OPS[op].call(this.OPContext, this.reg.pc);
+      this.reg.pc = c.u16(next);
     } else {
       console.error("Unimplemented instruction!");
       throw new Error("Unimplemented instruction!");
