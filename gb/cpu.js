@@ -10,12 +10,14 @@ export class Registers {
     this.e = 0;
     this.h = 0;
     this.l = 0;
-    this.flags = {
-      z: false,
-      n: false,
-      h: false,
-      c: false,
-    };
+    this.flags = {};
+    this.flags.reset = (function() {
+      this.z = false;
+      this.n = false;
+      this.h = false;
+      this.c = false;
+    }).bind(this.flags);
+    this.flags.reset();
     this.pc = 0;
     this.sp = 0;
   }
@@ -59,6 +61,8 @@ export default class CPU {
       gb: this.gb,
       cpu: this,
       reg: this.reg,
+      r: this.reg,
+      f: this.reg.flags,
       ppu: this.gb.ppu,
       mmu: this.gb.mmu,
     };

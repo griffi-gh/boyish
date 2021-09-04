@@ -1,3 +1,5 @@
+import {u8,u16} from './common.js';
+
 export const bios = [
   0x00,
   0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32, 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E,
@@ -24,12 +26,13 @@ export default class MMU {
     this.init();
   }
   init() {
-    this.rom = new Array(0x8000).fill(0);
-    this.wram = new Array(0x2000).fill(0);
-    this.eram = new Array(0x2000).fill(0);
+    this.rom  = new Array(0x8000).fill(0x00);
+    this.wram = new Array(0x2000).fill(0x00);
+    this.eram = new Array(0x2000).fill(0x00);
     this.disableBios = false;
   }
-  read(addr) {
+  read(_addr) {
+    const addr = u16(_addr);
     switch (addr) {
       case 0xFF50:
         return ((this.disableBios | 0) & 0xFF);
@@ -56,7 +59,9 @@ export default class MMU {
     console.warn(`addr ${addr} isn't mapped to anything`);
     return 0;
   }
-  write(addr, val) {
+  write(_addr, _val) {
+    const addr = i16(_addr);
+    const val = u8(_val);
     switch (addr) {
       case 0xFF50:
         this.disableBios = (val | 0);
@@ -79,11 +84,14 @@ export default class MMU {
         }
     }
   }
-  readWord(addr) {
+  readWord(_addr) {
+    const addr = u16(addr);
     return (this.read(addr) | this.read(addr+1) << 8);
   }
-  writeWord(addr, val) {
+  writeWord(_addr, _val) {
+    const addr = u16(_addr);
+    const val = u16(_val);
     this.write(addr, val & 0xFF);
-    this.write(addr, val >> 8);
+    this.write(addr + 1, val >> 8);
   }
 }
