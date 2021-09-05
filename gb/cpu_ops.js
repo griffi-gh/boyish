@@ -241,6 +241,90 @@ function XOR_A_AHL(r) {
   `);
 }
 
+function _JR() {
+  return (`
+    const offset = this.i8(this.mmu.read(pc+1));
+    return [12, pc+offset];
+  `)
+}
+function _JR_COND(isN, flag) {
+  return (`
+    if(${isN ? '!' : ''}this.f.${flag}) {
+      ${_JR()}
+    }
+    return [8, pc+2]; 
+  `)
+}
+
+function _JP_COND(isN, flag) {
+  return (`
+    if(${isN ? '!' : ''}this.f.${flag}) {
+      return [16, this.mmu.readWord(pc+1)]; 
+    }
+    return [12, pc+3]; 
+  `)
+}
+
+//JP u16
+function JP_U16() {
+  return construct(`
+    return [16, this.mmu.readWord(pc+1)];
+  `);
+}
+
+//JP HL
+function JP_HL() {
+  return construct(`
+    return [4, this.r.hl];
+  `);
+}
+
+//JP NZ,U16
+function JP_NZ_U16() {
+  return construct(_JP_COND(true, 'z'));
+}
+
+//JP NC,U16
+function JP_NC_U16() {
+  return construct(_JP_COND(true, 'c'));
+}
+
+//JP Z,U16
+function JP_Z_U16() {
+  return construct(_JP_COND(false,'z'));
+}
+
+//JP C,U16
+function JP_C_U16() {
+  return construct(_JP_COND(false,'c'));
+}
+
+//JR i8
+function JR_I8() {
+  return construct(_JR());
+}
+
+//JR NZ,i8
+function JR_NZ_I8() {
+  return construct(_JR_COND(true, 'z'));
+}
+
+//JR NC,i8
+function JR_NC_I8() {
+  return construct(_JR_COND(true, 'c'));
+}
+
+//JR Z,i8
+function JR_Z_I8() {
+  return construct(_JR_COND(false,'z'));
+}
+
+//JR C,i8
+function JR_C_I8() {
+  return construct(_JR_COND(false,'c'));
+}
+
+
 OPS[0x00] = NOP();              // NOP
 
 OPS[0x10] = STOP();             // STOP
@@ -403,3 +487,16 @@ OPS[0xB4] = OR_A_R('h');        // OR A,H
 OPS[0xB5] = OR_A_R('l');        // OR A,L
 OPS[0xB6] = OR_A_AHL();         // OR A,(HL)
 OPS[0xB7] = OR_A_R('a');        // OR A,A
+
+OPS[0x18] = JR_I8();            // JR i8
+OPS[0x28] = JR_Z_I8();          // JR Z,i8
+OPS[0x38] = JR_C_I8();          // JR C,i8
+OPS[0x20] = JR_NZ_I8();         // JR NZ,i8
+OPS[0x30] = JR_NC_I8();         // JR NC,i8
+
+OPS[0xE9] = JP_HL();            // JP HL
+OPS[0xC3] = JP_U16();           // JP u16
+OPS[0xCA] = JP_Z_U16();         // JP Z,u16
+OPS[0xDA] = JP_C_U16();         // JP C,u16
+OPS[0xC2] = JP_NZ_U16();        // JP NZ,u16
+OPS[0xD2] = JP_NC_U16();        // JP NC,u16
