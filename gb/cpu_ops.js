@@ -105,6 +105,14 @@ function LD_A_ARR(r) {
   `);
 }
 
+//LD (RR),A
+function LD_ARR_A(r) { 
+  return construct(`
+    this.mmu.write(this.r.${r}, this.r.a);
+    return [8, pc+2]; 
+  `);
+}
+
 //LD (HL),u8
 function LD_AHL_U8() { 
   return construct(`
@@ -247,6 +255,11 @@ OPS[0x0A] = LD_A_ARR('bc');     // LD A,(BC)
 OPS[0x1A] = LD_A_ARR('de');     // LD A,(DE)
 OPS[0x2A] = LD_A_ARR('hl++');   // LD A,(HL+)
 OPS[0x3A] = LD_A_ARR('hl--');   // LD A,(HL-)
+
+OPS[0x02] = LD_ARR_A('bc');     // LD (BC),A
+OPS[0x12] = LD_ARR_A('de');     // LD (DE),A
+OPS[0x22] = LD_ARR_A('hl++');   // LD (HL+),A
+OPS[0x32] = LD_ARR_A('hl--');   // LD (HL-),A
 
 OPS[0x06] = LD_R_U8('b');       // LD B,u8
 OPS[0x0E] = LD_R_U8('c');       // LD C,u8
