@@ -101,7 +101,7 @@ function DEC_RR(r) {
 function LD_A_ARR(r) { 
   return construct(`
     this.r.a = this.mmu.read(this.r.${r});
-    return [8, pc+2]; 
+    return [8, pc+1]; 
   `);
 }
 
@@ -109,7 +109,7 @@ function LD_A_ARR(r) {
 function LD_ARR_A(r) { 
   return construct(`
     this.mmu.write(this.r.${r}, this.r.a);
-    return [8, pc+2]; 
+    return [8, pc+1]; 
   `);
 }
 
