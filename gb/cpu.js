@@ -53,7 +53,6 @@ export default class CPU {
   constructor(gb) {
     this.gb = gb;
     this.reg = new Registers();
-    this.halt = false;
   }
   postInit() {
     this.OPContext = {
