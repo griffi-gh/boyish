@@ -6,6 +6,16 @@ function construct(body) {
   return new Function('pc', body);
 }
 
+function _SET_FLAGS(n, c) {
+  return `
+    const f = this.f;
+    f.z = (result === 0);
+    f.h = ((result & 0xF) === 0);
+    f.n = ${(!n).toString()};
+    ${ c ? 'f.c = (result > 0xFF) || (result < 0x00);' : '' }
+  `;
+}
+
 //NOP
 function NOP() { 
   return construct(`
@@ -29,20 +39,11 @@ function STOP() {
   `);
 }
 
-//INC/DEC
-function _INCDEC_FLAGS(op) {
-  return `
-    this.f.z = (result === 0);
-    this.f.h = ((result & 0xF) === 0);
-    this.f.n = ${(!op).toString()};
-  `;
-}
-
 //INC R
 function INC_R(r) {
   return construct(`
     const result = this.r.${r} + 1;
-    ${_INCDEC_FLAGS(true)}
+    ${_SET_FLAGS(true, false)}
     this.r.${r} = this.u8(result);
     return [4, pc+1];
   `) 
@@ -51,7 +52,7 @@ function INC_R(r) {
 function DEC_R(r) {
   return construct(`
     const result = this.r.${r} - 1;
-    ${_INCDEC_FLAGS(false)}
+    ${_SET_FLAGS(false, false)}
     this.r.${r} = this.u8(result);
     return [4, pc+1];
   `) 
@@ -62,7 +63,7 @@ function INC_AHL() {
   return construct(`
     const hl = this.r.hl;
     const result = this.mem.read(hl) + 1;
-    ${_INCDEC_FLAGS(true)}
+    ${_SET_FLAGS(true, false)}
     this.mem.write(hl, this.u8(result));
     return [12, pc+1];
   `) 
@@ -72,7 +73,7 @@ function DEC_AHL() {
   return construct(`
     const hl = this.r.hl;
     const result = this.mem.read(hl) + 1;
-    ${_INCDEC_FLAGS(false)}
+    ${_SET_FLAGS(false, false)}
     this.mem.write(hl, this.u8(result));
     return [12, pc+1];
   `) 
@@ -167,6 +168,68 @@ function POP_RR(r) {
     this.r.${r} = this.mem.readWord(this.r.sp);
     this.r.sp = u16(this.r.sp + 2);
     return [12, pc+1]; 
+  `);
+}
+
+//AND A,R
+function AND_A_R(r) {
+  return construct(`
+    this.r.a &= ${v};
+    this.f.reset();
+    this.f.z = (this.r.a === 0);
+    this.f.h = true;
+    return [4, pc+1]; 
+  `);
+}
+
+//AND A,(HL) 
+function AND_A_AHL() {
+  return construct(`
+    this.r.a &= this.mmu.read(this.r.hl);
+    this.f.reset();
+    this.f.z = (this.r.a === 0);
+    this.f.h = true;
+    return [8, pc+1]; 
+  `);
+}
+
+//OR A,R
+function OR_A_R(r) {
+  return construct(`
+    this.r.a |= ${r};
+    this.f.reset();
+    this.f.z = (this.r.a === 0);
+    return [4, pc+1]; 
+  `);
+}
+
+//OR A,(HL) 
+function OR_A_AHL(r) {
+  return construct(`
+    this.r.a |= this.mmu.read(this.r.hl);
+    this.f.reset();
+    this.f.z = (this.r.a === 0);
+    return [8, pc+1]; 
+  `);
+}
+
+//XOR A,R
+function XOR_A_R(r) {
+  return construct(`
+    this.r.a ^= ${r};
+    this.f.reset();
+    this.f.z = (this.r.a === 0);
+    return [4, pc+1]; 
+  `);
+}
+
+//XOR A,(HL) 
+function XOR_A_AHL(r) {
+  return construct(`
+    this.r.a ^= this.mmu.read(this.r.hl);
+    this.f.reset();
+    this.f.z = (this.r.a === 0);
+    return [8, pc+1]; 
   `);
 }
 
@@ -300,3 +363,30 @@ OPS[0x0B] = DEC_RR('bc');       // DEC BC
 OPS[0x1B] = DEC_RR('de');       // DEC DE
 OPS[0x2B] = DEC_RR('hl');       // DEC HL
 OPS[0x3B] = DEC_RR('sp');       // DEC SP
+
+OPS[0xA0] = AND_A_R('b');       // AND A,B
+OPS[0xA1] = AND_A_R('c');       // AND A,C
+OPS[0xA2] = AND_A_R('d');       // AND A,D
+OPS[0xA3] = AND_A_R('e');       // AND A,E
+OPS[0xA4] = AND_A_R('h');       // AND A,H
+OPS[0xA5] = AND_A_R('l');       // AND A,L
+OPS[0xA6] = AND_A_AHL();        // AND A,(HL)
+OPS[0xA7] = AND_A_R('a');       // AND A,A
+
+OPS[0xA8] = XOR_A_R('b');       // XOR A,B
+OPS[0xA9] = XOR_A_R('c');       // XOR A,C
+OPS[0xAA] = XOR_A_R('d');       // XOR A,D
+OPS[0xAB] = XOR_A_R('e');       // XOR A,E
+OPS[0xAC] = XOR_A_R('h');       // XOR A,H
+OPS[0xAD] = XOR_A_R('l');       // XOR A,L
+OPS[0xAE] = XOR_A_AHL();        // XOR A,(HL)
+OPS[0xAF] = XOR_A_R('a');       // XOR A,A
+
+OPS[0xB0] = OR_A_R('b');        // OR A,B
+OPS[0xB1] = OR_A_R('c');        // OR A,C
+OPS[0xB2] = OR_A_R('d');        // OR A,D
+OPS[0xB3] = OR_A_R('e');        // OR A,E
+OPS[0xB4] = OR_A_R('h');        // OR A,H
+OPS[0xB5] = OR_A_R('l');        // OR A,L
+OPS[0xB6] = OR_A_AHL();         // OR A,(HL)
+OPS[0xB7] = OR_A_R('a');        // OR A,A
