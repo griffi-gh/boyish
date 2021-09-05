@@ -13,6 +13,22 @@ function NOP() {
   `);
 }
 
+//HALT
+function HALT() {
+  return construct(`
+    this.gb.stateChange(this.gb.STATE_HALT);
+    return [4, pc+1]
+  `);
+}
+
+//STOP
+function STOP() {
+  return construct(`
+    this.gb.stateChange(this.gb.STATE_STOP);
+    return [4, pc+2]
+  `);
+}
+
 //INC/DEC
 function _INCDEC_FLAGS(op) {
   return `
@@ -155,6 +171,9 @@ function POP_RR(r) {
 }
 
 OPS[0x00] = NOP();              // NOP
+
+OPS[0x10] = STOP();             // STOP
+OPS[0x76] = HALT();             // HALT
 
 OPS[0x01] = LD_RR_U16('bc');    // LD BC,u16
 OPS[0x11] = LD_RR_U16('de');    // LD DE,u16

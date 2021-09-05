@@ -68,16 +68,18 @@ export default class CPU {
     Object.assign(this.OPContext, c); //copy all Common functions
   }
   step() {
-    const op = this.gb.mmu.read(this.reg.pc);
-    console.log(`op 0x${op.toString(16)} at 0x${this.reg.pc.toString(16)}`);
-    if(op in OPS) {
-      let [cycles, next] = OPS[op].call(this.OPContext, this.reg.pc);
-      this.reg.pc = c.u16(next);
-    } else {
-      console.error("Unimplemented instruction!");
-      throw new Error("Unimplemented instruction!");
-      //this.gb.stop = true;
-      return;
+    if(!this.gb.state) { //If state isn't 0
+      const op = this.gb.mmu.read(this.reg.pc);
+      console.log(`op 0x${op.toString(16)} at 0x${this.reg.pc.toString(16)}`);
+      if(op in OPS) {
+        let [cycles, next] = OPS[op].call(this.OPContext, this.reg.pc);
+        this.reg.pc = c.u16(next);
+      } else {
+        console.error("Unimplemented instruction!");
+        throw new Error("Unimplemented instruction!");
+        //this.gb.stop = true;
+        return;
+      }
     }
   }
 }

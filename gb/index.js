@@ -18,6 +18,9 @@ export class Gameboy {
     this.STATE_STOP = 2;
     this.state = this.STATE_RUNNING;
   }
+  stateChange(state) {
+    this.state = state;
+  }
   resume() {
     if(this.paused === true) {
       this.paused = false;
