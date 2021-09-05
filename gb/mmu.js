@@ -84,12 +84,10 @@ export default class MMU {
         }
     }
   }
-  readWord(_addr) {
-    const addr = u16(addr);
+  readWord(addr) {
     return (this.read(addr) | this.read(addr+1) << 8);
   }
   writeWord(_addr, _val) {
-    const addr = u16(_addr);
     const val = u16(_val);
     this.write(addr, val & 0xFF);
     this.write(addr + 1, val >> 8);

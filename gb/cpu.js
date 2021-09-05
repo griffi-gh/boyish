@@ -72,8 +72,13 @@ export default class CPU {
       const op = this.gb.mmu.read(this.reg.pc);
       console.log(`op 0x${op.toString(16)} at 0x${this.reg.pc.toString(16)}`);
       if(op in OPS) {
-        let [cycles, next] = OPS[op].call(this.OPContext, this.reg.pc);
-        this.reg.pc = c.u16(next);
+        try {
+          let [cycles, next] = OPS[op].call(this.OPContext, this.reg.pc);
+          this.reg.pc = c.u16(next);
+        } catch(e) {
+          console.log(e.name + ': ' + e.message);
+          console.log(e.stack);
+        }
       } else {
         console.error("Unimplemented instruction!");
         throw new Error("Unimplemented instruction!");
