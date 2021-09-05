@@ -75,6 +75,7 @@ export default class CPU {
         try {
           let [cycles, next] = OPS[op].call(this.OPContext, this.reg.pc);
           this.reg.pc = c.u16(next);
+          console.log(reg);
         } catch(e) {
           console.log(e.name + ': ' + e.message);
           console.log(e.stack);

@@ -174,7 +174,7 @@ function POP_RR(r) {
 //AND A,R
 function AND_A_R(r) {
   return construct(`
-    this.r.a &= ${v};
+    this.r.a &= this.r.${r};
     this.f.reset();
     this.f.z = (this.r.a === 0);
     this.f.h = true;
@@ -196,7 +196,7 @@ function AND_A_AHL() {
 //OR A,R
 function OR_A_R(r) {
   return construct(`
-    this.r.a |= ${r};
+    this.r.a |= this.r.${r};
     this.f.reset();
     this.f.z = (this.r.a === 0);
     return [4, pc+1]; 
@@ -216,7 +216,7 @@ function OR_A_AHL(r) {
 //XOR A,R
 function XOR_A_R(r) {
   return construct(`
-    this.r.a ^= ${r};
+    this.r.a ^= this.r.${r};
     this.f.reset();
     this.f.z = (this.r.a === 0);
     return [4, pc+1]; 
