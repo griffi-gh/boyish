@@ -36,8 +36,8 @@ export class Registers {
     return this[a] << 8 | this[b];
   }
   mset(v, a, b) {
-    this[a] = v << 8; 
-    this.f = v & 0xff;
+    this[a] = v >> 8; 
+    this[b] = v & 0xff;
   }
   get af()  { return this.mget('a','f'); }
   get bc()  { return this.mget('b','c'); }
