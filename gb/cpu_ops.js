@@ -324,6 +324,33 @@ function JR_C_I8() {
   return construct(_JR_COND(false,'c'));
 }
 
+function RLA() {
+  return construct(`
+    const result = (this.r.a << 1) | (this.f.c | 0);
+    this.f.c = (result & 0x100) !== 0;
+    this.r.a = (result & 0xFF);
+    return [4, pc+1];
+  `);
+}
+
+function RLCA() {
+  return construct(`
+    const result = (this.r.a << 1) | (this.r.a >> 7);
+    this.f.c = (result & 0x100) !== 0;
+    this.r.a = (result & 0xFF);
+    return [4, pc+1];
+  `);
+}
+
+function CPL() {
+  return construct(`
+    const result = (this.r.a << 1) | (this.r.a >> 7);
+    this.r.a = (~this.r.a & 0xff);
+    this.f.n = true;
+    this.f.h = true;
+    return [4, pc+1];
+  `);
+}
 
 OPS[0x00] = NOP();              // NOP
 
@@ -500,3 +527,8 @@ OPS[0xCA] = JP_Z_U16();         // JP Z,u16
 OPS[0xDA] = JP_C_U16();         // JP C,u16
 OPS[0xC2] = JP_NZ_U16();        // JP NZ,u16
 OPS[0xD2] = JP_NC_U16();        // JP NC,u16
+
+OPS[0x07] = RLCA();             // RLCA
+OPS[0x17] = RLA();              // RLA
+
+OPS[0x2F] = CPL();              // CPL
