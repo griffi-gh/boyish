@@ -352,6 +352,29 @@ function CPL() {
   `);
 }
 
+function DAA() {
+  return construct(`
+    let a = this.r.a;
+    if(this.f.n) {
+      // Sub
+      if(this.f.h) { a = this.u8(a - 0x6); }
+      if(this.f.c) { a -= 0x60; }
+    } else {
+      // Add
+      if ((a & 0xF) > 0x9 || flags.h) { a += 0x6; }
+      if (a > 0x9 || flags.c) { a += 0x60; }
+    }
+    this.r.a = this.u8(a);
+    this.f.h = false;
+    if((a & 0x100) == 0x100) { 
+      // Real hardware doesn't reset the Carry flag
+      this.f.c = true;
+    } 
+    this.f.z = (this.r.a === 0);
+    return [4, pc+1];
+  `);
+}
+
 OPS[0x00] = NOP();              // NOP
 
 OPS[0x10] = STOP();             // STOP
@@ -532,3 +555,5 @@ OPS[0x07] = RLCA();             // RLCA
 OPS[0x17] = RLA();              // RLA
 
 OPS[0x2F] = CPL();              // CPL
+
+OPS[0x27] = DAA();              // DAA
