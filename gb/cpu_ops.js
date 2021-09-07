@@ -6,6 +6,7 @@ function construct(body) {
   return new Function('pc', body);
 }
 
+// OPS
 function _SET_FLAGS(n, c) {
   return `
     const f = this.f;
@@ -557,3 +558,125 @@ OPS[0x17] = RLA();              // RLA
 OPS[0x2F] = CPL();              // CPL
 
 OPS[0x27] = DAA();              // DAA
+
+// CB_OPS
+
+function BIT_R(bit, r) {
+  return construct(`
+    this.f.z = (this.r.${r} & ${1 << bit}) === 0;
+    this.f.n = false;
+    this.f.h = true;
+    return [8, pc+1]
+  `);
+}
+function BIT_AHL(bit) {
+  return construct(`
+    this.f.z = (this.mmu.read(this.r.hl) & ${1 << bit}) === 0;
+    this.f.n = false;
+    this.f.h = true;
+    return [16, pc+1];
+  `);
+}
+
+function SWAP_R(r) {
+  return construct(`
+    let a = this.r.${r};
+    a = ((a & 0x0F) << 4 | (a & 0xF0) >> 4);
+    this.f.reset();
+    this.f.z = (a === 0);
+    this.r.${r} = a;
+    return [8, pc+1];
+  `);
+}
+function SWAP_AHL() {
+  return construct(`
+    const hl = this.r.hl;
+    let a = this.mmu.read(hl);
+    a = ((a & 0x0F) << 4 | (a & 0xF0) >> 4);
+    this.f.reset();
+    this.f.z = (a === 0);
+    this.mmu.write(hl, a);
+    return [16, pc+1];
+  `);
+}
+
+CB_OPS[0x30] = SWAP_R('b');
+CB_OPS[0x31] = SWAP_R('c');
+CB_OPS[0x32] = SWAP_R('d');
+CB_OPS[0x33] = SWAP_R('e');
+CB_OPS[0x34] = SWAP_R('h');
+CB_OPS[0x35] = SWAP_R('l');
+CB_OPS[0x36] = SWAP_AHL();
+CB_OPS[0x37] = SWAP_R('a');
+
+CB_OPS[0x40] = BIT_R(0,'b')
+CB_OPS[0x41] = BIT_R(0,'c')
+CB_OPS[0x42] = BIT_R(0,'d')
+CB_OPS[0x43] = BIT_R(0,'e')
+CB_OPS[0x44] = BIT_R(0,'h')
+CB_OPS[0x45] = BIT_R(0,'l')
+CB_OPS[0x46] = BIT_AHL(0)
+CB_OPS[0x47] = BIT_R(0,'a')
+
+CB_OPS[0x48] = BIT_R(1,'b')
+CB_OPS[0x49] = BIT_R(1,'c')
+CB_OPS[0x4A] = BIT_R(1,'d')
+CB_OPS[0x4B] = BIT_R(1,'e')
+CB_OPS[0x4C] = BIT_R(1,'h')
+CB_OPS[0x4D] = BIT_R(1,'l')
+CB_OPS[0x4E] = BIT_AHL(1)
+CB_OPS[0x4F] = BIT_R(1,'a')
+
+CB_OPS[0x50] = BIT_R(2,'b')
+CB_OPS[0x51] = BIT_R(2,'c')
+CB_OPS[0x52] = BIT_R(2,'d')
+CB_OPS[0x53] = BIT_R(2,'e')
+CB_OPS[0x54] = BIT_R(2,'h')
+CB_OPS[0x55] = BIT_R(2,'l')
+CB_OPS[0x56] = BIT_AHL(2)
+CB_OPS[0x57] = BIT_R(2,'a')
+
+CB_OPS[0x58] = BIT_R(3,'b')
+CB_OPS[0x59] = BIT_R(3,'c')
+CB_OPS[0x5A] = BIT_R(3,'d')
+CB_OPS[0x5B] = BIT_R(3,'e')
+CB_OPS[0x5C] = BIT_R(3,'h')
+CB_OPS[0x5D] = BIT_R(3,'l')
+CB_OPS[0x5E] = BIT_AHL(3)
+CB_OPS[0x5F] = BIT_R(3,'a')
+
+CB_OPS[0x60] = BIT_R(4,'b')
+CB_OPS[0x61] = BIT_R(4,'c')
+CB_OPS[0x62] = BIT_R(4,'d')
+CB_OPS[0x63] = BIT_R(4,'e')
+CB_OPS[0x64] = BIT_R(4,'h')
+CB_OPS[0x65] = BIT_R(4,'l')
+CB_OPS[0x66] = BIT_AHL(4)
+CB_OPS[0x67] = BIT_R(4,'a')
+
+CB_OPS[0x68] = BIT_R(5,'b')
+CB_OPS[0x69] = BIT_R(5,'c')
+CB_OPS[0x6A] = BIT_R(5,'d')
+CB_OPS[0x6B] = BIT_R(5,'e')
+CB_OPS[0x6C] = BIT_R(5,'h')
+CB_OPS[0x6D] = BIT_R(5,'l')
+CB_OPS[0x6E] = BIT_AHL(5)
+CB_OPS[0x6F] = BIT_R(5,'a')
+
+CB_OPS[0x70] = BIT_R(6,'b')
+CB_OPS[0x71] = BIT_R(6,'c')
+CB_OPS[0x72] = BIT_R(6,'d')
+CB_OPS[0x73] = BIT_R(6,'e')
+CB_OPS[0x74] = BIT_R(6,'h')
+CB_OPS[0x75] = BIT_R(6,'l')
+CB_OPS[0x76] = BIT_AHL(6)
+CB_OPS[0x77] = BIT_R(6,'a')
+
+CB_OPS[0x78] = BIT_R(7,'b')
+CB_OPS[0x79] = BIT_R(7,'c')
+CB_OPS[0x7A] = BIT_R(7,'d')
+CB_OPS[0x7B] = BIT_R(7,'e')
+CB_OPS[0x7C] = BIT_R(7,'h')
+CB_OPS[0x7D] = BIT_R(7,'l')
+CB_OPS[0x7E] = BIT_AHL(7)
+CB_OPS[0x7F] = BIT_R(7,'a')
