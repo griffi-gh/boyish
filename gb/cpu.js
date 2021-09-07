@@ -50,7 +50,7 @@ export class Registers {
 }
 
 function toHex(num = 0, size = 8) {
-  const c = (size / 4)
+  const c = (size / 4);
   return ('0'.repeat(c-1) + num.toString(16)).slice(-c).toUpperCase();
 }
 
@@ -72,7 +72,7 @@ export default class CPU {
     };
     Object.assign(this.OPContext, c); //copy all Common functions
   }
-  logger() {
+  log() {
     const m = this.gb.mmu;
     const r = this.reg;
     console.log(
@@ -87,20 +87,26 @@ export default class CPU {
   }
   step() {
     if(!this.gb.state) { //If state isn't 0
-      this.logger();
-      const op = this.gb.mmu.read(this.reg.pc);
-      if(op in OPS) {
+      this.log();
+      let op = this.gb.mmu.read(this.reg.pc);
+      let OPC = OPS;
+      let isCB = false;
+      if(op === 0xCB) {
+        isCB = true;
+        OPC = CB_OPS;
+        op = this.gb.mmu.read(++this.reg.pc);
+      }
+      if(op in OPC) {
         try {
-          let [cycles, next] = OPS[op].call(this.OPContext, this.reg.pc);
+          let [cycles, next] = OPC[op].call(this.OPContext, this.reg.pc);
           this.reg.pc = c.u16(next);
         } catch(e) {
           console.log(e.name + ': ' + e.message);
           console.log(e.stack);
         }
       } else {
-        console.error("Unimplemented instruction!");
-        throw new Error("Unimplemented instruction!");
-        //this.gb.stop = true;
+        console.error(`Unimplemented instruction: ${isCB ? 'CB ' : ''}${toHex(op)}`);
+        throw new Error("UnimplementedInstr");
         return;
       }
     }
