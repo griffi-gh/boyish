@@ -6,16 +6,7 @@ function construct(body) {
   return new Function('pc', body);
 }
 
-// OPS
-function _SET_FLAGS(n, c) {
-  return `
-    const f = this.f;
-    f.z = (result === 0);
-    f.h = ((result & 0xF) === 0);
-    f.n = ${(!n).toString()};
-    ${ c ? 'f.c = (result > 0xFF) || (result < 0x00);' : '' }
-  `;
-}
+
 
 //NOP
 function NOP() { 
@@ -40,11 +31,20 @@ function STOP() {
   `);
 }
 
+function _INCDEC_FLAGS(n) { 
+  return `
+    const f = this.f;
+    f.z = (result === 0);
+    f.h = ((result & 0xF) === 0);
+    f.n = ${(!n).toString()};
+  `;
+}
+
 //INC R
 function INC_R(r) {
   return construct(`
     const result = this.r.${r} + 1;
-    ${_SET_FLAGS(true, false)}
+    ${_INCDEC_FLAGS(true)}
     this.r.${r} = this.u8(result);
     return [4, pc+1];
   `) 
@@ -53,7 +53,7 @@ function INC_R(r) {
 function DEC_R(r) {
   return construct(`
     const result = this.r.${r} - 1;
-    ${_SET_FLAGS(false, false)}
+    ${_INCDEC_FLAGS(false)}
     this.r.${r} = this.u8(result);
     return [4, pc+1];
   `) 
@@ -64,7 +64,7 @@ function INC_AHL() {
   return construct(`
     const hl = this.r.hl;
     const result = this.mem.read(hl) + 1;
-    ${_SET_FLAGS(true, false)}
+    ${_INCDEC_FLAGS(true)}
     this.mem.write(hl, this.u8(result));
     return [12, pc+1];
   `) 
@@ -74,7 +74,7 @@ function DEC_AHL() {
   return construct(`
     const hl = this.r.hl;
     const result = this.mem.read(hl) + 1;
-    ${_SET_FLAGS(false, false)}
+    ${_INCDEC_FLAGS(false)}
     this.mem.write(hl, this.u8(result));
     return [12, pc+1];
   `) 
@@ -179,6 +179,59 @@ function POP_RR(r) {
     return [12, pc+1]; 
   `);
 }
+
+
+function _ADDSUB(isAdd) {
+  return `
+    const a = this.r.a;
+    const result = a ${isAdd ? '+' : '-'} b;
+    const f = this.f;
+    f.z = (result === 0);
+    f.h = ((a & 0xF) + (b & 0xF)) > 0xF;
+    f.n = ${(!isAdd).toString()};
+    f.c = ${isAdd ? '(result > 0xFF)' : '(result < 0x00)'};
+    this.r.a = this.u8(result);
+  `;
+}
+
+//ADD A,R
+function ADD_A_R(r) {
+  return construct(`
+    const b = this.r.${r};
+    ${ _ADDSUB(true) }
+    return [4, pc+1];
+  `);
+}
+//ADD A,(HL)
+function ADD_A_AHL() {
+  return construct(`
+    const b = this.mmu.read(this.r.hl);
+    ${ _ADDSUB(true) }
+    return [4, pc+1];
+  `);
+}
+
+//SUB A,R
+function SUB_A_R(r) {
+  return construct(`
+    const b = this.r.${r};
+    ${ _ADDSUB(false) }
+    return [4, pc+1];
+  `);
+}
+//SUB A,(HL)
+function SUB_A_AHL() {
+  return construct(`
+    const b = this.mmu.read(this.r.hl);
+    ${ _ADDSUB(false) }
+    return [4, pc+1];
+  `);
+}
+
+/*this.f.h = (a & 0xF) + (val & 0xF) > 0xF
+    this.f.c = sum > 0xFF;
+    this.f.z = this.u8(sum) === 0;
+    this.f.n = false;*/
 
 //AND A,R
 function AND_A_R(r) {
@@ -512,6 +565,24 @@ OPS[0x1B] = DEC_RR('de');       // DEC DE
 OPS[0x2B] = DEC_RR('hl');       // DEC HL
 OPS[0x3B] = DEC_RR('sp');       // DEC SP
 
+OPS[0x80] = ADD_A_R('b');       // ADD A,B
+OPS[0x81] = ADD_A_R('c');       // ADD A,C
+OPS[0x82] = ADD_A_R('d');       // ADD A,D
+OPS[0x83] = ADD_A_R('e');       // ADD A,E
+OPS[0x84] = ADD_A_R('h');       // ADD A,H
+OPS[0x85] = ADD_A_R('l');       // ADD A,L
+OPS[0x86] = ADD_A_AHL();        // ADD A,(HL)
+OPS[0x87] = ADD_A_R('a');       // ADD A,L
+
+OPS[0x90] = SUB_A_R('b');       // SUB A,B
+OPS[0x91] = SUB_A_R('c');       // SUB A,C
+OPS[0x92] = SUB_A_R('d');       // SUB A,D
+OPS[0x93] = SUB_A_R('e');       // SUB A,E
+OPS[0x94] = SUB_A_R('h');       // SUB A,H
+OPS[0x95] = SUB_A_R('l');       // SUB A,L
+OPS[0x96] = SUB_A_AHL();        // SUB A,(HL)
+OPS[0x97] = SUB_A_R('a');       // SUB A,L
+
 OPS[0xA0] = AND_A_R('b');       // AND A,B
 OPS[0xA1] = AND_A_R('c');       // AND A,C
 OPS[0xA2] = AND_A_R('d');       // AND A,D
@@ -609,74 +680,74 @@ CB_OPS[0x35] = SWAP_R('l');
 CB_OPS[0x36] = SWAP_AHL();
 CB_OPS[0x37] = SWAP_R('a');
 
-CB_OPS[0x40] = BIT_R(0,'b')
-CB_OPS[0x41] = BIT_R(0,'c')
-CB_OPS[0x42] = BIT_R(0,'d')
-CB_OPS[0x43] = BIT_R(0,'e')
-CB_OPS[0x44] = BIT_R(0,'h')
-CB_OPS[0x45] = BIT_R(0,'l')
-CB_OPS[0x46] = BIT_AHL(0)
-CB_OPS[0x47] = BIT_R(0,'a')
+CB_OPS[0x40] = BIT_R(0,'b');
+CB_OPS[0x41] = BIT_R(0,'c');
+CB_OPS[0x42] = BIT_R(0,'d');
+CB_OPS[0x43] = BIT_R(0,'e');
+CB_OPS[0x44] = BIT_R(0,'h');
+CB_OPS[0x45] = BIT_R(0,'l');
+CB_OPS[0x46] = BIT_AHL(0);
+CB_OPS[0x47] = BIT_R(0,'a');
 
-CB_OPS[0x48] = BIT_R(1,'b')
-CB_OPS[0x49] = BIT_R(1,'c')
-CB_OPS[0x4A] = BIT_R(1,'d')
-CB_OPS[0x4B] = BIT_R(1,'e')
-CB_OPS[0x4C] = BIT_R(1,'h')
-CB_OPS[0x4D] = BIT_R(1,'l')
-CB_OPS[0x4E] = BIT_AHL(1)
-CB_OPS[0x4F] = BIT_R(1,'a')
+CB_OPS[0x48] = BIT_R(1,'b');
+CB_OPS[0x49] = BIT_R(1,'c');
+CB_OPS[0x4A] = BIT_R(1,'d');
+CB_OPS[0x4B] = BIT_R(1,'e');
+CB_OPS[0x4C] = BIT_R(1,'h');
+CB_OPS[0x4D] = BIT_R(1,'l');
+CB_OPS[0x4E] = BIT_AHL(1);
+CB_OPS[0x4F] = BIT_R(1,'a');
 
-CB_OPS[0x50] = BIT_R(2,'b')
-CB_OPS[0x51] = BIT_R(2,'c')
-CB_OPS[0x52] = BIT_R(2,'d')
-CB_OPS[0x53] = BIT_R(2,'e')
-CB_OPS[0x54] = BIT_R(2,'h')
-CB_OPS[0x55] = BIT_R(2,'l')
-CB_OPS[0x56] = BIT_AHL(2)
-CB_OPS[0x57] = BIT_R(2,'a')
+CB_OPS[0x50] = BIT_R(2,'b');
+CB_OPS[0x51] = BIT_R(2,'c');
+CB_OPS[0x52] = BIT_R(2,'d');
+CB_OPS[0x53] = BIT_R(2,'e');
+CB_OPS[0x54] = BIT_R(2,'h');
+CB_OPS[0x55] = BIT_R(2,'l');
+CB_OPS[0x56] = BIT_AHL(2);
+CB_OPS[0x57] = BIT_R(2,'a');
 
-CB_OPS[0x58] = BIT_R(3,'b')
-CB_OPS[0x59] = BIT_R(3,'c')
-CB_OPS[0x5A] = BIT_R(3,'d')
-CB_OPS[0x5B] = BIT_R(3,'e')
-CB_OPS[0x5C] = BIT_R(3,'h')
-CB_OPS[0x5D] = BIT_R(3,'l')
-CB_OPS[0x5E] = BIT_AHL(3)
-CB_OPS[0x5F] = BIT_R(3,'a')
+CB_OPS[0x58] = BIT_R(3,'b');
+CB_OPS[0x59] = BIT_R(3,'c');
+CB_OPS[0x5A] = BIT_R(3,'d');
+CB_OPS[0x5B] = BIT_R(3,'e');
+CB_OPS[0x5C] = BIT_R(3,'h');
+CB_OPS[0x5D] = BIT_R(3,'l');
+CB_OPS[0x5E] = BIT_AHL(3);
+CB_OPS[0x5F] = BIT_R(3,'a');
 
-CB_OPS[0x60] = BIT_R(4,'b')
-CB_OPS[0x61] = BIT_R(4,'c')
-CB_OPS[0x62] = BIT_R(4,'d')
-CB_OPS[0x63] = BIT_R(4,'e')
-CB_OPS[0x64] = BIT_R(4,'h')
-CB_OPS[0x65] = BIT_R(4,'l')
-CB_OPS[0x66] = BIT_AHL(4)
-CB_OPS[0x67] = BIT_R(4,'a')
+CB_OPS[0x60] = BIT_R(4,'b');
+CB_OPS[0x61] = BIT_R(4,'c');
+CB_OPS[0x62] = BIT_R(4,'d');
+CB_OPS[0x63] = BIT_R(4,'e');
+CB_OPS[0x64] = BIT_R(4,'h');
+CB_OPS[0x65] = BIT_R(4,'l');
+CB_OPS[0x66] = BIT_AHL(4);
+CB_OPS[0x67] = BIT_R(4,'a');
 
-CB_OPS[0x68] = BIT_R(5,'b')
-CB_OPS[0x69] = BIT_R(5,'c')
-CB_OPS[0x6A] = BIT_R(5,'d')
-CB_OPS[0x6B] = BIT_R(5,'e')
-CB_OPS[0x6C] = BIT_R(5,'h')
-CB_OPS[0x6D] = BIT_R(5,'l')
-CB_OPS[0x6E] = BIT_AHL(5)
-CB_OPS[0x6F] = BIT_R(5,'a')
+CB_OPS[0x68] = BIT_R(5,'b');
+CB_OPS[0x69] = BIT_R(5,'c');
+CB_OPS[0x6A] = BIT_R(5,'d');
+CB_OPS[0x6B] = BIT_R(5,'e');
+CB_OPS[0x6C] = BIT_R(5,'h');
+CB_OPS[0x6D] = BIT_R(5,'l');
+CB_OPS[0x6E] = BIT_AHL(5);
+CB_OPS[0x6F] = BIT_R(5,'a');
 
-CB_OPS[0x70] = BIT_R(6,'b')
-CB_OPS[0x71] = BIT_R(6,'c')
-CB_OPS[0x72] = BIT_R(6,'d')
-CB_OPS[0x73] = BIT_R(6,'e')
-CB_OPS[0x74] = BIT_R(6,'h')
-CB_OPS[0x75] = BIT_R(6,'l')
-CB_OPS[0x76] = BIT_AHL(6)
-CB_OPS[0x77] = BIT_R(6,'a')
+CB_OPS[0x70] = BIT_R(6,'b');
+CB_OPS[0x71] = BIT_R(6,'c');
+CB_OPS[0x72] = BIT_R(6,'d');
+CB_OPS[0x73] = BIT_R(6,'e');
+CB_OPS[0x74] = BIT_R(6,'h');
+CB_OPS[0x75] = BIT_R(6,'l');
+CB_OPS[0x76] = BIT_AHL(6);
+CB_OPS[0x77] = BIT_R(6,'a');
 
-CB_OPS[0x78] = BIT_R(7,'b')
-CB_OPS[0x79] = BIT_R(7,'c')
-CB_OPS[0x7A] = BIT_R(7,'d')
-CB_OPS[0x7B] = BIT_R(7,'e')
-CB_OPS[0x7C] = BIT_R(7,'h')
-CB_OPS[0x7D] = BIT_R(7,'l')
-CB_OPS[0x7E] = BIT_AHL(7)
-CB_OPS[0x7F] = BIT_R(7,'a')
+CB_OPS[0x78] = BIT_R(7,'b');
+CB_OPS[0x79] = BIT_R(7,'c');
+CB_OPS[0x7A] = BIT_R(7,'d');
+CB_OPS[0x7B] = BIT_R(7,'e');
+CB_OPS[0x7C] = BIT_R(7,'h');
+CB_OPS[0x7D] = BIT_R(7,'l');
+CB_OPS[0x7E] = BIT_AHL(7);
+CB_OPS[0x7F] = BIT_R(7,'a');
