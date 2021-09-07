@@ -49,6 +49,11 @@ export class Registers {
   set hl(v) { this.mset(v, 'h', 'l'); }
 }
 
+function toHex(num = 0, size = 8) {
+  const c = (size / 4)
+  return ('0'.repeat(c-1) + num.toString(16)).slice(-c).toUpperCase();
+}
+
 export default class CPU {
   constructor(gb) {
     this.gb = gb;
@@ -67,15 +72,27 @@ export default class CPU {
     };
     Object.assign(this.OPContext, c); //copy all Common functions
   }
+  logger() {
+    const m = this.gb.mmu;
+    const r = this.reg;
+    console.log(
+      `A: ${ toHex(r.a) } F: ${ toHex(r.f) } `+
+      `B: ${ toHex(r.b) } C: ${ toHex(r.c) } `+
+      `D: ${ toHex(r.d) } E: ${ toHex(r.e) } `+
+      `H: ${ toHex(r.h) } L: ${ toHex(r.l) } `+
+      `SP: ${ toHex(r.sp, 16) } PC: 00:${ toHex(r.pc, 16) } `+
+      `(${ toHex(m.read(r.pc)) } ${ toHex(m.read(r.pc+1)) } `+
+      `${ toHex(m.read(r.pc+2)) } ${ toHex(m.read(r.pc+3)) })`+'\n'
+    )
+  }
   step() {
     if(!this.gb.state) { //If state isn't 0
+      this.logger();
       const op = this.gb.mmu.read(this.reg.pc);
-      console.log(`op 0x${op.toString(16)} at 0x${this.reg.pc.toString(16)}`);
       if(op in OPS) {
         try {
           let [cycles, next] = OPS[op].call(this.OPContext, this.reg.pc);
           this.reg.pc = c.u16(next);
-          console.log(this.reg);
         } catch(e) {
           console.log(e.name + ': ' + e.message);
           console.log(e.stack);
