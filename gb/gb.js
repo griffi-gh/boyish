@@ -31,9 +31,12 @@ export class Gameboy {
     this.STATE_STOP = 2;
     this.state = this.STATE_RUNNING;
     this.logData = '';
+    this.disableLog = false;
   }
   log(str) {
-    this.logData += str.toString();
+    if(!this.disableLog) {
+      this.logData += str.toString();
+    }
   }
   flushLog() {
     console.log(this.logData);

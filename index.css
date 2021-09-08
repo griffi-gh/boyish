@@ -36,3 +36,9 @@ button.button.disabled {
 	color: darkblue;
 	font-weight: bold;
 }
+.lpart.red {
+	color: darkred;
+}
+.lpart.yellow {
+	color: darkorange;
+}

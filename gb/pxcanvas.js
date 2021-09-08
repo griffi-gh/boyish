@@ -10,7 +10,7 @@ export default class PixelCanvas {
     this.img = this.ctx.createImageData(width, height);
     this.clear(255,255,255);
     this.blit();
-    console.log(`PixelCanvas created with size ${width}x${height}`);
+    //console.log(`PixelCanvas created with size ${width}x${height}`);
   }
   clear(r, g, b, a = 255) {
     const color = [r, g, b, a];

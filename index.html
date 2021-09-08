@@ -10,6 +10,8 @@
 	<script type="module">
 		import {Gameboy} from './gb/gb.js';
 
+		const $id = (i) => { return document.getElementById(i) };
+
 		// https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string/10420404
 		function humanFileSize(B,i){var e=i?1e3:1024;if(Math.abs(B)<e)return B+" B";var a=i?["kB","MB","GB","TB","PB","EB","ZB","YB"]:["KiB","MiB","GiB","TiB","PiB","EiB","ZiB","YiB"],t=-1;do B/=e,++t;while(Math.abs(B)>=e&&t<a.length-1);return B.toFixed(1)+" "+a[t]}
 
@@ -30,17 +32,19 @@
 			let btn_pause = button("btn-pause", (btn) => { 
 				if(gb.paused) { gb.resume(); } else { gb.pause(); }
 				btu();
+				loop();
 			});
 
 			function btu() {
 				btn_pause.textContent = gb.paused ? 'Play' : 'Pause';
 			}
 
-			let btn_step = button("btn-step", (btn) => {
+			button("btn-step", (btn) => {
 				gb.step();
+				loop();
 			});
 
-			let btn_reset = button("btn-reset", (btn) => {
+			button("btn-reset", (btn) => {
 				gb.pause();
 				console.clear(); 
 				gb = newGameboy();
@@ -51,29 +55,39 @@
 					btn.classList.add("disabled");
 					setTimeout(() => {
 						btn.classList.remove("disabled");
-						btn.textContent = orig;
+						btn.innerHTML = orig;
 					}, 1000)
 				}
 				btu();
+				loop();
 			});
 
-			let btn_log = button("btn-log", (btn) => {
+			button("btn-log", (btn) => {
 				gb.flushLog();
 			});
 
-			let btn_dwn = button("btn-dwn", (btn) => {
+			button("btn-dwn", (btn) => {
 				gb.downloadLog();
+			});
+
+			button("btn-swlog", (btn) => {
+				gb.disableLog ^= true;
+				btn.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
+				if(gb.disableLog) { gb.logData = ''; }
+				loop();
 			});
 
 			window.GB = gb
 
-			const logSize = document.getElementById('log-size');
-			const logLine = document.getElementById('log-line');
-			const loop = () => {
+			function loop() {
 				btu();
 				const log = gb.logData;
-				logSize.innerHTML = humanFileSize(log.length);
-				logLine.innerHTML = log.split(/\r?\n/).at(-2) || 'Empty';
+				const emp = (log.length === 0);
+				$id('log-size').innerHTML = humanFileSize(log.length, true);
+				$id('log-line').innerHTML = log.split(/\r?\n/).at(-2);
+				$id('log-info').style.display = (gb.disableLog || emp) ? 'none' : 'unset';
+				$id('log-empty').style.display = (emp & (!gb.disableLog)) ? 'unset' : 'none';
+				$id('log-disabled').style.display = gb.disableLog ? 'unset' : 'none';
 			}
 			setInterval(loop, 1000);
 			loop();
@@ -89,11 +103,20 @@
 			<button id="btn-pause" class="button">Play</button>
 			<button id="btn-reset" class="button">Reset</button>
 		</div>
+		<button id="btn-swlog" class="full button">Disable logging</button>
 		<button id="btn-log" class="full button">Flush log to console</button>
 		<button id="btn-dwn" class="full button">Flush log to file</button>
 	</div>
 	<br><br>
-	<span class="lpart">Log size: </span><span id="log-size"></span><br>
-	<span class="lpart">Last line: </span><span id="log-line"></span><br>
+	<div id="log-info">
+		<span class="lpart">Log size: </span><span id="log-size">Loading...</span><br>
+		<span class="lpart">Last line: </span><span id="log-line">Loading...</span>
+	</div>
+	<div id="log-disabled"> 
+		<span class="lpart red">Logging disabled</span>
+	</div>
+	<div id="log-empty"> 
+		<span class="lpart yellow">Log empty</span>
+	</div>
 </body>
 </html>
