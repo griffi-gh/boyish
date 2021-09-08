@@ -8,12 +8,16 @@
 	<link rel="icon" type="image/png" href="/favicon.png">
 	<link rel="stylesheet" href="/index.css">
 	<script type="module">
-		import {Gameboy} from './gb/index.js';
+		import {Gameboy} from './gb/gb.js';
+
+		// https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string/10420404
+		function humanFileSize(B,i){var e=i?1e3:1024;if(Math.abs(B)<e)return B+" B";var a=i?["kB","MB","GB","TB","PB","EB","ZB","YB"]:["KiB","MiB","GiB","TiB","PiB","EiB","ZiB","YiB"],t=-1;do B/=e,++t;while(Math.abs(B)>=e&&t<a.length-1);return B.toFixed(1)+" "+a[t]}
 
 		function button(id, fn) {
 			const btn = document.getElementById(id);
-			btn.onclick = () => { fn(btn); };
-			btn.style.cssText += `width: ${(btn.getBoundingClientRect().width + 10).toString()}px !important;`;
+			//btn.onclick = () => { fn(btn); };
+			btn.addEventListener("click", () => { fn(btn); });
+			btn.style.cssText += `width: ${(btn.getBoundingClientRect().width + 10).toString()}px;`;
 			return btn;
 		}
 		function newGameboy() {
@@ -23,17 +27,19 @@
 		window.addEventListener("load", function(){
 			let gb = newGameboy();
 
-			let btn_step = button("btn-step", () => {
+			let btn_pause = button("btn-pause", (btn) => { 
+				if(gb.paused) { gb.resume(); } else { gb.pause(); }
+				btu();
+			});
+
+			function btu() {
+				btn_pause.textContent = gb.paused ? 'Play' : 'Pause';
+			}
+
+			let btn_step = button("btn-step", (btn) => {
 				gb.step();
 			});
-			let btn_pause =button("btn-pause", (btn) => { 
-				if(gb.paused) {
-					gb.resume();
-				} else {
-					gb.pause();
-				}
-				btn.textContent = gb.paused ? 'Play' : 'Pause';
-			});
+
 			let btn_reset = button("btn-reset", (btn) => {
 				gb.pause();
 				console.clear(); 
@@ -42,24 +48,52 @@
 				let orig = btn.textContent;
 				if(orig!==OK) {
 					btn.textContent = OK;
-					setTimeout(() => { btn.textContent = orig; }, 1000)
+					btn.classList.add("disabled");
+					setTimeout(() => {
+						btn.classList.remove("disabled");
+						btn.textContent = orig;
+					}, 1000)
 				}
-				btn_pause.textContent = 'Play';
+				btu();
+			});
+
+			let btn_log = button("btn-log", (btn) => {
+				gb.flushLog();
+			});
+
+			let btn_dwn = button("btn-dwn", (btn) => {
+				gb.downloadLog();
 			});
 
 			window.GB = gb
+
+			const logSize = document.getElementById('log-size');
+			const logLine = document.getElementById('log-line');
+			const loop = () => {
+				btu();
+				const log = gb.logData;
+				logSize.innerHTML = humanFileSize(log.length);
+				logLine.innerHTML = log.split(/\r?\n/).at(-2) || 'Empty';
+			}
+			setInterval(loop, 1000);
+			loop();
 		});
 
 	</script>
 </head>
 <body>
 	<div id="gb-wrapper"> 
-		<canvas id="gb-canvas"></canvas><!--
-		--><div>
-			<button id="btn-step">Step</button>
-			<button id="btn-pause">Play</button>
-			<button id="btn-reset">Reset</button>
+		<canvas id="gb-canvas"></canvas>
+		<div>
+			<button id="btn-step"  class="button">Frame</button>
+			<button id="btn-pause" class="button">Play</button>
+			<button id="btn-reset" class="button">Reset</button>
 		</div>
+		<button id="btn-log" class="full button">Flush log to console</button>
+		<button id="btn-dwn" class="full button">Flush log to file</button>
 	</div>
+	<br><br>
+	<span class="lpart">Log size: </span><span id="log-size"></span><br>
+	<span class="lpart">Last line: </span><span id="log-line"></span><br>
 </body>
 </html>

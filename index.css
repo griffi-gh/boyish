@@ -1,22 +1,29 @@
 body {
 	background: #e8f4f8;
+	font-family: 'Arial';
 }
 #gb-canvas {
-	border: 1px solid black;
-	width: 160;
-	height: 144;
+	border: 2px solid #a0c5d1;
+	width: 160px;
+	height: 144px;
 }
-button {
+button.button {
 	display: inline-block;
-	width: unset;
 	background: lightblue;
-	border: 2px solid rgba(0,0,0,.1);
+	border: 2px solid #a0c5d1; /*rgba(0,0,0,.1)*/
 	padding: .33rem .5rem;
 	border-radius: 99999rem;
-	transition: transform 50ms ease;
+	transition: transform 50ms ease, opacity 100ms linear;
 }
-button:active {
+button.button.full {
+	display: block;
+	width: 100% !important;
+}
+button.button:not(.disabled):active {
 	transform: scale(0.9);
+}
+button.button.disabled {
+	opacity: .5;
 }
 #gb-wrapper{
 	display: inline-flex;
@@ -24,4 +31,8 @@ button:active {
 	justify-content: center;
 	align-items: center;
 	gap: .2rem;
+}
+.lpart {
+	color: darkblue;
+	font-weight: bold;
 }

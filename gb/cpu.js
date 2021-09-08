@@ -75,7 +75,7 @@ export default class CPU {
   log() {
     const m = this.gb.mmu;
     const r = this.reg;
-    console.log(
+    this.gb.log(
       `A: ${ toHex(r.a) } F: ${ toHex(r.f) } `+
       `B: ${ toHex(r.b) } C: ${ toHex(r.c) } `+
       `D: ${ toHex(r.d) } E: ${ toHex(r.e) } `+
@@ -100,6 +100,7 @@ export default class CPU {
         try {
           let [cycles, next] = OPC[op].call(this.OPContext, this.reg.pc);
           this.reg.pc = c.u16(next);
+          this.cycles += cycles;
         } catch(e) {
           console.log(e.name + ': ' + e.message);
           console.log(e.stack);

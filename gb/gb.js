@@ -2,6 +2,19 @@ import CPU from './cpu.js';
 import MMU from './mmu.js';
 import PPU from './ppu.js';
 
+function downloadString(text = '', fileName = 'download.txt', fileType = 'text/plain') {
+  const blob = new Blob([text], { type: fileType });
+  const a = document.createElement('a');
+  a.download = fileName;
+  a.href = URL.createObjectURL(blob);
+  a.dataset.downloadurl = [fileType, a.download, a.href].join(':');
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
+}
+
 export class Gameboy {
   constructor(id) {
     this.mmu = new MMU(this);
@@ -17,6 +30,18 @@ export class Gameboy {
     this.STATE_HALT = 1;
     this.STATE_STOP = 2;
     this.state = this.STATE_RUNNING;
+    this.logData = '';
+  }
+  log(str) {
+    this.logData += str.toString();
+  }
+  flushLog() {
+    console.log(this.logData);
+    this.logData = '';
+  }
+  downloadLog() {
+    downloadString(this.logData, 'log.txt');
+    this.logData = '';
   }
   stateChange(state) {
     this.state = state;
@@ -36,7 +61,10 @@ export class Gameboy {
   }
   step() {
     try {
-      this.cpu.step();
+      this.cpu.cycles = 0;
+      while(this.cpu.cycles < 70224) {
+        this.cpu.step();
+      }
     } catch(e) {
       this.pause();
       return;
