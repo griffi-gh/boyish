@@ -388,7 +388,7 @@ function _CALL() {
     return [24, dest];
   `);
 }
-function _CALL_COND(is_N, flag) {
+function _CALL_COND(isN, flag) {
   return (`
     if(${isN ? '!' : ''}this.f.${flag}) {
       ${ _CALL() }
