@@ -28,6 +28,7 @@ export default class MMU {
     this.rom  = new Array(0x8000).fill(0x00);
     this.wram = new Array(0x2000).fill(0x00);
     this.eram = new Array(0x2000).fill(0x00);
+    this.hram = new Array(0x7F).fill(0x00);
     this.disableBios = false;
   }
   read(addr) {
@@ -35,7 +36,8 @@ export default class MMU {
     switch (addr) {
       case 0xFF50:
         return ((this.disableBios | 0) & 0xFF);
-        break;
+      case 0xFF44: //**TODO** move to gpu
+        return 0x90; //stub LY to 0x90
       default:
         if (addr <= 0xFF) {
           if (this.disableBios === false) {
@@ -48,14 +50,16 @@ export default class MMU {
         } else if (addr <= 0x9FFF) {
           return this.gb.ppu.readVRAM(addr - 0x8000);
         } else if (addr <= 0xBFFF) {
-          return eram[addr - 0xA000]; // External RAM
+          return this.eram[addr - 0xA000]; // External RAM
         } else if (addr <= 0xDFFF) {
-          return wram[addr - 0xD000]; // Work RAM
+          return this.wram[addr - 0xD000]; // Work RAM
         } else if (addr <= 0xFDFF) {
-          return wram[addr - 0xE000]; // Echo
+          return this.wram[addr - 0xE000]; // Echo
+        } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
+          return this.hram[addr - 0xFF80]; // High Ram
         }
     }
-    this.gb.log(`[MMU] Addr ${addr} isn't mapped to anything`+'\n');
+    this.gb.log(`[MMU] READ Addr ${addr} isn't mapped to anything`+'\n');
     return 0;
   }
   write(addr, val) {
@@ -76,13 +80,16 @@ export default class MMU {
         } else if (addr <= 0x9FFF) {
           this.gb.ppu.writeVRAM(addr - 0x8000, val);
         } else if (addr <= 0xBFFF) {
-          eram[addr - 0xA000] = val; // External RAM
+          this.eram[addr - 0xA000] = val; // External RAM
         } else if (addr <= 0xDFFF) {
-          wram[addr - 0xD000] = val; // Work RAM
+          this.wram[addr - 0xD000] = val; // Work RAM
         } else if (addr <= 0xFDFF) {
-          wram[addr - 0xE000] = val; // Echo
+          this.wram[addr - 0xE000] = val; // Echo
+        } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
+          this.hram[addr - 0xFF80] = val; // High Ram
         }
     }
+    this.gb.log(`[MMU] WRITE Addr ${addr} isn't mapped to anything`+'\n');
   }
   readWord(addr) {
     return (this.read(addr) | this.read(addr+1) << 8);

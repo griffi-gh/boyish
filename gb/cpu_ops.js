@@ -420,6 +420,18 @@ function CALL_C_U16() {
   return construct(_CALL_COND(false,'c'));
 }
 
+function _RET() {
+  return (`
+    const ret = this.mmu.readWord(this.r.sp);
+    this.r.sp = (this.r.sp + 2) & 0xFFFF;
+    return [16, ret];
+  `);
+}
+
+function RET() {
+  return construct(_RET());
+}
+
 function _RL_INPUT(noZ) {
   return (`
     let result = (input << 1) | (this.f.c | 0);
@@ -708,6 +720,8 @@ OPS[0xCC] = CALL_Z_U16();       // CALL Z,u16
 OPS[0xDC] = CALL_C_U16();       // CALL C,u16
 OPS[0xC4] = CALL_NZ_U16();      // CALL NZ,u16
 OPS[0xD4] = CALL_NC_U16();      // CALL NC,u16
+
+OPS[0xC9] = RET();              // RET
 
 OPS[0x07] = RLCA();             // RLCA
 OPS[0x17] = RLA();              // RLA
