@@ -296,27 +296,37 @@ function XOR_A_AHL(r) {
 // TODO fix duplicate here.
 // just to make the code cleaner
 
-function CP_A_R(r) {
-  return construct(`
+function _CP() {
+  return (`
     const a = this.r.a;
-    const b = this.r.${r};
     const diff = (a-b);
     this.f.z = (diff & 0xFF) === 0;
     this.f.c = (diff < 0);
     this.f.n = true;
+   `)
+}
+
+function CP_A_R(r) {
+  return construct(`
+    const b = this.r.${r};
+    ${ _CP() }
     return [4, pc+1];
   `);
 }
 
 function CP_A_AHL() {
   return construct(`
-    const a = this.r.a;
     const b = this.mmu.read(this.r.hl);
-    const diff = (a-b);
-    this.f.z = (diff & 0xFF) === 0;
-    this.f.c = (diff < 0);
-    this.f.n = true;
+    ${ _CP() }
     return [8, pc+1];
+  `);
+}
+
+function CP_A_U8() {
+  return construct(`
+    const b = this.mmu.read(pc+1);
+    ${ _CP() }
+    return [8, pc+2];
   `);
 }
 
@@ -738,6 +748,8 @@ OPS[0xBC] = CP_A_R('h');        // CP A,H
 OPS[0xBD] = CP_A_R('l');        // CP A,L
 OPS[0xBE] = CP_A_AHL();         // CP A,(HL)
 OPS[0xBF] = CP_A_R('a');        // CP A,A
+
+OPS[0xFE] = CP_A_U8();          // CP A,u8
 
 OPS[0x18] = JR_I8();            // JR i8
 OPS[0x28] = JR_Z_I8();          // JR Z,i8
