@@ -30,8 +30,8 @@ export default class MMU {
     this.eram = new Array(0x2000).fill(0x00);
     this.disableBios = false;
   }
-  read(_addr) {
-    const addr = u16(_addr);
+  read(addr) {
+    addr &= 0xFFFF;
     switch (addr) {
       case 0xFF50:
         return ((this.disableBios | 0) & 0xFF);
@@ -55,14 +55,15 @@ export default class MMU {
           return wram[addr - 0xE000]; // Echo
         }
     }
-    console.warn(`addr ${addr} isn't mapped to anything`);
+    this.gb.log(`[MMU] Addr ${addr} isn't mapped to anything`+'\n');
     return 0;
   }
-  write(_addr, _val) {
-    const addr = u16(_addr);
-    const val = u8(_val);
+  write(addr, val) {
+    addr &= 0xFFFF;
+    val  &= 0xFF;
     switch (addr) {
       case 0xFF50:
+        console.log('BIOS Reg written')
         this.disableBios = (val | 0);
         break;
       default:
@@ -86,8 +87,8 @@ export default class MMU {
   readWord(addr) {
     return (this.read(addr) | this.read(addr+1) << 8);
   }
-  writeWord(addr, _val) {
-    const val = u16(_val);
+  writeWord(addr, val) {
+    val &= 0xFFFF;
     this.write(addr, val & 0xFF);
     this.write(addr + 1, val >> 8);
   }

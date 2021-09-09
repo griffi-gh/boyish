@@ -6,8 +6,6 @@ function construct(body) {
   return new Function('pc', body);
 }
 
-
-
 //NOP
 function NOP() { 
   return construct(`
@@ -45,7 +43,7 @@ function INC_R(r) {
   return construct(`
     const result = this.r.${r} + 1;
     ${_INCDEC_FLAGS(true)}
-    this.r.${r} = this.u8(result);
+    this.r.${r} = result & 0xFF;
     return [4, pc+1];
   `) 
 }
@@ -54,7 +52,7 @@ function DEC_R(r) {
   return construct(`
     const result = this.r.${r} - 1;
     ${_INCDEC_FLAGS(false)}
-    this.r.${r} = this.u8(result);
+    this.r.${r} = result & 0xFF;
     return [4, pc+1];
   `) 
 }
@@ -422,10 +420,20 @@ function CALL_C_U16() {
   return construct(_CALL_COND(false,'c'));
 }
 
+function _RL_INPUT(noZ) {
+  return (`
+    let result = (input << 1) | (this.f.c | 0);
+    this.f.reset();
+    this.f.c = (result & 0x100) !== 0;
+    result &= 0xFF;
+    ${noZ ? '' : 'this.f.z = (result == 0);' }
+  `)
+}
+
 function RLA() {
   return construct(`
-    const result = (this.r.a << 1) | (this.f.c | 0);
-    this.f.c = (result & 0x100) !== 0;
+    const input = this.r.a;
+    ${ _RL_INPUT(true) }
     this.r.a = (result & 0xFF);
     return [4, pc+1];
   `);
@@ -753,6 +761,32 @@ function SWAP_AHL() {
     return [16, pc+1];
   `);
 }
+function RL_R(r) {
+  return construct(`
+    const input = this.r.${r};
+    ${ _RL_INPUT(false) }
+    this.r.${r} = result;
+    return [8, pc+1];
+  `);
+}
+function RL_AHL() {
+  return construct(`
+    const input = this.mmu.read(this.r.hl);
+    ${ _RL_INPUT(false) }
+    this.mmu.write(this.r.hl, input)
+    return [16, pc+1];
+  `);
+}
+
+
+CB_OPS[0x10] = RL_R('b');
+CB_OPS[0x11] = RL_R('c');
+CB_OPS[0x12] = RL_R('d');
+CB_OPS[0x13] = RL_R('e');
+CB_OPS[0x14] = RL_R('h');
+CB_OPS[0x15] = RL_R('l');
+CB_OPS[0x16] = RL_AHL();
+CB_OPS[0x17] = RL_R('a');
 
 CB_OPS[0x30] = SWAP_R('b');
 CB_OPS[0x31] = SWAP_R('c');
