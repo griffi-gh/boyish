@@ -558,6 +558,20 @@ function LD_A_ffU8() {
   `);
 }
 
+function LD_AU16_A() {
+  return construct(`
+    this.mmu.write(this.mmu.readWord(pc+1), this.r.a);
+    return [16, pc+3];
+  `);
+}
+
+function LD_A_AU16() {
+  return construct(`
+    this.r.a = this.mmu.read(this.mmu.readWord(pc+1));
+    return [16, pc+3];
+  `);
+}
+
 
 OPS[0x00] = NOP();              // NOP
 
@@ -783,6 +797,9 @@ OPS[0xE0] = LD_ffU8_A();        // LD (FF00+u8),A
 OPS[0xF0] = LD_A_ffU8();        // LD A,(FF00+u8)
 OPS[0xE2] = LD_ffC_A();         // LD (FF00+C),A
 OPS[0xF2] = LD_A_ffC();         // LD A,(FF00+C)
+
+OPS[0xEA] = LD_AU16_A();        // LD (u16),A
+OPS[0xFA] = LD_A_AU16();        // LD A,(u16)
 
 // CB_OPS
 
