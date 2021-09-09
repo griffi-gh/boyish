@@ -104,6 +104,7 @@ export default class CPU {
         } catch(e) {
           console.log(e.name + ': ' + e.message);
           console.log(e.stack);
+          throw e;
         }
       } else {
         console.error(`Unimplemented instruction: ${isCB ? 'CB ' : ''}${toHex(op)}`);

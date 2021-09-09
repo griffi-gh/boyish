@@ -86,7 +86,7 @@ export default class MMU {
   readWord(addr) {
     return (this.read(addr) | this.read(addr+1) << 8);
   }
-  writeWord(_addr, _val) {
+  writeWord(addr, _val) {
     const val = u16(_val);
     this.write(addr, val & 0xFF);
     this.write(addr + 1, val >> 8);
