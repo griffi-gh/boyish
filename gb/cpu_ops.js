@@ -165,8 +165,8 @@ function LD_RR_U16(r) {
 //PUSH RR
 function PUSH_RR(r) { 
   return construct(`
-    this.r.sp = u16(this.r.sp - 2);
-    this.mem.writeWord(this.r.sp, this.r.${r})
+    this.r.sp = this.u16(this.r.sp - 2);
+    this.mem.writeWord(this.r.sp, this.r.${r});
     return [16, pc+1]; 
   `);
 }
@@ -175,7 +175,7 @@ function PUSH_RR(r) {
 function POP_RR(r) {  
   return construct(`
     this.r.${r} = this.mem.readWord(this.r.sp);
-    this.r.sp = u16(this.r.sp + 2);
+    this.r.sp = this.u16(this.r.sp + 2);
     return [12, pc+1]; 
   `);
 }
@@ -295,9 +295,10 @@ function XOR_A_AHL(r) {
   `);
 }
 
+// +2 makes is work? *todo* investigate
 function _JR() { //console.log(\`\${pc} + \${offset} (\${this.mmu.read(pc+1)}) = \${pc+offset}\`)
   return (`
-    const offset = this.i8(this.mmu.read(pc+1))+2;
+    const offset = this.i8(this.mmu.read(pc+1)) + 2;
     return [12, pc+offset];
   `)
 }
@@ -308,6 +309,31 @@ function _JR_COND(isN, flag) {
     }
     return [8, pc+2]; 
   `)
+}
+
+//JR i8
+function JR_I8() {
+  return construct(_JR());
+}
+
+//JR NZ,i8
+function JR_NZ_I8() {
+  return construct(_JR_COND(true, 'z'));
+}
+
+//JR NC,i8
+function JR_NC_I8() {
+  return construct(_JR_COND(true, 'c'));
+}
+
+//JR Z,i8
+function JR_Z_I8() {
+  return construct(_JR_COND(false,'z'));
+}
+
+//JR C,i8
+function JR_C_I8() {
+  return construct(_JR_COND(false,'c'));
 }
 
 function _JP_COND(isN, flag) {
@@ -353,29 +379,47 @@ function JP_C_U16() {
   return construct(_JP_COND(false,'c'));
 }
 
-//JR i8
-function JR_I8() {
-  return construct(_JR());
+//CALL
+function _CALL() {
+  return (`
+    const dest = this.mmu.readWord(pc+1);
+    this.r.sp = this.u16(this.r.sp - 2);
+    this.mem.writeWord(this.r.sp, this.r.pc + 3);
+    return [24, dest];
+  `);
+}
+function _CALL_COND(is_N, flag) {
+  return (`
+    if(${isN ? '!' : ''}this.f.${flag}) {
+      ${ _CALL() }
+    }
+    return [12, pc+3]; 
+  `);
 }
 
-//JR NZ,i8
-function JR_NZ_I8() {
-  return construct(_JR_COND(true, 'z'));
+//CALL u16
+function CALL_U16() {
+  return construct(_CALL());
 }
 
-//JR NC,i8
-function JR_NC_I8() {
-  return construct(_JR_COND(true, 'c'));
+//CALL NZ,U16
+function CALL_NZ_U16() {
+  return construct(_CALL_COND(true, 'z'));
 }
 
-//JR Z,i8
-function JR_Z_I8() {
-  return construct(_JR_COND(false,'z'));
+//CALL NC,U16
+function CALL_NC_U16() {
+  return construct(_CALL_COND(true, 'c'));
 }
 
-//JR C,i8
-function JR_C_I8() {
-  return construct(_JR_COND(false,'c'));
+//CALL Z,U16
+function CALL_Z_U16() {
+  return construct(_CALL_COND(false,'z'));
+}
+
+//CALL C,U16
+function CALL_C_U16() {
+  return construct(_CALL_COND(false,'c'));
 }
 
 function RLA() {
@@ -650,6 +694,12 @@ OPS[0xCA] = JP_Z_U16();         // JP Z,u16
 OPS[0xDA] = JP_C_U16();         // JP C,u16
 OPS[0xC2] = JP_NZ_U16();        // JP NZ,u16
 OPS[0xD2] = JP_NC_U16();        // JP NC,u16
+
+OPS[0xCD] = CALL_U16();         // CALL u16
+OPS[0xCC] = CALL_Z_U16();       // CALL Z,u16
+OPS[0xDC] = CALL_C_U16();       // CALL C,u16
+OPS[0xC4] = CALL_NZ_U16();      // CALL NZ,u16
+OPS[0xD4] = CALL_NC_U16();      // CALL NC,u16
 
 OPS[0x07] = RLCA();             // RLCA
 OPS[0x17] = RLA();              // RLA
