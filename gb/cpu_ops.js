@@ -63,9 +63,9 @@ function DEC_R(r) {
 function INC_AHL() {
   return construct(`
     const hl = this.r.hl;
-    const result = this.mem.read(hl) + 1;
+    const result = this.mmu.read(hl) + 1;
     ${_INCDEC_FLAGS(true)}
-    this.mem.write(hl, this.u8(result));
+    this.mmu.write(hl, this.u8(result));
     return [12, pc+1];
   `) 
 }
@@ -73,9 +73,9 @@ function INC_AHL() {
 function DEC_AHL() {
   return construct(`
     const hl = this.r.hl;
-    const result = this.mem.read(hl) + 1;
+    const result = this.mmu.read(hl) + 1;
     ${_INCDEC_FLAGS(false)}
-    this.mem.write(hl, this.u8(result));
+    this.mmu.write(hl, this.u8(result));
     return [12, pc+1];
   `) 
 }
@@ -166,7 +166,7 @@ function LD_RR_U16(r) {
 function PUSH_RR(r) { 
   return construct(`
     this.r.sp = this.u16(this.r.sp - 2);
-    this.mem.writeWord(this.r.sp, this.r.${r});
+    this.mmu.writeWord(this.r.sp, this.r.${r});
     return [16, pc+1]; 
   `);
 }
@@ -174,7 +174,7 @@ function PUSH_RR(r) {
 //POP RR
 function POP_RR(r) {  
   return construct(`
-    this.r.${r} = this.mem.readWord(this.r.sp);
+    this.r.${r} = this.mmu.readWord(this.r.sp);
     this.r.sp = this.u16(this.r.sp + 2);
     return [12, pc+1]; 
   `);
@@ -384,7 +384,7 @@ function _CALL() {
   return (`
     const dest = this.mmu.readWord(pc+1);
     this.r.sp = this.u16(this.r.sp - 2);
-    this.mem.writeWord(this.r.sp, this.r.pc + 3);
+    this.mmu.writeWord(this.r.sp, this.r.pc + 3);
     return [24, dest];
   `);
 }
