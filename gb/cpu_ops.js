@@ -293,7 +293,34 @@ function XOR_A_AHL(r) {
   `);
 }
 
-// +2 makes is work? *todo* investigate
+///TODO fix duplicate here.
+///just to make the code cleaner
+
+function CP_A_R(r) {
+  return construct(`
+    const a = this.r.a;
+    const b = this.r.${r};
+    const diff = (a-b);
+    this.f.z = (diff & 0xFF) === 0;
+    this.f.c = (diff < 0);
+    this.f.n = true;
+    return [4; pc+1]
+  `);
+}
+
+function CP_A_AHL() {
+  return construct(`
+    const a = this.r.a;
+    const b = this.mmu.read(this.r.hl);
+    const diff = (a-b);
+    this.f.z = (diff & 0xFF) === 0;
+    this.f.c = (diff < 0);
+    this.f.n = true;
+    return [8; pc+1]
+  `);
+}
+
+// +2 makes is work
 function _JR() { //console.log(\`\${pc} + \${offset} (\${this.mmu.read(pc+1)}) = \${pc+offset}\`)
   return (`
     const offset = this.i8(this.mmu.read(pc+1)) + 2;
@@ -521,6 +548,7 @@ function LD_A_ffU8() {
   `);
 }
 
+
 OPS[0x00] = NOP();              // NOP
 
 OPS[0x10] = STOP();             // STOP
@@ -701,6 +729,15 @@ OPS[0xB4] = OR_A_R('h');        // OR A,H
 OPS[0xB5] = OR_A_R('l');        // OR A,L
 OPS[0xB6] = OR_A_AHL();         // OR A,(HL)
 OPS[0xB7] = OR_A_R('a');        // OR A,A
+
+OPS[0xB8] = CP_A_R('b');        // CP A,B
+OPS[0xB9] = CP_A_R('c');        // CP A,C
+OPS[0xBA] = CP_A_R('d');        // CP A,D
+OPS[0xBB] = CP_A_R('e');        // CP A,E
+OPS[0xBC] = CP_A_R('h');        // CP A,H
+OPS[0xBD] = CP_A_R('l');        // CP A,L
+OPS[0xBE] = CP_A_AHL();         // CP A,(HL)
+OPS[0xBF] = CP_A_R('a');        // CP A,A
 
 OPS[0x18] = JR_I8();            // JR i8
 OPS[0x28] = JR_Z_I8();          // JR Z,i8

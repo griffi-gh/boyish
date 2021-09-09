@@ -1,5 +1,6 @@
 import {OPS, CB_OPS} from './cpu_ops.js';
 import * as c from './common.js';
+const toHex = c.toHex;
 
 export class Registers {
   constructor() {
@@ -47,11 +48,6 @@ export class Registers {
   set bc(v) { this.mset(v, 'b', 'c'); }
   set de(v) { this.mset(v, 'd', 'e'); }
   set hl(v) { this.mset(v, 'h', 'l'); }
-}
-
-function toHex(num = 0, size = 8) {
-  const c = (size / 4);
-  return ('0'.repeat(c-1) + num.toString(16)).slice(-c).toUpperCase();
 }
 
 export default class CPU {
