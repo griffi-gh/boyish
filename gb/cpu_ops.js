@@ -461,12 +461,43 @@ function _RET() {
   return (`
     const ret = this.mmu.readWord(this.r.sp);
     this.r.sp = (this.r.sp + 2) & 0xFFFF;
-    return [16, ret];
+  `);
+}
+function _RET_COND(isN, flag) {
+  return (`
+    if(${isN ? '!' : ''}this.f.${flag}) {
+      ${ _RET() }
+      return [20, ret];
+    }
+    return [8, pc+3]; 
   `);
 }
 
+//RET NZ,U16
+function RET_NZ_U16() {
+  return construct(_RET_COND(true, 'z'));
+}
+
+//RET NC,U16
+function RET_NC_U16() {
+  return construct(_RET_COND(true, 'c'));
+}
+
+//RET Z,U16
+function RET_Z_U16() {
+  return construct(_RET_COND(false,'z'));
+}
+
+//RET C,U16
+function RET_C_U16() {
+  return construct(_RET_COND(false,'c'));
+}
+
 function RET() {
-  return construct(_RET());
+  return construct(`
+    ${_RET()}
+    return [16, pc+3]; 
+  `);
 }
 
 function _RL_INPUT(noZ) {
@@ -785,6 +816,10 @@ OPS[0xC4] = CALL_NZ_U16();      // CALL NZ,u16
 OPS[0xD4] = CALL_NC_U16();      // CALL NC,u16
 
 OPS[0xC9] = RET();              // RET
+OPS[0xC8] = RET_Z_U16();        // RET Z,u16
+OPS[0xD8] = RET_C_U16();        // RET C,u16
+OPS[0xC0] = RET_NZ_U16();       // RET NZ,u16
+OPS[0xD0] = RET_NC_U16();       // RET NC,u16
 
 OPS[0x07] = RLCA();             // RLCA
 OPS[0x17] = RLA();              // RLA
