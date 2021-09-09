@@ -95,7 +95,7 @@ export default class CPU {
       if(op in OPC) {
         try {
           let [cycles, next] = OPC[op].call(this.OPContext, this.reg.pc);
-          this.reg.pc = c.u16(next);
+          this.reg.pc = next & 0xFFFF;
           this.cycles += cycles;
         } catch(e) {
           console.log(e.name + ': ' + e.message);

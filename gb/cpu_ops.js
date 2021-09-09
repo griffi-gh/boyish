@@ -63,7 +63,7 @@ function INC_AHL() {
     const hl = this.r.hl;
     const result = this.mmu.read(hl) + 1;
     ${_INCDEC_FLAGS(true)}
-    this.mmu.write(hl, this.u8(result));
+    this.mmu.write(hl, result);
     return [12, pc+1];
   `) 
 }
@@ -73,7 +73,7 @@ function DEC_AHL() {
     const hl = this.r.hl;
     const result = this.mmu.read(hl) + 1;
     ${_INCDEC_FLAGS(false)}
-    this.mmu.write(hl, this.u8(result));
+    this.mmu.write(hl, result);
     return [12, pc+1];
   `) 
 }
@@ -115,7 +115,7 @@ function LD_ARR_A(r) {
 //LD (HL),u8
 function LD_AHL_U8() { 
   return construct(`
-    this.mmu.write(this.r.hl, this.mmu.read(this.u16(pc+1)));
+    this.mmu.write(this.r.hl, this.mmu.read((pc+1) & 0xFFFF));
     return [12, pc+2]; 
   `);
 }
@@ -123,7 +123,7 @@ function LD_AHL_U8() {
 //LD R,u8
 function LD_R_U8(r) { 
   return construct(`
-    this.r.${r} = this.mmu.read(this.u16(pc+1));
+    this.r.${r} = this.mmu.read((pc+1) & 0xFFFF);
     return [8, pc+2]; 
   `);
 }
@@ -163,7 +163,7 @@ function LD_RR_U16(r) {
 //PUSH RR
 function PUSH_RR(r) { 
   return construct(`
-    this.r.sp = this.u16(this.r.sp - 2);
+    this.r.sp = (this.r.sp - 2) & 0xFFFF;
     this.mmu.writeWord(this.r.sp, this.r.${r});
     return [16, pc+1]; 
   `);
@@ -173,7 +173,7 @@ function PUSH_RR(r) {
 function POP_RR(r) {  
   return construct(`
     this.r.${r} = this.mmu.readWord(this.r.sp);
-    this.r.sp = this.u16(this.r.sp + 2);
+    this.r.sp = (this.r.sp + 2) & 0xFFFF;
     return [12, pc+1]; 
   `);
 }
@@ -188,7 +188,7 @@ function _ADDSUB(isAdd) {
     f.h = ((a & 0xF) + (b & 0xF)) > 0xF;
     f.n = ${(!isAdd).toString()};
     f.c = ${isAdd ? '(result > 0xFF)' : '(result < 0x00)'};
-    this.r.a = this.u8(result);
+    this.r.a = result & 0xFF;
   `;
 }
 
@@ -225,11 +225,6 @@ function SUB_A_AHL() {
     return [4, pc+1];
   `);
 }
-
-/*this.f.h = (a & 0xF) + (val & 0xF) > 0xF
-    this.f.c = sum > 0xFF;
-    this.f.z = this.u8(sum) === 0;
-    this.f.n = false;*/
 
 //AND A,R
 function AND_A_R(r) {
@@ -418,7 +413,7 @@ function JP_C_U16() {
 function _CALL() {
   return (`
     const dest = this.mmu.readWord(pc+1);
-    this.r.sp = this.u16(this.r.sp - 2);
+    this.r.sp = (this.r.sp - 2) & 0xFFFF;
     this.mmu.writeWord(this.r.sp, this.r.pc + 3);
     return [24, dest];
   `);
@@ -469,7 +464,14 @@ function _RET_COND(isN, flag) {
       ${ _RET() }
       return [20, ret];
     }
-    return [8, pc+3]; 
+    return [8, pc+1]; 
+  `);
+}
+
+function RET() {
+  return construct(`
+    ${_RET()}
+    return [16, ret]; 
   `);
 }
 
@@ -493,12 +495,6 @@ function RET_C_U16() {
   return construct(_RET_COND(false,'c'));
 }
 
-function RET() {
-  return construct(`
-    ${_RET()}
-    return [16, pc+3]; 
-  `);
-}
 
 function _RL_INPUT(noZ) {
   return (`
@@ -543,14 +539,14 @@ function DAA() {
     let a = this.r.a;
     if(this.f.n) {
       // Sub
-      if(this.f.h) { a = this.u8(a - 0x6); }
+      if(this.f.h) { a = (a - 0x6) & 0xFF; }
       if(this.f.c) { a -= 0x60; }
     } else {
       // Add
       if ((a & 0xF) > 0x9 || flags.h) { a += 0x6; }
       if (a > 0x9 || flags.c) { a += 0x60; }
     }
-    this.r.a = this.u8(a);
+    this.r.a = a & 0xFF;
     this.f.h = false;
     if((a & 0x100) == 0x100) { 
       // Real hardware doesn't reset the Carry flag

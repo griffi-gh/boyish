@@ -1,5 +1,4 @@
 import PixelCanvas from './pxcanvas.js';
-import {u8, u16} from './common.js';
 
 export default class PPU {
   constructor(gb, id) {
