@@ -17,7 +17,7 @@ function NOP() {
 function HALT() {
   return construct(`
     this.gb.stateChange(this.gb.STATE_HALT);
-    return [4, pc+1]
+    return [4, pc+1];
   `);
 }
 
@@ -25,7 +25,7 @@ function HALT() {
 function STOP() {
   return construct(`
     this.gb.stateChange(this.gb.STATE_STOP);
-    return [4, pc+2]
+    return [4, pc+2];
   `);
 }
 
@@ -293,8 +293,8 @@ function XOR_A_AHL(r) {
   `);
 }
 
-///TODO fix duplicate here.
-///just to make the code cleaner
+// TODO fix duplicate here.
+// just to make the code cleaner
 
 function CP_A_R(r) {
   return construct(`
@@ -304,7 +304,7 @@ function CP_A_R(r) {
     this.f.z = (diff & 0xFF) === 0;
     this.f.c = (diff < 0);
     this.f.n = true;
-    return [4; pc+1]
+    return [4, pc+1];
   `);
 }
 
@@ -316,7 +316,7 @@ function CP_A_AHL() {
     this.f.z = (diff & 0xFF) === 0;
     this.f.c = (diff < 0);
     this.f.n = true;
-    return [8; pc+1]
+    return [8, pc+1];
   `);
 }
 
