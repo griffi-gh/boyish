@@ -27,7 +27,7 @@ export default class PPU {
       [202,220,159],
       [155,185,15],
       [109,142,15],
-      [58,108,15], 
+      [58,108,15]
     ];
 
     this.cycles = 0;
@@ -86,14 +86,17 @@ export default class PPU {
     const upper = this.vram[addr+1];
 
     let arr = this.tileCache;
-    if(!(index in arr)) { arr[index] = []; }
-    if(!(y in arr[index])) { arr[index][y] = []; }
-    arr = arr[y];
-    let sx = 0;
+    if(!arr[index]) { arr[index] = []; }
+    if(!arr[index][y]) { arr[index][y] = []; }
+
+    let sx;
+    //let _t = '';
     for(let x = 0; x < 8; x++) {
       sx = 1 << (7 - x);
-      arr[x] = ((lower & sx) ? 1 : 0) | ((upper & sx) ? 2 : 0);
+      arr[index][y][x] = ((lower & sx) ? 1 : 0) | ((upper & sx) ? 2 : 0);
+      //_t += arr[index][y][x] ? '⬜' : '⬛';
     }
+    //console.log(index+' '+_t)
   }
   drawLine() {
     const l = this.line;
@@ -115,10 +118,12 @@ export default class PPU {
     }
     updateCTile();
 
+    let color
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
-      let color = 0;
-      if(tile in this.tileCache) {
+      color = 0;
+      if(this.tileCache[tile]) {
         const curTile = this.tileCache[tile];
+        console.log(tile)
         color = curTile[y][x];
       }
       this.canvas.setArr(i, l, this.pallete[color]);
