@@ -99,7 +99,7 @@ export default class PPU {
     //console.log(index+' '+_t)
   }
   drawLine() {
-    const l = this.line;
+    /*const l = this.line;
     const h = l + this.scy;
 
     const mapArea = (this.bgMapArea ? 0x1C00 : 0x1800);
@@ -132,6 +132,21 @@ export default class PPU {
         lineOffs = (lineOffs + 1) & 0x1F;
         updateCTile();
       }
+    }*/
+    const mapArea = (this.bgMapArea ? 0x1C00 : 0x1800);
+    let y = (this.line + this.scy) & 7;
+    let x = this.scx & 7;
+    let t = (this.scx >> 3) & 31;
+    let tile = this.tileCache[this.vram[mapArea+t]][y];
+    for(let i=0; i < SCREEN_SIZE[0]; i++) {
+      let pix = this.pallete[tile[x]];
+      this.canvas.setArr(i, this.line, pix);
+      x++;
+      if(x >= 8) {
+        t = (t + 1) & 31;
+        x = 0;
+        tile = this.tileCache[this.vram[mapArea+t]][y]; 
+      }
     }
   }
   step(c) {
@@ -145,7 +160,7 @@ export default class PPU {
     switch(this.mode){
       case MODE_HBLANK:
         if(this.cycles >= 204) {
-          this.cycles -= 204;
+          this.cycles = 0;
           this.line++;
           if(this.line >= SCREEN_SIZE[1]) {
             this.mode = MODE_VBLANK;
@@ -157,7 +172,7 @@ export default class PPU {
         break;
       case MODE_VBLANK:
         if(this.cycles >= 456) {
-          this.cycles -= 456;
+          this.cycles = 0;
           this.line++;
           if(this.line > 153) {
             this.mode = MODE_OAM;
@@ -167,13 +182,13 @@ export default class PPU {
         break;
       case MODE_OAM:
         if(this.cycles >= 80) {
-          this.cycles -= 80;
+          this.cycles = 0;
           this.mode = MODE_VRAM;
         }
         break;
       case MODE_VRAM:
         if(this.cycles >= 172) {
-          this.cycles -= 172;
+          this.cycles = 0;
           this.mode = MODE_HBLANK;
           this.drawLine();
         }
