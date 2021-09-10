@@ -295,7 +295,7 @@ function _CP() {
   return (`
     const a = this.r.a;
     const diff = (a-b);
-    this.f.z = (diff & 0xFF) === 0;
+    this.f.z = (diff & 0xFF) == 0;
     this.f.c = (diff < 0);
     this.f.n = true;
    `)
@@ -320,6 +320,8 @@ function CP_A_AHL() {
 function CP_A_U8() {
   return construct(`
     const b = this.mmu.read(pc+1);
+    //console.log(this.r.a,b)
+    //console.log(this.f)
     ${ _CP() }
     return [8, pc+2];
   `);

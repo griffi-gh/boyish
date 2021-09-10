@@ -196,6 +196,7 @@ export default class PPU {
       default:
         throw new Error("Invalid PPU mode");
     }
+    //console.log(this.line)
   }
 }
 
