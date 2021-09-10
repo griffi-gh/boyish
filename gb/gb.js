@@ -73,6 +73,8 @@ export class Gameboy {
       }
       cpu.cycles -= CYCLES_PER_FRAME;
     } catch(e) {
+      console.log(e.name + ': ' + e.message);
+      console.log(e.stack);
       this.pause();
       return;
     }

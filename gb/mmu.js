@@ -42,6 +42,8 @@ export default class MMU {
         return ((this.disableBios | 0) & 0xFF);
       case 0xFF44:
         return this.gb.ppu.line;
+      case 0xFF40:
+        return this.gb.ppu.lcdc;
       default:
         if (addr <= 0xFF) {
           if (this.disableBios === false) {
@@ -73,7 +75,10 @@ export default class MMU {
       case 0xFF50:
         console.log('BIOS Reg written')
         this.disableBios = (val | 0);
-        break;
+        return;
+      case 0xFF40:
+        this.gb.ppu.lcdc = val;
+        return;
       default:
         if (addr <= 0xFF) {
           if (this.disableBios !== false) {

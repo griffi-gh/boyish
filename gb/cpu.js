@@ -100,8 +100,6 @@ export default class CPU {
           this.cycles += cycles;
           return cycles;
         } catch(e) {
-          console.log(e.name + ': ' + e.message);
-          console.log(e.stack);
           throw e;
         }
       } else {

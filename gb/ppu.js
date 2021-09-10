@@ -1,4 +1,5 @@
 import PixelCanvas from './pxcanvas.js';
+import { toHex } from './common.js';
 
 const SCREEN_SIZE = [160, 144];
 
@@ -40,13 +41,26 @@ export default class PPU {
     return this.vram[addr];
   }
   set lcdc(v) {
-    this.lcdon        = (v & 0x10000000) !== 0;
-    this.winMapArea   = (v & 0x01000000) !== 0;
-    this.winEnable    = (v & 0x00100000) !== 0;
-    this.tileDataArea = (v & 0x00010000) !== 0;
-    this.objSize      = (v & 0x00001000) !== 0;     
-    this.objEnable    = (v & 0x00000100) !== 0;   
-    this.bgWinEnable  = (v & 0x00000010) !== 0
+    this.lcdon        = (v >> 7) !== 0;
+    this.winMapArea   = (v >> 6) !== 0;
+    this.winEnable    = (v >> 5) !== 0;
+    this.tileDataArea = (v >> 4) !== 0;
+    this.bgMapArea    = (v >> 3) !== 0;
+    this.objSize      = (v >> 2) !== 0;     
+    this.objEnable    = (v >> 1) !== 0;   
+    this.bgWinEnable  = (v >> 0) !== 0;
+    /*console.log('LCDC SET ')
+    console.log(v.toString(2))
+    console.log({
+      lcdon: this.lcdon,
+      winMapArea: this.winMapArea,
+      winEnable: this.winEnable,
+      tileDataArea: this.tileDataArea,
+      bgMapArea: this.bgMapArea,
+      objSize: this.objSize,
+      objEnable: this.objEnable,
+      bgWinEnable: this.bgWinEnable
+    });*/
   }
   get lcdc() {
     return (
@@ -54,9 +68,10 @@ export default class PPU {
       this.winMapArea   << 6 |
       this.winEnable    << 5 |
       this.tileDataArea << 4 |
-      this.objSize      << 3 |
-      this.objEnable    << 2 |
-      this.bgWinEnable  << 1 
+      this.bgMapArea    << 3 |
+      this.objSize      << 2 |
+      this.objEnable    << 1 |
+      this.bgWinEnable  << 0
     )
   }
   step(c) {
@@ -67,7 +82,7 @@ export default class PPU {
       return;
     }
     this.cycles += c;
-    switch(mode){
+    switch(this.mode){
       case MODE_HBLANK:
         if(this.cycles >= 204) {
           this.cycles -= 204;
@@ -95,7 +110,7 @@ export default class PPU {
         }
         break;
       case MODE_VRAM:
-        if(gpu.cycles >= 172) {
+        if(this.cycles >= 172) {
           this.cycles -= 172;
           this.mode = MODE_HBLANK;
           this.drawLine();
@@ -104,6 +119,8 @@ export default class PPU {
       default:
         throw new Error("Invalid PPU mode");
     }
-    console.log(this.line);
+  }
+  drawLine() {
+    
   }
 }
