@@ -19,13 +19,16 @@ export default class PixelCanvas {
       data[i] = color[i % 4];
     }
   }
-  setPixel(x, y, r, g, b, a = 255) {
+  set(x, y, r, g, b, a = 255) {
     let index = 4 * (x + y * this.img.width);
     let imgData = this.img.data;
     imgData[index+0] = r;
     imgData[index+1] = g;
     imgData[index+2] = b;
     imgData[index+3] = a;
+  }
+  setArr(x, y, a) {
+    this.set(x, y, a[0], a[1], a[2], a[3]);
   }
   blit() {
     this.ctx.putImageData(this.img, 0, 0);
