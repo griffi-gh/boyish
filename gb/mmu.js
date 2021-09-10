@@ -1,4 +1,4 @@
-import {u8,u16} from './common.js';
+import {toHex} from './common.js';
 
 export const bios = [
   0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32, 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E,
@@ -30,6 +30,10 @@ export default class MMU {
     this.eram = new Uint8Array(0x2000).fill(0x00);
     this.hram = new Uint8Array(0x7F).fill(0x00);
     this.disableBios = false;
+    //load logo into ROM for testing
+    for(let i=0;i<=0x30;i++) {
+      this.rom[0x0104 + i] = bios[0x00a8 + i];
+    }
   }
   read(addr) {
     addr &= 0xFFFF;
@@ -59,7 +63,7 @@ export default class MMU {
           return this.hram[addr - 0xFF80]; // High Ram
         }
     }
-    this.gb.log(`[MMU] READ Addr ${addr} isn't mapped to anything`+'\n');
+    this.gb.log(`[MMU] READ Addr 0x${toHex(addr,16)} isn't mapped to anything`+'\n');
     return 0;
   }
   write(addr, val) {
@@ -87,9 +91,11 @@ export default class MMU {
           this.wram[addr - 0xE000] = val; // Echo
         } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
           this.hram[addr - 0xFF80] = val; // High Ram
+        } else {
+          this.gb.log(`[MMU] WRITE Addr 0x${toHex(addr,16)} isn't mapped to anything`+'\n');
         }
     }
-    this.gb.log(`[MMU] WRITE Addr ${addr} isn't mapped to anything`+'\n');
+    
   }
   readWord(addr) {
     return (this.read(addr) | this.read(addr+1) << 8);

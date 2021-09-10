@@ -1,5 +1,6 @@
 import {OPS, CB_OPS} from './cpu_ops.js';
 import * as c from './common.js';
+const toHex = c.toHex;
 
 export class Registers {
   constructor() {
@@ -49,11 +50,6 @@ export class Registers {
   set hl(v) { this.mset(v, 'h', 'l'); }
 }
 
-function toHex(num = 0, size = 8) {
-  const c = (size / 4);
-  return ('0'.repeat(c-1) + num.toString(16)).slice(-c).toUpperCase();
-}
-
 export default class CPU {
   constructor(gb) {
     this.gb = gb;
@@ -99,7 +95,7 @@ export default class CPU {
       if(op in OPC) {
         try {
           let [cycles, next] = OPC[op].call(this.OPContext, this.reg.pc);
-          this.reg.pc = c.u16(next);
+          this.reg.pc = next & 0xFFFF;
           this.cycles += cycles;
           return cycles;
         } catch(e) {

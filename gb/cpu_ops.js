@@ -17,7 +17,7 @@ function NOP() {
 function HALT() {
   return construct(`
     this.gb.stateChange(this.gb.STATE_HALT);
-    return [4, pc+1]
+    return [4, pc+1];
   `);
 }
 
@@ -25,7 +25,7 @@ function HALT() {
 function STOP() {
   return construct(`
     this.gb.stateChange(this.gb.STATE_STOP);
-    return [4, pc+2]
+    return [4, pc+2];
   `);
 }
 
@@ -63,7 +63,7 @@ function INC_AHL() {
     const hl = this.r.hl;
     const result = this.mmu.read(hl) + 1;
     ${_INCDEC_FLAGS(true)}
-    this.mmu.write(hl, this.u8(result));
+    this.mmu.write(hl, result);
     return [12, pc+1];
   `) 
 }
@@ -73,7 +73,7 @@ function DEC_AHL() {
     const hl = this.r.hl;
     const result = this.mmu.read(hl) + 1;
     ${_INCDEC_FLAGS(false)}
-    this.mmu.write(hl, this.u8(result));
+    this.mmu.write(hl, result);
     return [12, pc+1];
   `) 
 }
@@ -115,7 +115,7 @@ function LD_ARR_A(r) {
 //LD (HL),u8
 function LD_AHL_U8() { 
   return construct(`
-    this.mmu.write(this.r.hl, this.mmu.read(this.u16(pc+1)));
+    this.mmu.write(this.r.hl, this.mmu.read((pc+1) & 0xFFFF));
     return [12, pc+2]; 
   `);
 }
@@ -123,7 +123,7 @@ function LD_AHL_U8() {
 //LD R,u8
 function LD_R_U8(r) { 
   return construct(`
-    this.r.${r} = this.mmu.read(this.u16(pc+1));
+    this.r.${r} = this.mmu.read((pc+1) & 0xFFFF);
     return [8, pc+2]; 
   `);
 }
@@ -163,7 +163,7 @@ function LD_RR_U16(r) {
 //PUSH RR
 function PUSH_RR(r) { 
   return construct(`
-    this.r.sp = this.u16(this.r.sp - 2);
+    this.r.sp = (this.r.sp - 2) & 0xFFFF;
     this.mmu.writeWord(this.r.sp, this.r.${r});
     return [16, pc+1]; 
   `);
@@ -173,7 +173,7 @@ function PUSH_RR(r) {
 function POP_RR(r) {  
   return construct(`
     this.r.${r} = this.mmu.readWord(this.r.sp);
-    this.r.sp = this.u16(this.r.sp + 2);
+    this.r.sp = (this.r.sp + 2) & 0xFFFF;
     return [12, pc+1]; 
   `);
 }
@@ -188,7 +188,7 @@ function _ADDSUB(isAdd) {
     f.h = ((a & 0xF) + (b & 0xF)) > 0xF;
     f.n = ${(!isAdd).toString()};
     f.c = ${isAdd ? '(result > 0xFF)' : '(result < 0x00)'};
-    this.r.a = this.u8(result);
+    this.r.a = result & 0xFF;
   `;
 }
 
@@ -225,11 +225,6 @@ function SUB_A_AHL() {
     return [4, pc+1];
   `);
 }
-
-/*this.f.h = (a & 0xF) + (val & 0xF) > 0xF
-    this.f.c = sum > 0xFF;
-    this.f.z = this.u8(sum) === 0;
-    this.f.n = false;*/
 
 //AND A,R
 function AND_A_R(r) {
@@ -293,7 +288,44 @@ function XOR_A_AHL(r) {
   `);
 }
 
-// +2 makes is work? *todo* investigate
+// TODO fix duplicate here.
+// just to make the code cleaner
+
+function _CP() {
+  return (`
+    const a = this.r.a;
+    const diff = (a-b);
+    this.f.z = (diff & 0xFF) === 0;
+    this.f.c = (diff < 0);
+    this.f.n = true;
+   `)
+}
+
+function CP_A_R(r) {
+  return construct(`
+    const b = this.r.${r};
+    ${ _CP() }
+    return [4, pc+1];
+  `);
+}
+
+function CP_A_AHL() {
+  return construct(`
+    const b = this.mmu.read(this.r.hl);
+    ${ _CP() }
+    return [8, pc+1];
+  `);
+}
+
+function CP_A_U8() {
+  return construct(`
+    const b = this.mmu.read(pc+1);
+    ${ _CP() }
+    return [8, pc+2];
+  `);
+}
+
+// +2 makes is work
 function _JR() { //console.log(\`\${pc} + \${offset} (\${this.mmu.read(pc+1)}) = \${pc+offset}\`)
   return (`
     const offset = this.i8(this.mmu.read(pc+1)) + 2;
@@ -381,7 +413,7 @@ function JP_C_U16() {
 function _CALL() {
   return (`
     const dest = this.mmu.readWord(pc+1);
-    this.r.sp = this.u16(this.r.sp - 2);
+    this.r.sp = (this.r.sp - 2) & 0xFFFF;
     this.mmu.writeWord(this.r.sp, this.r.pc + 3);
     return [24, dest];
   `);
@@ -424,13 +456,45 @@ function _RET() {
   return (`
     const ret = this.mmu.readWord(this.r.sp);
     this.r.sp = (this.r.sp + 2) & 0xFFFF;
-    return [16, ret];
+  `);
+}
+function _RET_COND(isN, flag) {
+  return (`
+    if(${isN ? '!' : ''}this.f.${flag}) {
+      ${ _RET() }
+      return [20, ret];
+    }
+    return [8, pc+1]; 
   `);
 }
 
 function RET() {
-  return construct(_RET());
+  return construct(`
+    ${_RET()}
+    return [16, ret]; 
+  `);
 }
+
+//RET NZ,U16
+function RET_NZ_U16() {
+  return construct(_RET_COND(true, 'z'));
+}
+
+//RET NC,U16
+function RET_NC_U16() {
+  return construct(_RET_COND(true, 'c'));
+}
+
+//RET Z,U16
+function RET_Z_U16() {
+  return construct(_RET_COND(false,'z'));
+}
+
+//RET C,U16
+function RET_C_U16() {
+  return construct(_RET_COND(false,'c'));
+}
+
 
 function _RL_INPUT(noZ) {
   return (`
@@ -475,14 +539,14 @@ function DAA() {
     let a = this.r.a;
     if(this.f.n) {
       // Sub
-      if(this.f.h) { a = this.u8(a - 0x6); }
+      if(this.f.h) { a = (a - 0x6) & 0xFF; }
       if(this.f.c) { a -= 0x60; }
     } else {
       // Add
       if ((a & 0xF) > 0x9 || flags.h) { a += 0x6; }
       if (a > 0x9 || flags.c) { a += 0x60; }
     }
-    this.r.a = this.u8(a);
+    this.r.a = a & 0xFF;
     this.f.h = false;
     if((a & 0x100) == 0x100) { 
       // Real hardware doesn't reset the Carry flag
@@ -520,6 +584,21 @@ function LD_A_ffU8() {
     return [12, pc+2];
   `);
 }
+
+function LD_AU16_A() {
+  return construct(`
+    this.mmu.write(this.mmu.readWord(pc+1), this.r.a);
+    return [16, pc+3];
+  `);
+}
+
+function LD_A_AU16() {
+  return construct(`
+    this.r.a = this.mmu.read(this.mmu.readWord(pc+1));
+    return [16, pc+3];
+  `);
+}
+
 
 OPS[0x00] = NOP();              // NOP
 
@@ -702,6 +781,17 @@ OPS[0xB5] = OR_A_R('l');        // OR A,L
 OPS[0xB6] = OR_A_AHL();         // OR A,(HL)
 OPS[0xB7] = OR_A_R('a');        // OR A,A
 
+OPS[0xB8] = CP_A_R('b');        // CP A,B
+OPS[0xB9] = CP_A_R('c');        // CP A,C
+OPS[0xBA] = CP_A_R('d');        // CP A,D
+OPS[0xBB] = CP_A_R('e');        // CP A,E
+OPS[0xBC] = CP_A_R('h');        // CP A,H
+OPS[0xBD] = CP_A_R('l');        // CP A,L
+OPS[0xBE] = CP_A_AHL();         // CP A,(HL)
+OPS[0xBF] = CP_A_R('a');        // CP A,A
+
+OPS[0xFE] = CP_A_U8();          // CP A,u8
+
 OPS[0x18] = JR_I8();            // JR i8
 OPS[0x28] = JR_Z_I8();          // JR Z,i8
 OPS[0x38] = JR_C_I8();          // JR C,i8
@@ -722,6 +812,10 @@ OPS[0xC4] = CALL_NZ_U16();      // CALL NZ,u16
 OPS[0xD4] = CALL_NC_U16();      // CALL NC,u16
 
 OPS[0xC9] = RET();              // RET
+OPS[0xC8] = RET_Z_U16();        // RET Z,u16
+OPS[0xD8] = RET_C_U16();        // RET C,u16
+OPS[0xC0] = RET_NZ_U16();       // RET NZ,u16
+OPS[0xD0] = RET_NC_U16();       // RET NC,u16
 
 OPS[0x07] = RLCA();             // RLCA
 OPS[0x17] = RLA();              // RLA
@@ -734,6 +828,9 @@ OPS[0xE0] = LD_ffU8_A();        // LD (FF00+u8),A
 OPS[0xF0] = LD_A_ffU8();        // LD A,(FF00+u8)
 OPS[0xE2] = LD_ffC_A();         // LD (FF00+C),A
 OPS[0xF2] = LD_A_ffC();         // LD A,(FF00+C)
+
+OPS[0xEA] = LD_AU16_A();        // LD (u16),A
+OPS[0xFA] = LD_A_AU16();        // LD A,(u16)
 
 // CB_OPS
 
