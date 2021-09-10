@@ -22,17 +22,22 @@ export default class PPU {
     this.gb = gb;
     this.vram = new Uint8Array(0x2000).fill(0);
     this.canvas = new PixelCanvas(id, SCREEN_SIZE);
+
     this.cycles = 0;
     this.line = 0;
     this.mode = 2;
+
+    this.tileCache = [];
+
+    //LCDC REGISTERS
     this.lcdon = false;
     this.tileDataArea = false;
     this.bgMapArea = false;
-    this.winMapArea = true;
+    this.winMapArea = false;
     this.winEnable = false;
     this.objSize = false;
     this.objEnable = false;
-    this.bgWinDisable
+    this.bgWinEnable = false;
   }
   writeVRAM(addr, val) {
     this.vram[addr] = val;
@@ -80,9 +85,14 @@ export default class PPU {
     a &= 0xFFFE;
     const low = this.vram[a];
     const up = this.vram[a+1];
-    const tc = this.tileCache[index];
+
+    if(!(index in this.tileCache)) {
+      this.tileCache[index] = [];
+    }
+    const tci = this.tileCache[index];
     for(let i=1; i <= 7; i++) {
-      tc[y][x] = ((low >> 7 - x) & 0x1) + (((upper_bits >> 7 - x) & 0x1) * 2);
+      if(!(y in tc)) { tc[y] = []; }
+      tci[y][x] = ((low >> 7 - x) & 0x1) + (((upper_bits >> 7 - x) & 0x1) * 2);
     }
   }
   step(c) {
