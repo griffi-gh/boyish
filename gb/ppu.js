@@ -78,35 +78,21 @@ export default class PPU {
     )
   }
   updateTile(addr) {
-    /*const index = Math.floor(addr / 16);
+    const index = Math.floor(addr / 16);
     const y = Math.floor((addr & 0xF) / 2);
 
-    addr &= 0xFFFE;
+    addr &= 0xFFFE; //each line is 2 bytes
     const lower = this.vram[addr];
     const upper = this.vram[addr+1];
 
-    if(!(index in this.tileCache)) {
-      this.tileCache[index] = [];
-    }
-    const tci = this.tileCache[index];
-
-    let sx;
-    for(let x = 7; x >= 0; x--) {
-      if(!(y in tci)) { tci[y] = []; }
-      sx = 1 << x;
-      tci[y][7 - x] = ((lower & sx) ? 1 : 0) | ((upper & sx) ? 2 : 0);
-    }*/
-
-    let saddr = addr;
-    if(addr & 1) { saddr--; addr--; }
-    let tile = (addr >> 4) & 511;
-    let y = (addr >> 1) & 7;
-    let sx;
-    if(!(tile in this.tileCache)){ this.tileCache[tile] = []; }
-    if(!(y in this.tileCache[tile])){ this.tileCache[tile][y] = []; }
+    let arr = this.tileCache;
+    if(!(index in arr)) { arr[index] = []; }
+    if(!(y in arr[index])) { arr[index][y] = []; }
+    arr = arr[y];
+    let sx = 0;
     for(let x = 0; x < 8; x++) {
       sx = 1 << (7 - x);
-      this.tileCache[tile][y][x] = ((this.vram[saddr] & sx) ? 1 : 0) | ((this.vram[saddr+1] & sx) ? 2 :0);
+      arr[x] = ((lower & sx) ? 1 : 0) | ((upper & sx) ? 2 : 0);
     }
   }
   drawLine() {
@@ -201,3 +187,33 @@ export default class PPU {
           console.log(text);
         }
 */
+  /*const index = Math.floor(addr / 16);
+    const y = Math.floor((addr & 0xF) / 2);
+
+    addr &= 0xFFFE;
+    const lower = this.vram[addr];
+    const upper = this.vram[addr+1];
+
+    if(!(index in this.tileCache)) {
+      this.tileCache[index] = [];
+    }
+    const tci = this.tileCache[index];
+
+    let sx;
+    for(let x = 7; x >= 0; x--) {
+      if(!(y in tci)) { tci[y] = []; }
+      sx = 1 << x;
+      tci[y][7 - x] = ((lower & sx) ? 1 : 0) | ((upper & sx) ? 2 : 0);
+    }*/
+
+    /*let saddr = addr;
+    if(addr & 1) { saddr--; addr--; }
+    let tile = (addr >> 4) & 511;
+    let y = (addr >> 1) & 7;
+    let sx;
+    if(!(tile in this.tileCache)){ this.tileCache[tile] = []; }
+    if(!(y in this.tileCache[tile])){ this.tileCache[tile][y] = []; }
+    for(let x = 0; x < 8; x++) {
+      sx = 1 << (7 - x);
+      this.tileCache[tile][y][x] = ((this.vram[saddr] & sx) ? 1 : 0) | ((this.vram[saddr+1] & sx) ? 2 :0);
+    }*/
