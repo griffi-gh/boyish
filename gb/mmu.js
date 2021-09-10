@@ -41,7 +41,7 @@ export default class MMU {
       case 0xFF50:
         return ((this.disableBios | 0) & 0xFF);
       case 0xFF44:
-        return Math.min(this.gb.ppu.line, 0x90);
+        return Math.min(this.gb.ppu.line, 0x90); //TODO FIX
       case 0xFF43:
         return this.gb.ppu.scx;
       case 0xFF42:

@@ -160,14 +160,14 @@ export default class PPU {
     switch(this.mode){
       case MODE_HBLANK:
         if(this.cycles >= 204) {
-          this.cycles = 0;
-          this.line++;
-          if(this.line >= SCREEN_SIZE[1]) {
+          if(this.line == 143) {
             this.mode = MODE_VBLANK;
             this.canvas.blit();
           } else {
             this.mode = MODE_OAM;
           }
+          this.line++;
+          this.cycles = 0;
         }
         break;
       case MODE_VBLANK:
