@@ -78,7 +78,3 @@ export class Gameboy {
     }
   }
 }
-
-/*const canvas = new PixelCanvas(id, 160, 144);
-canvas.setPixel(10, 10, 255, 0, 0);
-canvas.blit();*/
