@@ -74,6 +74,17 @@ export default class PPU {
       this.bgWinEnable  << 0
     )
   }
+  updateTile(addr) {
+    const index = Math.floor(addr / 16);
+    const y = math.floor((addr & 0xF) / 2)
+    a &= 0xFFFE;
+    const low = this.vram[a];
+    const up = this.vram[a+1];
+    const tc = this.tileCache[index];
+    for(let i=1; i <= 7; i++) {
+      tc[y][x] = ((low >> 7 - x) & 0x1) + (((upper_bits >> 7 - x) & 0x1) * 2);
+    }
+  }
   step(c) {
     if(!this.lcdon) {
       this.cycles = 0;
