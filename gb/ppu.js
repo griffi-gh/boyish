@@ -1,5 +1,4 @@
 import PixelCanvas from './pxcanvas.js';
-import {u8, u16} from './common.js';
 
 const SCREEN_SIZE = [160, 144];
 
@@ -23,6 +22,7 @@ export default class PPU {
     this.vram = new Uint8Array(0x2000).fill(0);
     this.canvas = new PixelCanvas(id, SCREEN_SIZE);
     this.cycles = 0;
+    this.line = 0;
     this.mode = 2;
     this.lcdon = false;
     this.tileDataArea = false;
