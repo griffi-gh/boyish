@@ -27,10 +27,10 @@ export class Registers {
   }
   set f(v) {
     let f = this.flags;
-    f.z = !!(v & 0b10000000 >> 7);
-    f.n = !!(v & 0b01000000 >> 6);
-    f.h = !!(v & 0b00100000 >> 5);
-    f.c = !!(v & 0b00010000 >> 4);
+    f.z = (v & 0b10000000) !== 0;
+    f.n = (v & 0b01000000) !== 0;
+    f.h = (v & 0b00100000) !== 0;
+    f.c = (v & 0b00010000) !== 0;
   }
   mget(a, b) {
     return this[a] << 8 | this[b];
@@ -101,6 +101,7 @@ export default class CPU {
           let [cycles, next] = OPC[op].call(this.OPContext, this.reg.pc);
           this.reg.pc = c.u16(next);
           this.cycles += cycles;
+          return cycles;
         } catch(e) {
           console.log(e.name + ': ' + e.message);
           console.log(e.stack);

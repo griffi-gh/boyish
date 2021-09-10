@@ -25,10 +25,10 @@ export default class MMU {
     this.init();
   }
   init() {
-    this.rom  = new Array(0x8000).fill(0x00);
-    this.wram = new Array(0x2000).fill(0x00);
-    this.eram = new Array(0x2000).fill(0x00);
-    this.hram = new Array(0x7F).fill(0x00);
+    this.rom  = new Uint8Array(0x8000).fill(0x00);
+    this.wram = new Uint8Array(0x2000).fill(0x00);
+    this.eram = new Uint8Array(0x2000).fill(0x00);
+    this.hram = new Uint8Array(0x7F).fill(0x00);
     this.disableBios = false;
   }
   read(addr) {
@@ -36,8 +36,8 @@ export default class MMU {
     switch (addr) {
       case 0xFF50:
         return ((this.disableBios | 0) & 0xFF);
-      case 0xFF44: //**TODO** move to gpu
-        return 0x90; //stub LY to 0x90
+      case 0xFF44:
+        return this.gb.ppu.line;
       default:
         if (addr <= 0xFF) {
           if (this.disableBios === false) {

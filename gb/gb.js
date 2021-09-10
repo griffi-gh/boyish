@@ -2,6 +2,8 @@ import CPU from './cpu.js';
 import MMU from './mmu.js';
 import PPU from './ppu.js';
 
+const CYCLES_PER_FRAME = 70224;
+
 function downloadString(text = '', fileName = 'download.txt', fileType = 'text/plain') {
   const blob = new Blob([text], { type: fileType });
   const a = document.createElement('a');
@@ -63,11 +65,13 @@ export class Gameboy {
     }
   }
   step() {
+    const cpu = this.cpu;
     try {
-      this.cpu.cycles = 0;
-      while(this.cpu.cycles < 70224) {
-        this.cpu.step();
+      while(cpu.cycles < CYCLES_PER_FRAME) {
+        const c = this.cpu.step();
+        this.ppu.step(c);
       }
+      cpu.cycles -= CYCLES_PER_FRAME;
     } catch(e) {
       this.pause();
       return;
