@@ -41,6 +41,9 @@ export default class PPU {
   }
   writeVRAM(addr, val) {
     this.vram[addr] = val;
+    if(addr <= 0x17FF) {
+      this.updateTile()
+    }
   }
   readVRAM(addr) {
     return this.vram[addr];
@@ -54,18 +57,6 @@ export default class PPU {
     this.objSize      = (v >> 2) !== 0;     
     this.objEnable    = (v >> 1) !== 0;   
     this.bgWinEnable  = (v >> 0) !== 0;
-    /*console.log('LCDC SET ')
-    console.log(v.toString(2))
-    console.log({
-      lcdon: this.lcdon,
-      winMapArea: this.winMapArea,
-      winEnable: this.winEnable,
-      tileDataArea: this.tileDataArea,
-      bgMapArea: this.bgMapArea,
-      objSize: this.objSize,
-      objEnable: this.objEnable,
-      bgWinEnable: this.bgWinEnable
-    });*/
   }
   get lcdc() {
     return (
