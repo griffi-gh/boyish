@@ -174,7 +174,7 @@ export default class PPU {
         if(this.cycles >= 456) {
           this.cycles = 0;
           this.line++;
-          if(this.line > 153) {
+          if(this.line > 154) {
             this.mode = MODE_OAM;
             this.line = 0;
           }
