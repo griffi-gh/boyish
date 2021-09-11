@@ -31,9 +31,17 @@ export default class MMU {
     this.hram = new Uint8Array(0x7F).fill(0x00);
     this.disableBios = false;
     //load logo into ROM for testing
-    /*for(let i=0;i<=0x30;i++) {
+    for(let i=0;i<=0x30;i++) {
       this.rom[0x0104 + i] = bios[0x00a8 + i];
-    }*/
+    }
+    //calculate checksum
+    let chx = 0;
+    for(let i = 0x134; i <= 0x14C; i++) {
+      chx = (chx - this.rom[i] - 1) & 0xFF;
+    }
+    chx &= 0xFF;
+    console.log(toHex(chx, 8));
+    this.rom[0x014D] = chx;
   }
   read(addr) {
     addr &= 0xFFFF;
@@ -104,7 +112,6 @@ export default class MMU {
           this.gb.log(`[MMU] WRITE Addr 0x${toHex(addr,16)} isn't mapped to anything`+'\n');
         }
     }
-    
   }
   readWord(addr) {
     return (this.read(addr) | this.read(addr+1) << 8);
