@@ -31,9 +31,9 @@ export default class MMU {
     this.hram = new Uint8Array(0x7F).fill(0x00);
     this.disableBios = false;
     //load logo into ROM for testing
-    for(let i=0;i<=0x30;i++) {
+    /*for(let i=0;i<=0x30;i++) {
       this.rom[0x0104 + i] = bios[0x00a8 + i];
-    }
+    }*/
   }
   read(addr) {
     addr &= 0xFFFF;

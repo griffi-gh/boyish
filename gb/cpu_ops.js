@@ -134,7 +134,7 @@ function LD_R_R(a, b) {
     this.r.${a} = this.r.${b};
     return [4, pc+1]; 
   `);
-}
+} //
 
 //LD R,(HL)
 function LD_R_AHL(r) { 
@@ -647,7 +647,7 @@ OPS[0x4A] = LD_R_R('с','e');    // LD C,E
 OPS[0x4C] = LD_R_R('с','h');    // LD C,H
 OPS[0x4D] = LD_R_R('с','l');    // LD C,L
 OPS[0x4E] = LD_R_AHL('c');      // LD C,(HL)
-OPS[0x4F] = LD_R_R('с','a');    // LD C,A
+OPS[0x4F] = LD_R_R('c','a');    // LD C,A
 
 OPS[0x50] = LD_R_R('d','b');    // LD D,B
 OPS[0x51] = LD_R_R('d','c');    // LD D,C
