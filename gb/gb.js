@@ -70,6 +70,10 @@ export class Gameboy {
       while(cpu.cycles < CYCLES_PER_FRAME) {
         const c = this.cpu.step();
         this.ppu.step(c);
+        if(this.cpu.reg.pc===0xfa){
+          this.pause()
+          return
+        }
       }
       cpu.cycles -= CYCLES_PER_FRAME;
     } catch(e) {

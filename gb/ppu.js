@@ -99,40 +99,6 @@ export default class PPU {
     //console.log(index+' '+_t)
   }
   drawLine() {
-    /*const l = this.line;
-    const h = l + this.scy;
-
-    const mapArea = (this.bgMapArea ? 0x1C00 : 0x1800);
-    const mapOffs = mapArea + ((h & 0xFF) >> 3);
-    let lineOffs = this.scx >> 3;
-
-    let x = this.scx & 0x7;
-    const y = h & 0x7;
-
-    let tile;
-    const updateCTile = () => {
-      tile = this.vram[mapOffs+lineOffs];
-      if(this.tileDataArea && tile < 128) {
-        tile = tile + 0x100;
-      }
-    }
-    updateCTile();
-
-    let color
-    for(let i=0; i < SCREEN_SIZE[0]; i++) {
-      color = 0;
-      if(this.tileCache[tile]) {
-        const curTile = this.tileCache[tile];
-        console.log(tile)
-        color = curTile[y][x];
-      }
-      this.canvas.setArr(i, l, this.pallete[color]);
-      if(++x >= 8) {
-        x = 0;
-        lineOffs = (lineOffs + 1) & 0x1F;
-        updateCTile();
-      }
-    }*/
     const mapArea = (this.bgMapArea ? 0x1C00 : 0x1800);
     let y = (this.line + this.scy) & 7;
     let x = this.scx & 7;
@@ -146,6 +112,8 @@ export default class PPU {
         t = (t + 1) & 31;
         x = 0;
         tile = this.tileCache[this.vram[mapArea+t]][y]; 
+        //console.log(toHex(mapArea+t, 16));
+        //tile = this.tileCache[t][y]; 
       }
     }
   }
