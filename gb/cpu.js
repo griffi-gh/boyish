@@ -35,7 +35,7 @@ export class Registers {
 
   get f() {
     const f = this.flags;
-    return f.z<<7 | f.n<<6 | f.h<<5 | f.c<<4;
+    return ((f.z << 7) | (f.n << 6) | (f.h << 5) | (f.c << 4));
   }
   set f(v) {
     let f = this.flags;

@@ -33,10 +33,11 @@ function _INCDEC_FLAGS(n) {
   return `
     const f = this.f;
     f.z = (result === 0);
-    f.h = ((result & 0xF) === 0);
-    f.n = ${(!n).toString()};
+    f.h = (((result & 0xF) ${n ? '+' : '-'} 1) > 0xF);
+    f.n = ${ (!n).toString() };
   `;
 }
+//f.h = ((result & 0xF) === 0);
 
 //INC R
 function INC_R(r) {
@@ -294,11 +295,11 @@ function XOR_A_AHL(r) {
 function _CP() {
   return (`
     const a = this.r.a;
-    const diff = (a-b);
-    this.f.z = (diff & 0xFF) == 0;
+    const diff = (a - b);
+    this.f.z = ((diff & 0xFF) == 0);
     this.f.c = (diff < 0);
     this.f.n = true;
-   `)
+  `)
 }
 
 function CP_A_R(r) {
