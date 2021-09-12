@@ -34,6 +34,7 @@ export class Gameboy {
     this.state = this.STATE_RUNNING;
     this.logData = '';
     this.disableLog = false;
+    this.breakpoints = [];
   }
   log(str) {
     if(!this.disableLog) {
@@ -64,16 +65,19 @@ export class Gameboy {
       this.paused = true;
     }
   }
+  setBreakpoint(addr) {
+    this.breakpoints[addr] = true;
+  }
   step() {
     const cpu = this.cpu;
     try {
       while(cpu.cycles < CYCLES_PER_FRAME) {
+        if(this.breakpoints[this.cpu.reg.pc]) {
+          this.pause();
+          return;
+        }
         const c = this.cpu.step();
         this.ppu.step(c);
-        if(this.cpu.reg.pc===0xff){
-          this.pause()
-          return
-        }
       }
       cpu.cycles -= CYCLES_PER_FRAME;
     } catch(e) {
