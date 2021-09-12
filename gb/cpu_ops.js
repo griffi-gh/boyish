@@ -297,8 +297,9 @@ function _CP() {
     const a = this.r.a;
     const diff = (a - b);
     this.f.z = ((diff & 0xFF) == 0);
-    this.f.c = (diff < 0);
     this.f.n = true;
+    this.f.h = ((a & 0xF)-(b & 0xF)) < 0;
+    this.f.c = (diff < 0);
   `)
 }
 
