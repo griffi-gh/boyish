@@ -184,11 +184,11 @@ function POP_RR(r) {
 function _ADDSUB(isAdd) {
   return `
     const a = this.r.a;
-    const result = a ${isAdd ? '+' : '-'} b;
+    const result = (a ${isAdd ? '+' : '-'} b);
     const f = this.f;
     f.z = (result === 0);
-    f.h = ((a & 0xF) + (b & 0xF)) > 0xF;
     f.n = ${(!isAdd).toString()};
+    f.h = ((a & 0xF) ${isAdd ? '+' : '-'} (b & 0xF)) ${isAdd ? '>' : '<'} 0;
     f.c = ${isAdd ? '(result > 0xFF)' : '(result < 0x00)'};
     this.r.a = result & 0xFF;
   `;
