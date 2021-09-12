@@ -321,8 +321,6 @@ function CP_A_AHL() {
 function CP_A_U8() {
   return construct(`
     const b = this.mmu.read(pc+1);
-    //console.log(this.r.a,b)
-    //console.log(this.f)
     ${ _CP() }
     return [8, pc+2];
   `);
