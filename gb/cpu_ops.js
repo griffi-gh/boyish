@@ -105,7 +105,8 @@ function LD_A_ARR(r) {
     return [8, pc+1]; 
   `);
 }
-
+//if(pc===0x39) { console.log(this.toHex(this.r.d), this.toHex(this.r.e),'${r}',this.toHex(this.r.${r},16), this.toHex(this.mmu.read(this.r.${r}))) }
+    
 //LD (RR),A
 function LD_ARR_A(r) { 
   return construct(`
