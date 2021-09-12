@@ -166,6 +166,26 @@ export default class PPU {
     }
     //console.log(this.line)
   }
+  debugTileset(id) {
+    const el = document.getElementById(id);
+    const pc = new PixelCanvas(id, el.width, el.height);
+    let dx = 0;
+    let dy = 0;
+    for(const [i,v] of this.tileCache.entries()) {
+      for(let y=0;y<8;y++){
+        for(let x=0;x<8;x++){
+          pc.setArr(dx+x, dy+y, this.pallete[v[y][x]]);
+        }
+      }
+      dx += 9;
+      if(dx>=el.width) {
+        dy += 9;
+        dx = 0;
+      }
+    }
+    pc.blit();
+    console.log('done');
+  }
 }
 
 /*for(let y=0; y <= 7; y++){

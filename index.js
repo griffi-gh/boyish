@@ -70,6 +70,10 @@ window.addEventListener("load", function() {
 		loop();
 	});
 
+	button("cdebug-btn", (btn) => {
+		gb.ppu.debugTileset("cdebug");
+	});
+
 	window.GB = gb
 
 	function loop() {

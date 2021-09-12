@@ -5,6 +5,9 @@ body {
 .defer {
 	display: none;
 }
+canvas {
+	border: 1px solid black;
+}
 #gb-canvas {
 	border: 2px solid #a0c5d1;
 	width: 160px;
