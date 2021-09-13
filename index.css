@@ -5,9 +5,9 @@ body {
 .defer {
 	display: none;
 }
-canvas {
+/*canvas {
 	border: 1px solid black;
-}
+}*/
 #gb-canvas {
 	border: 2px solid #a0c5d1;
 	width: 160px;
@@ -62,3 +62,17 @@ button.button.disabled {
 .lpart.yellow {
 	color: darkorange;
 }
+#cdebug-wrapper {
+	width: 500px;
+	height: 200px;
+	overflow: hidden;
+	resize: both;
+	border: 1px solid rgba(0, 0, 0, .5);
+}
+#cdebug-toggle:not(:checked)~#cdebug-wrapper {
+	display: none;
+}
+/*#cdebug {
+	width: 100%;
+	height: 100%;
+}*/

@@ -172,57 +172,19 @@ export default class PPU {
     let dx = 0;
     let dy = 0;
     for(const [i,v] of this.tileCache.entries()) {
+      if(!v) { continue; }
       for(let y=0;y<8;y++){
         for(let x=0;x<8;x++){
           pc.setArr(dx+x, dy+y, this.pallete[v[y][x]]);
         }
       }
       dx += 9;
-      if(dx>=el.width) {
+      if((dx + 9) >= el.width) {
         dy += 9;
         dx = 0;
       }
     }
     pc.blit();
-    console.log('done');
+    //console.log('done');
   }
 }
-
-/*for(let y=0; y <= 7; y++){
-          let text = '';
-          for(let x=0; x <= 7; x++){
-            text += curTile[y][x] ? '1' : '0';
-          }
-          console.log(text);
-        }
-*/
-  /*const index = Math.floor(addr / 16);
-    const y = Math.floor((addr & 0xF) / 2);
-
-    addr &= 0xFFFE;
-    const lower = this.vram[addr];
-    const upper = this.vram[addr+1];
-
-    if(!(index in this.tileCache)) {
-      this.tileCache[index] = [];
-    }
-    const tci = this.tileCache[index];
-
-    let sx;
-    for(let x = 7; x >= 0; x--) {
-      if(!(y in tci)) { tci[y] = []; }
-      sx = 1 << x;
-      tci[y][7 - x] = ((lower & sx) ? 1 : 0) | ((upper & sx) ? 2 : 0);
-    }*/
-
-    /*let saddr = addr;
-    if(addr & 1) { saddr--; addr--; }
-    let tile = (addr >> 4) & 511;
-    let y = (addr >> 1) & 7;
-    let sx;
-    if(!(tile in this.tileCache)){ this.tileCache[tile] = []; }
-    if(!(y in this.tileCache[tile])){ this.tileCache[tile][y] = []; }
-    for(let x = 0; x < 8; x++) {
-      sx = 1 << (7 - x);
-      this.tileCache[tile][y][x] = ((this.vram[saddr] & sx) ? 1 : 0) | ((this.vram[saddr+1] & sx) ? 2 :0);
-    }*/

@@ -70,10 +70,6 @@ window.addEventListener("load", function() {
 		loop();
 	});
 
-	button("cdebug-btn", (btn) => {
-		gb.ppu.debugTileset("cdebug");
-	});
-
 	window.GB = gb
 
 	function loop() {
@@ -85,9 +81,20 @@ window.addEventListener("load", function() {
 		$id('log-info').style.display = (gb.disableLog || emp) ? 'none' : 'unset';
 		$id('log-empty').style.display = (emp & (!gb.disableLog)) ? 'unset' : 'none';
 		$id('log-disabled').style.display = gb.disableLog ? 'unset' : 'none';
+		if($id('cdebug-toggle').checked) {
+			gb.ppu.debugTileset("cdebug");
+		}
 	}
 	setInterval(loop, 1000);
 	loop();
+
+	const cc = $id("cdebug");
+	const cw = $id("cdebug-wrapper");
+	new ResizeObserver(() => {
+		cc.width = Math.floor(cw.offsetWidth);
+		cc.height = Math.floor(cw.offsetHeight);
+		loop();
+	}).observe(cw);
 
 	const deferred = $class("defer");
 	for (let i = 0; i < deferred.length; i++) {
