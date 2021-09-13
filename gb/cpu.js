@@ -84,6 +84,7 @@ export default class CPU {
     Object.assign(this.OPContext, c); //copy all Common functions
   }
   log() {
+    if(this.gb.disableLog) { return; }  
     const m = this.gb.mmu;
     const r = this.reg;
     this.gb.log(
