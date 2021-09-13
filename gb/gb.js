@@ -2,6 +2,8 @@ import CPU from './cpu.js';
 import MMU from './mmu.js';
 import PPU from './ppu.js';
 
+import { toHex } from './common.js';
+
 const CYCLES_PER_FRAME = 70224;
 
 function downloadString(text = '', fileName = 'download.txt', fileType = 'text/plain') {
@@ -73,6 +75,8 @@ export class Gameboy {
     try {
       while(cpu.cycles < CYCLES_PER_FRAME) {
         if(this.breakpoints[this.cpu.reg.pc]) {
+          console.log("breakpoint " + toHex(this.cpu.reg.pc, 16) + " hit");
+          delete this.breakpoints[this.cpu.reg.pc];
           this.pause();
           return;
         }
