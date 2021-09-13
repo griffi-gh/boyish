@@ -101,8 +101,9 @@ export default class PPU {
   drawLine() {
     const h = (this.line + this.scy);
     const mapAreaRaw = (this.bgMapArea ? 0x1C00 : 0x1800);
-    //const mapArea = mapAreaRaw + ((h & 0xFF) >> 3);
+    //const mapAreaOld = mapAreaRaw + ((h & 0xFF) >> 3);
     const mapArea = mapAreaRaw + ((h & 0xFC) << 2);
+    //console.log(toHex(mapArea,16),toHex(mapAreaOld,16))
     let y = (h & 7);
     let x = (this.scx & 7);
     let lineStart = (this.scx >> 3);
@@ -112,7 +113,7 @@ export default class PPU {
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let pix = this.pallete[tile[x]];
       this.canvas.setArr(i, this.line, pix);
-      x++;
+      x += 1;
       if(x >= 8) {
         lineStart = (lineStart + 1) & 31;
         x = 0;
@@ -176,16 +177,22 @@ export default class PPU {
     const pc = new PixelCanvas(id, el.width, el.height);
     let dx = 0;
     let dy = 0;
-    for(const [i,v] of this.tileCache.entries()) {
-      if(!v) { continue; }
-      for(let y=0;y<8;y++){
-        for(let x=0;x<8;x++){
-          pc.setArr(dx+x, dy+y, this.pallete[v[y][x]]);
+    let w = 17;
+    //const [i,v] of this.tileCache.entries()
+    for(let i=0;i<=0x7F;i++) {
+      let v = this.tileCache[i];
+      for(let y = 0; y < 8; y++){
+        for(let x = 0; x < 8; x++){
+          let c = (v ? this.pallete[v[y][x]] : this.pallete[0]);
+          pc.setArr(dx+x*2+0, dy+y*2+0, c);
+          pc.setArr(dx+x*2+0, dy+y*2+1, c);
+          pc.setArr(dx+x*2+1, dy+y*2+0, c);
+          pc.setArr(dx+x*2+1, dy+y*2+1, c);
         }
       }
-      dx += 9;
-      if((dx + 9) >= el.width) {
-        dy += 9;
+      dx += w;
+      if((dx + w) >= el.width) {
+        dy += w;
         dx = 0;
       }
     }

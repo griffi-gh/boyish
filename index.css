@@ -63,8 +63,8 @@ button.button.disabled {
 	color: darkorange;
 }
 #cdebug-wrapper {
-	width: 500px;
-	height: 200px;
+	width: 223px;
+	height: 172px;
 	overflow: hidden;
 	resize: both;
 	border: 1px solid rgba(0, 0, 0, .5);
