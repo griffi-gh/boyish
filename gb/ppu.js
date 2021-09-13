@@ -104,16 +104,20 @@ export default class PPU {
     const mapArea = mapAreaRaw + ((h & 0xFF) >> 3)
     let y = (h & 7);
     let x = (this.scx & 7);
-    let t = (this.scx >> 3) & 31;
-    let tile = this.tileCache[this.vram[mapArea+t]][y];
+    let lineStart = (this.scx >> 3);
+    let tileIndex = this.vram[mapArea+lineStart];
+    if(this.tileDataArea && tileIndex < 128){ tileIndex += 0x100 };
+    let tile = this.tileCache[tileIndex][y];
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let pix = this.pallete[tile[x]];
       this.canvas.setArr(i, this.line, pix);
       x++;
       if(x >= 8) {
-        t = (t + 1) & 31;
+        lineStart = (lineStart + 1) & 31;
         x = 0;
-        tile = this.tileCache[this.vram[mapArea+t]][y]; 
+        tileIndex = this.vram[mapArea+lineStart];
+        if(this.tileDataArea && tileIndex < 128){ tileIndex += 0x100 };
+        tile = this.tileCache[tileIndex][y]; 
         //console.log(toHex(mapArea+t, 16));
         //tile = this.tileCache[t][y]; 
       }
