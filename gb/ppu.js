@@ -101,14 +101,14 @@ export default class PPU {
   drawLine() {
     const h = (this.line + this.scy);
     const mapAreaRaw = (this.bgMapArea ? 0x1C00 : 0x1800);
-    //const mapAreaOld = mapAreaRaw + ((h & 0xFF) >> 3);
+    //const mapArea = mapAreaRaw + ((h & 0xFF) >> 3);
     const mapArea = mapAreaRaw + ((h & 0xFC) << 2);
-    //console.log(toHex(mapArea,16),toHex(mapAreaOld,16))
     let y = (h & 7);
     let x = (this.scx & 7);
     let lineStart = (this.scx >> 3);
     let tileIndex = this.vram[mapArea+lineStart];
-    if(this.tileDataArea && tileIndex < 128){ tileIndex += 0x100 };
+    //console.log(toHex(mapArea+lineStart+0x8000,16))
+    //if(this.tileDataArea && tileIndex < 128){ tileIndex += 0x100 };
     let tile = this.tileCache[tileIndex][y];
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let pix = this.pallete[tile[x]];
@@ -118,7 +118,7 @@ export default class PPU {
         lineStart = (lineStart + 1) & 31;
         x = 0;
         tileIndex = this.vram[mapArea+lineStart];
-        if(this.tileDataArea && tileIndex < 128){ tileIndex += 0x100 };
+        //if(this.tileDataArea && tileIndex < 128){ tileIndex += 0x100 };
         tile = this.tileCache[tileIndex][y]; 
       }
     }
