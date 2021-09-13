@@ -101,7 +101,8 @@ export default class PPU {
   drawLine() {
     const h = (this.line + this.scy);
     const mapAreaRaw = (this.bgMapArea ? 0x1C00 : 0x1800);
-    const mapArea = mapAreaRaw + ((h & 0xFF) >> 3)
+    //const mapArea = mapAreaRaw + ((h & 0xFF) >> 3);
+    const mapArea = mapAreaRaw + ((h & 0xFC) << 2);
     let y = (h & 7);
     let x = (this.scx & 7);
     let lineStart = (this.scx >> 3);
@@ -118,8 +119,6 @@ export default class PPU {
         tileIndex = this.vram[mapArea+lineStart];
         if(this.tileDataArea && tileIndex < 128){ tileIndex += 0x100 };
         tile = this.tileCache[tileIndex][y]; 
-        //console.log(toHex(mapArea+t, 16));
-        //tile = this.tileCache[t][y]; 
       }
     }
   }
