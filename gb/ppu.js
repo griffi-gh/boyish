@@ -56,14 +56,14 @@ export default class PPU {
     return this.vram[addr];
   }
   set lcdc(v) {
-    this.lcdon        = (v >> 7) !== 0;
-    this.winMapArea   = (v >> 6) !== 0;
-    this.winEnable    = (v >> 5) !== 0;
-    this.tileDataArea = (v >> 4) !== 0;
-    this.bgMapArea    = (v >> 3) !== 0;
-    this.objSize      = (v >> 2) !== 0;     
-    this.objEnable    = (v >> 1) !== 0;   
-    this.bgWinEnable  = (v >> 0) !== 0;
+    this.lcdon        = (v & 0b10000000) !== 0;
+    this.winMapArea   = (v & 0b01000000) !== 0;
+    this.winEnable    = (v & 0b00100000) !== 0;
+    this.tileDataArea = (v & 0b00010000) !== 0;
+    this.bgMapArea    = (v & 0b00001000) !== 0;
+    this.objSize      = (v & 0b00000100) !== 0;     
+    this.objEnable    = (v & 0b00000010) !== 0;   
+    this.bgWinEnable  = (v & 0b00000001) !== 0;
   }
   get lcdc() {
     return (
@@ -99,9 +99,11 @@ export default class PPU {
     //console.log(index+' '+_t)
   }
   drawLine() {
-    const mapArea = (this.bgMapArea ? 0x1C00 : 0x1800);
-    let y = (this.line + this.scy) & 7;
-    let x = this.scx & 7;
+    const h = (this.line + this.scy);
+    const mapAreaRaw = (this.bgMapArea ? 0x1C00 : 0x1800);
+    const mapArea = mapAreaRaw + ((h & 0xFF) >> 3)
+    let y = (h & 7);
+    let x = (this.scx & 7);
     let t = (this.scx >> 3) & 31;
     let tile = this.tileCache[this.vram[mapArea+t]][y];
     for(let i=0; i < SCREEN_SIZE[0]; i++) {

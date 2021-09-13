@@ -43,7 +43,11 @@ export default class MMU {
       case 0xFF50:
         return ((this.disableBios | 0) & 0xFF);
       case 0xFF44:
-        return 0x90//this.gb.ppu.line;
+        if(this.gb.stubLY) {
+          return 0x90;
+        } else {
+          return this.gb.ppu.line;
+        }
       case 0xFF43:
         return this.gb.ppu.scx;
       case 0xFF42:

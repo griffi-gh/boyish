@@ -33,7 +33,7 @@ export class Gameboy {
     this.STATE_STOP = 2;
     this.state = this.STATE_RUNNING;
     this.logData = '';
-    this.disableLog = false;
+    this.disableLog = true;
     this.breakpoints = [];
   }
   log(str) {
