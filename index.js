@@ -88,6 +88,8 @@ window.addEventListener("load", function() {
 	setInterval(loop, 1000);
 	loop();
 
+
+	//Tileset dubugger
 	const cc = $id("cdebug");
 	const cw = $id("cdebug-wrapper");
 	new ResizeObserver(() => {
@@ -95,6 +97,11 @@ window.addEventListener("load", function() {
 		cc.height = Math.floor(cw.offsetHeight);
 		loop();
 	}).observe(cw);
+
+	//File upload
+	$id("drop-form").addEventListener('drop', (event) => {
+		event.preventDefault();
+	}, false)
 
 	const deferred = $class("defer");
 	for (let i = 0; i < deferred.length; i++) {

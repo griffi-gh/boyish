@@ -37,6 +37,13 @@
 		<span class="lpart yellow">Log empty</span>
 	</div>
 	<br><br>
+	<div id="drop-wrapper"> 
+		<form id="drop-form" ondrop="evDrop(this.files)">
+			<p>Drop a Nintendo Gameboy ROM file</p>
+		    <input type="file" id="drop-manual" />
+		</form>
+	</div>
+	<br><br>
 	<input id="cdebug-toggle" type="checkbox">Draw Tilemap</input>
 	<div id="cdebug-wrapper">
 		<canvas id="cdebug"></canvas>
