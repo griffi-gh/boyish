@@ -37,6 +37,11 @@ export default class MMU {
       this.rom[0x100 + i] = header[i];
     }
   }
+  loadROM(d) {
+    for(let i = 0; i < d.length; i++) {
+      this.rom[i] = (d[i] | 0);
+    }
+  }
   read(addr) {
     addr &= 0xFFFF;
     switch (addr) {

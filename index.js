@@ -88,7 +88,6 @@ window.addEventListener("load", function() {
 	setInterval(loop, 1000);
 	loop();
 
-
 	//Tileset dubugger
 	const cc = $id("cdebug");
 	const cw = $id("cdebug-wrapper");
@@ -99,23 +98,46 @@ window.addEventListener("load", function() {
 	}).observe(cw);
 
 	//File upload
-	$id("drop-wrapper").addEventListener('dragover', (event) => {
+
+	function handleFile(file) {
+		const buf = new FileReader().readAsArrayBuffer(file);
+		const arr = new Uint8Array(buf);
+		gb.loadROM(arr);
+	}
+
+	//Drag and drop
+
+	function drag_in(event) {
 		// Allow drop
 		event.preventDefault();
 		$id("drop-wrapper").style.background = 'var(--drop-bg)';
 		$id("drop-form").style.opacity = 0;
-	});
-	$id("drop-wrapper").addEventListener('dragleave', (event) => {
+		$id("drop-hint").style.display = 'flex';
+		event.dataTransfer.dropEffect = "copy";
+	}
+	function drag_out(event) {
 		$id("drop-wrapper").style.background = 'var(--default-bg)';
 		$id("drop-form").style.opacity = 1;
-	});
+		$id("drop-hint").style.display = 'none';
+	}
+	$id("drop-wrapper").addEventListener('dragover', drag_in);
+	$id("drop-wrapper").addEventListener('dragleave', drag_out);
 	$id("drop-wrapper").addEventListener('drop', (event) => {
+		drag_out(event);
 		event.preventDefault();
+		event.stopPropagation();
+		handleFile(event.dataTransfer.files[0]);
+	});
+
+	//Manual
+	$id("drop-manual").addEventListener('change', (event) => {
+		handleFile(event.target.files[0]);
 	});
 
 	const deferred = $class("defer");
 	for (let i = 0; i < deferred.length; i++) {
 		deferred[i].classList.remove("defer");
 	}
+
 	$id("noscript").remove();
 });

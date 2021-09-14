@@ -70,6 +70,10 @@ export class Gameboy {
   setBreakpoint(addr) {
     this.breakpoints[addr] = true;
   }
+  loadROM(data) {
+    this.mmu.loadROM(data);
+    console.log('Rom loaded');
+  }
   step() {
     const cpu = this.cpu;
     try {
