@@ -100,9 +100,12 @@ window.addEventListener("load", function() {
 	//File upload
 
 	function handleFile(file) {
-		const buf = new FileReader().readAsArrayBuffer(file);
-		const arr = new Uint8Array(buf);
-		gb.loadROM(arr);
+		const fr = new FileReader();
+		fr.onload = () => {
+			const arr = new Uint8Array(fr.result);
+			gb.loadROM(arr);
+		}
+		fr.readAsArrayBuffer(file);
 	}
 
 	//Drag and drop
