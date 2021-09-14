@@ -8,7 +8,7 @@ export function toHex(num, size = 8) {
   return ('0'.repeat(c-1) + num.toString(16)).slice(-c).toUpperCase();
 }
 
-function downloadString(text = '', fileName = 'download.txt', fileType = 'text/plain') {
+export function downloadString(text = '', fileName = 'download.txt', fileType = 'text/plain') {
   const blob = new Blob([text], { type: fileType });
   const a = document.createElement('a');
   a.download = fileName;
