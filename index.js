@@ -99,9 +99,19 @@ window.addEventListener("load", function() {
 	}).observe(cw);
 
 	//File upload
-	$id("drop-form").addEventListener('drop', (event) => {
+	$id("drop-wrapper").addEventListener('dragover', (event) => {
+		// Allow drop
 		event.preventDefault();
-	}, false)
+		$id("drop-wrapper").style.background = 'var(--drop-bg)';
+		$id("drop-form").style.opacity = 0;
+	});
+	$id("drop-wrapper").addEventListener('dragleave', (event) => {
+		$id("drop-wrapper").style.background = 'var(--default-bg)';
+		$id("drop-form").style.opacity = 1;
+	});
+	$id("drop-wrapper").addEventListener('drop', (event) => {
+		event.preventDefault();
+	});
 
 	const deferred = $class("defer");
 	for (let i = 0; i < deferred.length; i++) {

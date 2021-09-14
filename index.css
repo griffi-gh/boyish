@@ -74,16 +74,28 @@ button.button.disabled {
 }
 
 #drop-wrapper {
-	background: white;
+	transition: all .1s linear;
+	--drop-bg: teal;
+	--default-bg: white;
+	background: var(--default-bg);
 	display: inline-block;
 	padding: 1rem;
 	border: 2px dotted teal;
 	border-radius: 1rem;
 }
+#drop-form {
+	transition: all .1s linear;
+	opacity: 1;
+}
 #drop-form > p {
 	margin: 0;
 	margin-bottom: .5rem;
 	padding: 0;
+}
+#drop-hint {
+	display: none;
+	color: white;
+	font-weight: bold;
 }
 /*#cdebug {
 	width: 100%;
