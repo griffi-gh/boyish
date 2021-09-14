@@ -15,7 +15,7 @@ function button(id, fn) {
 }
 function newGameboy() {
 	const gb = new Gameboy("gb-canvas");
-	gb.setBreakpoint(0xFA);
+	//gb.setBreakpoint(0xFA);
 	return gb;
 }
 

@@ -38,8 +38,9 @@ export default class MMU {
     }
   }
   loadROM(d) {
-    const size = Math.min(d.length, 0x7FFF);
-    for(let i = 0; i < size; i++) {
+    this.rom.fill(0x00);
+    const size = Math.min(d.length - 1, 0x7FFF);
+    for(let i = 0; i <= size; i++) {
       this.rom[i] = (d[i] | 0);
     }
   }
