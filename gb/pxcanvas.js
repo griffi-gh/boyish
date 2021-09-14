@@ -6,15 +6,19 @@ export default class PixelCanvas {
     this.canvas = document.getElementById(id);
     this.canvas.width = width;
     this.canvas.height = height;
-    this.canvas.style.setProperty('background','black');
-    this.canvas.style.setProperty('image-rendering','crisp-edges');
+    this.canvas.style.setProperty('background', 'black');
+    this.canvas.style.setProperty('image-rendering', 'crisp-edges');
+    this.canvas.style.setProperty('image-rendering', '-webkit-optimize-contrast');
+    this.canvas.style.setProperty('image-rendering', 'optimizeSpeed');
+    this.canvas.style.setProperty('image-rendering', 'pixelated');
+    this.canvas.style.setProperty('-ms-interpolation-mode', 'nearest-neighbor');
     this.ctx = this.canvas.getContext('2d', {
       alpha: false,
       desynchronized: true
     });
     if(!this.ctx) { throw new Error("Failed to get Canvas context"); }
-    this.ctx.webkitImageSmoothingEnabled = false;
-    this.ctx.mozImageSmoothingEnabled = false;
+    //this.ctx.webkitImageSmoothingEnabled = false;
+    //this.ctx.mozImageSmoothingEnabled = false;
     this.ctx.imageSmoothingEnabled = false;
     this.img = this.ctx.createImageData(width, height);
     this.clear(255,255,255);
