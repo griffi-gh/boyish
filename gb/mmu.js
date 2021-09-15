@@ -75,7 +75,7 @@ export default class MMU {
         } else if (addr <= 0xBFFF) {
           return this.eram[addr - 0xA000] | 0; // External RAM
         } else if (addr <= 0xDFFF) {
-          return this.wram[addr - 0xD000] | 0; // Work RAM
+          return this.wram[addr - 0xC000] | 0; // Work RAM
         } else if (addr <= 0xFDFF) {
           return this.wram[addr - 0xE000] | 0; // Echo
         } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
@@ -108,7 +108,8 @@ export default class MMU {
         } else if (addr <= 0xBFFF) {
           this.eram[addr - 0xA000] = val; // External RAM
         } else if (addr <= 0xDFFF) {
-          this.wram[addr - 0xD000] = val; // Work RAM
+          if(addr==0xC000) {console.log("writing " + toHex(val))}
+          this.wram[addr - 0xC000] = val; // Work RAM
         } else if (addr <= 0xFDFF) {
           this.wram[addr - 0xE000] = val; // Echo
         } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
