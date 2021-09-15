@@ -194,11 +194,6 @@ function _ADDSUB(isAdd) {
     this.r.a = result & 0xFF;
   `;
 }
-/*TODO function _ADD_HL(rr) {
-  return `
-
-  `;
-}*/
 
 //ADD A,R
 function ADD_A_R(r) {
@@ -352,6 +347,19 @@ function CP_A_U8() {
     const b = this.mmu.read(pc+1);
     ${ _CP() }
     return [8, pc+2];
+  `);
+}
+
+function ADD_HL_RR(rr) {
+  return construct(`
+    let hl = this.r.hl;
+    let rr = this.r.${rr};
+    this.f.n = false;
+    this.f.h = ((hl & 0xFFF) + (rr & 0xFFF)) > 0xFFF;
+    hl += rr;
+    this.f.c = (hl > 0xFFFF);
+    this.r.hl = (hl & 0xFFFF);
+    return [8, pc+1];
   `);
 }
 
@@ -825,6 +833,11 @@ OPS[0xBE] = CP_A_AHL();         // CP A,(HL)
 OPS[0xBF] = CP_A_R('a');        // CP A,A
 
 OPS[0xFE] = CP_A_U8();          // CP A,u8
+
+OPS[0x09] = ADD_HL_RR('bc');    // ADD HL,BC
+OPS[0x19] = ADD_HL_RR('de');    // ADD HL,DE
+OPS[0x29] = ADD_HL_RR('hl');    // ADD HL,HL
+OPS[0x39] = ADD_HL_RR('sp');    // ADD HL,SP
 
 OPS[0x18] = JR_I8();            // JR i8
 OPS[0x28] = JR_Z_I8();          // JR Z,i8
