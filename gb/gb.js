@@ -79,10 +79,6 @@ export class Gameboy {
     const cpu = this.cpu;
     try {
       while(cpu.cycles < CYCLES_PER_FRAME) {
-        /*if(this.cpu.reg.pc==0xFA) {
-          this.cpu.reg.pc = 0xFC;
-          console.log('Broken check skipped')
-        }*/
         if(this.breakpoints[this.cpu.reg.pc]) {
           console.log("breakpoint " + toHex(this.cpu.reg.pc, 16) + " hit");
           delete this.breakpoints[this.cpu.reg.pc];

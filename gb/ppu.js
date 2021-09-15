@@ -134,6 +134,7 @@ export default class PPU {
     switch(this.mode){
       case MODE_HBLANK:
         if(this.cycles >= 204) {
+          this.cycles -= 204;
           if(this.line == 143) {
             this.mode = MODE_VBLANK;
             this.canvas.blit();
@@ -141,12 +142,11 @@ export default class PPU {
             this.mode = MODE_OAM;
           }
           this.line++;
-          this.cycles = 0;
         }
         break;
       case MODE_VBLANK:
         if(this.cycles >= 456) {
-          this.cycles = 0;
+          this.cycles -= 456;
           this.line++;
           if(this.line > 154) {
             this.mode = MODE_OAM;
@@ -156,13 +156,13 @@ export default class PPU {
         break;
       case MODE_OAM:
         if(this.cycles >= 80) {
-          this.cycles = 0;
+          this.cycles -= 80;
           this.mode = MODE_VRAM;
         }
         break;
       case MODE_VRAM:
         if(this.cycles >= 172) {
-          this.cycles = 0;
+          this.cycles -= 172;
           this.mode = MODE_HBLANK;
           this.drawLine();
         }
