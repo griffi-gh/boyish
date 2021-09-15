@@ -53,33 +53,31 @@ export default class MMU {
         if(this.gb.stubLY) {
           return 0x90;
         } else {
-          return this.gb.ppu.line | 0;
+          return this.gb.ppu.line;
         }
       case 0xFF43:
-        return this.gb.ppu.scx | 0;
+        return this.gb.ppu.scx;
       case 0xFF42:
-        return this.gb.ppu.scy | 0;
+        return this.gb.ppu.scy;
       case 0xFF40:
-        return this.gb.ppu.lcdc | 0;
+        return this.gb.ppu.lcdc;
       default:
         if (addr <= 0xFF) {
           if (this.disableBios === false) {
-            return bios[addr] | 0;
+            return bios[addr];
           } else {
-            return this.rom[addr] | 0;
+            return this.rom[addr];
           }
         } else if (addr <= 0x7FFF) {
-          return this.rom[addr] | 0;
+          return this.rom[addr];
         } else if (addr <= 0x9FFF) {
-          return this.gb.ppu.readVRAM(addr - 0x8000) | 0;
+          return (this.gb.ppu.readVRAM(addr - 0x8000) | 0);
         } else if (addr <= 0xBFFF) {
-          return this.eram[addr - 0xA000] | 0; // External RAM
-        } else if (addr <= 0xDFFF) {
-          return this.wram[addr - 0xC000] | 0; // Work RAM
+          return this.eram[addr - 0xA000]; // External RAM
         } else if (addr <= 0xFDFF) {
-          return this.wram[addr - 0xE000] | 0; // Echo
+          return this.wram[addr & 0x1FFF]; // Work RAM and Echo RAM
         } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
-          return this.hram[addr - 0xFF80] | 0; // High Ram
+          return this.hram[addr - 0xFF80]; // High Ram
         }
     }
     this.gb.log(`[MMU] READ Addr 0x${toHex(addr,16)} isn't mapped to anything`+'\n');
