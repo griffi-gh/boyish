@@ -71,6 +71,9 @@ export class Gameboy {
     this.ppu.line = 0;
     this.ppu.cycles = 0;
     this.mmu.disableBios = 1;
+    for(let i = 0; i < 0x2000; i++) {
+      this.ppu.writeVRAM(i, 0)
+    }
   }
   step() {
     const cpu = this.cpu;
