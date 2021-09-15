@@ -194,6 +194,11 @@ function _ADDSUB(isAdd) {
     this.r.a = result & 0xFF;
   `;
 }
+/*TODO function _ADD_HL(rr) {
+  return `
+
+  `;
+}*/
 
 //ADD A,R
 function ADD_A_R(r) {
@@ -251,6 +256,17 @@ function AND_A_AHL() {
   `);
 }
 
+//AND A,u8
+function AND_A_U8() {
+  return construct(`
+    this.r.a &= this.mmu.read(pc+1);
+    this.f.reset();
+    this.f.z = (this.r.a === 0);
+    this.f.h = true;
+    return [8, pc+2]; 
+  `);
+}
+
 //OR A,R
 function OR_A_R(r) {
   return construct(`
@@ -268,6 +284,16 @@ function OR_A_AHL(r) {
     this.f.reset();
     this.f.z = (this.r.a === 0);
     return [8, pc+1]; 
+  `);
+}
+
+//OR A,u8
+function OR_A_U8(r) {
+  return construct(`
+    this.r.a |= this.mmu.read(pc+1);
+    this.f.reset();
+    this.f.z = (this.r.a === 0);
+    return [8, pc+2]; 
   `);
 }
 
@@ -767,6 +793,8 @@ OPS[0xA5] = AND_A_R('l');       // AND A,L
 OPS[0xA6] = AND_A_AHL();        // AND A,(HL)
 OPS[0xA7] = AND_A_R('a');       // AND A,A
 
+OPS[0xE6] = AND_A_U8();         // AND A,u8
+
 OPS[0xA8] = XOR_A_R('b');       // XOR A,B
 OPS[0xA9] = XOR_A_R('c');       // XOR A,C
 OPS[0xAA] = XOR_A_R('d');       // XOR A,D
@@ -784,6 +812,8 @@ OPS[0xB4] = OR_A_R('h');        // OR A,H
 OPS[0xB5] = OR_A_R('l');        // OR A,L
 OPS[0xB6] = OR_A_AHL();         // OR A,(HL)
 OPS[0xB7] = OR_A_R('a');        // OR A,A
+
+OPS[0xF6] = OR_A_U8();          // OR A,u8
 
 OPS[0xB8] = CP_A_R('b');        // CP A,B
 OPS[0xB9] = CP_A_R('c');        // CP A,C

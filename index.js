@@ -70,6 +70,11 @@ window.addEventListener("load", function() {
 		loop();
 	});
 
+	button("btn-skip", (btn) => {
+		gb.skipBoot();
+		loop();
+		btu();
+	});
 	window.GB = gb
 
 	function loop() {
