@@ -64,9 +64,10 @@ export class Gameboy {
   skipBoot() {
     this.cpu.reg.af = 0x01B0;
     this.cpu.reg.bc = 0x0013;
+    this.cpu.reg.de = 0x00D8;
     this.cpu.reg.hl = 0x014D;
     this.cpu.reg.sp = 0xFFFE;
-    this.cpu.reg.pc = 0x0100;
+    this.cpu.reg.pc = 0x0101;
     this.ppu.lcdc = 0x91;
     this.ppu.line = 0;
     this.ppu.cycles = 0;

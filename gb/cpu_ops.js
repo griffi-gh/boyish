@@ -32,7 +32,7 @@ function STOP() {
 function _INCDEC_FLAGS(n) { 
   return `
     const f = this.f;
-    f.z = (result === 0);
+    f.z = ((result & 0xFF) == 0);
     const hc = (((result ${n ? '-' : '+'} 1) & 0xF) ${n ? '+' : '-'} 1);
     f.h = (hc > 0xF || hc < 0);
     f.n = ${ (!n).toString() };
