@@ -328,6 +328,16 @@ function XOR_A_AHL(r) {
   `);
 }
 
+//XOR A,u8
+function XOR_A_U8() {
+  return construct(`
+    this.r.a ^= this.mmu.read(pc+1);
+    this.f.reset();
+    this.f.z = (this.r.a === 0);
+    return [8, pc+2]; 
+  `);
+}
+
 // TODO fix duplicate here.
 // just to make the code cleaner
 
@@ -869,6 +879,8 @@ OPS[0xAC] = XOR_A_R('h');       // XOR A,H
 OPS[0xAD] = XOR_A_R('l');       // XOR A,L
 OPS[0xAE] = XOR_A_AHL();        // XOR A,(HL)
 OPS[0xAF] = XOR_A_R('a');       // XOR A,A
+
+OPS[0xEE] = XOR_A_U8();         // XOR A,u8
 
 OPS[0xB0] = OR_A_R('b');        // OR A,B
 OPS[0xB1] = OR_A_R('c');        // OR A,C
