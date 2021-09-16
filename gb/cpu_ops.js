@@ -559,11 +559,31 @@ function _RL_INPUT(noZ) {
   `)
 }
 
+function _RR_INPUT() {
+  return (`
+    if(this.f.c) { input += 0x100; }
+    this.f.reset();
+    this.f.c = !!(input & 0x01);
+    input = (input >> 1) & 0xFF;
+    this.f.z = (input === 0);
+  `)
+}
+
 function RLA() {
   return construct(`
     const input = this.r.a;
     ${ _RL_INPUT(true) }
     this.r.a = (result & 0xFF);
+    return [4, pc+1];
+  `);
+}
+
+function RRA() {
+  return construct(`
+    let input = this.r.a;
+    ${ _RR_INPUT(true) }
+    this.f.z = false;
+    this.r.a = (input & 0xFF);
     return [4, pc+1];
   `);
 }
@@ -905,6 +925,8 @@ OPS[0xD0] = RET_NC_U16();       // RET NC,u16
 OPS[0x07] = RLCA();             // RLCA
 OPS[0x17] = RLA();              // RLA
 
+OPS[0x1F] = RRA();              // RLA
+
 OPS[0x2F] = CPL();              // CPL
 
 OPS[0x27] = DAA();              // DAA
@@ -1006,16 +1028,6 @@ function SRL_AHL() {
     this.mmu.write(this.r.hl, input);
     return [16, pc+1];
   `);
-}
-
-function _RR_INPUT() {
-  return (`
-    if(this.f.c) { input += 0x100; }
-    this.f.reset();
-    this.f.c = !!(input & 0x01);
-    input = (input >> 1) & 0xFF;
-    this.f.z = (input === 0);
-  `)
 }
 
 function RR_R(r) {
