@@ -637,6 +637,25 @@ function LD_A_AU16() {
   `);
 }
 
+function EI() {
+  return construct(`
+    this.irq.enableIME();
+    return [4, pc+1];
+  `);
+}
+function DI() {
+  return construct(`
+    this.irq.disableIME();
+    return [4, pc+1];
+  `);
+}
+function RETI() {
+  return construct(`
+    ${ _RET() }
+    this.irq.disableIME();
+    return [16, pc+1];
+  `)
+}
 
 OPS[0x00] = NOP();              // NOP
 
@@ -878,6 +897,11 @@ OPS[0xF2] = LD_A_ffC();         // LD A,(FF00+C)
 
 OPS[0xEA] = LD_AU16_A();        // LD (u16),A
 OPS[0xFA] = LD_A_AU16();        // LD A,(u16)
+
+OPS[0xF3] = DI();               // DI
+OPS[0xFB] = EI();               // EI
+
+OPS[0xD9] = RETI();             // RETI
 
 // CB_OPS
 
