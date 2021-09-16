@@ -114,6 +114,8 @@ window.addEventListener("load", function() {
 		fr.onload = () => {
 			const arr = new Uint8Array(fr.result);
 			gb.loadROM(arr);
+			localStorage.setItem('lastrom', btoa(JSON.stringify(arr)));
+			localStorage.getItem('lastrom');
 		}
 		fr.readAsArrayBuffer(file);
 	}
@@ -151,6 +153,15 @@ window.addEventListener("load", function() {
 	for (let i = 0; i < deferred.length; i++) {
 		deferred[i].classList.remove("defer");
 	}
+
+	if(localStorage.getItem('lastrom')) {
+		$id("last-rom").style.setProperty('display', 'inline-block');
+	}
+	button("last-rom", (btn) => {
+		const obj = JSON.parse(atob(localStorage.getItem('lastrom')));
+		const arr = new Uint8Array(Object.values(obj));
+		gb.loadROM(arr);
+	});
 
 	$id("noscript").remove();
 });

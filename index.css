@@ -132,6 +132,15 @@ main {
 	/*color: white;
 	font-weight: bold;*/
 }
+#drop-form {
+	white-space: nowrap;
+}
+#drop-form *.button {
+	font-size: .8rem;
+}
+#last-rom {
+	display: none;
+}
 /*#cdebug {
 	width: 100%;
 	height: 100%;

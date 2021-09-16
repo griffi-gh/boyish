@@ -21,16 +21,16 @@
           <div id="gb-wrapper">
             <canvas id="gb-canvas"></canvas>
             <div>
-              <button id="btn-step" class="button">Frame</button>
-              <button id="btn-pause" class="button">Play</button>
-              <button id="btn-reset" class="button">Reset</button>
+              <button type="button" id="btn-step" class="button">Frame</button>
+              <button type="button" id="btn-pause" class="button">Play</button>
+              <button type="button" id="btn-reset" class="button">Reset</button>
             </div>
             <!--<button id="btn-skip" class="full button">Skip Bootrom</button>-->
-            <button id="btn-swlog" class="full button">Enable logging</button>
-            <button id="btn-log" class="full button">
+            <button type="button" id="btn-swlog" class="full button">Enable logging</button>
+            <button type="button" id="btn-log" class="full button">
             Flush log to console
             </button>
-            <button id="btn-dwn" class="full button">Flush log to file</button>
+            <button type="button" id="btn-dwn" class="full button">Flush log to file</button>
           </div>
         </div>
       </div>
@@ -50,7 +50,10 @@
           </div>
           <form id="drop-form">
             <p>Drop a .GB ROM file here</p>
-            <label for="drop-manual" class="button">Browse...</label>
+            <div id="drop-buttons">
+              <button type="button" id="last-rom" class="button">Last..</button>
+              <label for="drop-manual" class="button">Browse...</label>
+            </div>  
             <input type="file" id="drop-manual" style="display: none;" />
           </form>
         </div>
