@@ -61,6 +61,8 @@ export default class CPU {
         throw new Error("UnimplementedInstr");
         return;
       }
+    } else {
+      return 4;
     }
   }
 }
