@@ -1020,7 +1020,7 @@ function _RR_INPUT() {
 
 function RR_R(r) {
   return construct(`
-    const input = this.r.${r};
+    let input = this.r.${r};
     ${ _RR_INPUT(false) }
     this.r.${r} = input;
     return [8, pc+1];
@@ -1028,7 +1028,7 @@ function RR_R(r) {
 }
 function RR_AHL() {
   return construct(`
-    const input = this.mmu.read(this.r.hl);
+    let input = this.mmu.read(this.r.hl);
     ${ _RR_INPUT(false) }
     this.mmu.write(this.r.hl, input);
     return [16, pc+1];
