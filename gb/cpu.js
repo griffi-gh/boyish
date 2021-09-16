@@ -1,5 +1,5 @@
 import { Registers } from './reg.js'
-import { Interrupts } from '/interrupts.js';
+import { Interrupts } from './interrupts.js';
 import { OPS, CB_OPS } from './cpu_ops.js';
 import * as c from './common.js';
 const toHex = c.toHex;
