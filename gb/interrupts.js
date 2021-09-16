@@ -47,7 +47,7 @@ export class Interrupts {
 			const t = (this.ie & this.if);
 			for(let i = 0; i <= 7; i++) {
 				if(t & (1 << i)) {
-					dispatchInterrupt(i);
+					this.dispatchInterrupt(i);
 					return 20;
 				}
 			}
