@@ -1,5 +1,6 @@
 import { Registers } from './reg.js'
-import {OPS, CB_OPS} from './cpu_ops.js';
+import { Interrupts } from '/interrupts.js';
+import { OPS, CB_OPS } from './cpu_ops.js';
 import * as c from './common.js';
 const toHex = c.toHex;
 
@@ -7,6 +8,7 @@ export default class CPU {
   constructor(gb) {
     this.gb = gb;
     this.reg = new Registers();
+    this.irq = new Interrupts(gb);
     this.cycles = 0;
   }
   postInit() {
@@ -19,6 +21,7 @@ export default class CPU {
       f: this.reg.flags,
       ppu: this.gb.ppu,
       mmu: this.gb.mmu,
+      irq: this.irq,
     };
     Object.assign(this.OPContext, c); //copy all Common functions
   }
@@ -50,6 +53,7 @@ export default class CPU {
       if(op in OPC) {
         let [cycles, next] = OPC[op].call(this.OPContext, this.reg.pc);
         this.reg.pc = next & 0xFFFF;
+        cycles += this.irq.tick();
         this.cycles += cycles;
         return cycles;
       } else {
