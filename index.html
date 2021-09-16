@@ -11,7 +11,9 @@
   </head>
   <body>
     <noscript id="noscript">
-      <div id="noJS"><h1>This website requires JavaScript</h1></div>
+      <div id="noJS">
+        <h1>This website requires JavaScript</h1>
+      </div>
     </noscript>
     <main>
       <div>
@@ -26,59 +28,62 @@
             <!--<button id="btn-skip" class="full button">Skip Bootrom</button>-->
             <button id="btn-swlog" class="full button">Enable logging</button>
             <button id="btn-log" class="full button">
-              Flush log to console
+            Flush log to console
             </button>
             <button id="btn-dwn" class="full button">Flush log to file</button>
           </div>
-          <br /><br />
-          <div id="log-info" class="defer">
-            <span class="lpart">Log size: </span
-            ><span id="log-size">Loading...</span><br />
-            <span class="lpart">Last line: </span
-            ><span id="log-line">Loading...</span>
-          </div>
-          <div id="log-disabled" class="defer">
-            <span class="lpart red">Logging disabled</span>
-          </div>
-          <div id="log-empty" class="defer">
-            <span class="lpart yellow">Log empty</span>
-          </div>
-          <br /><br />
-          <div id="drop-wrapper">
-            <div id="drop-hint">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="48"
-                height="48"
-                viewBox="0 0 48 48"
-              >
-                <path
-                  d="M38.71 20.07c-1.36-6.88-7.43-12.07-14.71-12.07-5.78 0-10.79 3.28-13.3 8.07-6.01.65-10.7 5.74-10.7 11.93 0 6.63 5.37 12 12 12h26c5.52 0 10-4.48 10-10 0-5.28-4.11-9.56-9.29-9.93zm-10.71 5.93v8h-8v-8h-6l10-10 10 10h-6z"
-                />
-              </svg>
-            </div>
-            <form id="drop-form">
-              <p>Drop a Nintendo Gameboy ROM file</p>
-              <label for="drop-manual" class="button">Browse...</label>
-              <input type="file" id="drop-manual" style="display: none;" />
-            </form>
-          </div>
         </div>
       </div>
-      <div>
-        <div>
-          <input id="skipBR" type="checkbox" checked />
-          <label for="skipBR">Skip Bootrom (Reset required)</label>
+      <div id="right">
+        <div id="drop-wrapper">
+          <div id="drop-hint">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 48 48"
+              >
+              <path
+                d="M38.71 20.07c-1.36-6.88-7.43-12.07-14.71-12.07-5.78 0-10.79 3.28-13.3 8.07-6.01.65-10.7 5.74-10.7 11.93 0 6.63 5.37 12 12 12h26c5.52 0 10-4.48 10-10 0-5.28-4.11-9.56-9.29-9.93zm-10.71 5.93v8h-8v-8h-6l10-10 10 10h-6z"
+                />
+            </svg>
+          </div>
+          <form id="drop-form">
+            <p>Drop a .GB ROM file here</p>
+            <label for="drop-manual" class="button">Browse...</label>
+            <input type="file" id="drop-manual" style="display: none;" />
+          </form>
         </div>
-        <div>
-          <input id="stubLY" type="checkbox" />
-          <label for="stubLY">Stub LY to 0x90</label><br />
-        </div>
-        <div>
-          <input id="cdebug-toggle" type="checkbox" />
-          <label for="cdebug-toggle">Draw Tilemap</label>
-          <div id="cdebug-wrapper">
-            <canvas id="cdebug"></canvas>
+        <div id="debug">
+          <div>
+            <input id="skipBR" type="checkbox" checked />
+            <label for="skipBR">Skip Bootrom (Reset required)</label>
+          </div>
+          <div>
+            <input id="stubLY" type="checkbox" checked />
+            <label for="stubLY">Stub LY to 0x90</label><br />
+          </div>
+          <div>
+            <input id="cdebug-toggle" type="checkbox" />
+            <label for="cdebug-toggle">Draw Tilemap</label>
+            <div id="cdebug-wrapper">
+              <canvas id="cdebug"></canvas>
+            </div>
+          </div>
+          <div>
+            <div id="log-info" class="defer">
+              <span class="lpart">Log size: </span
+                ><span id="log-size">Loading...</span><br />
+              <span class="lpart">Last line: </span
+                ><span id="log-line">Loading...</span>
+            </div>
+            <hr>
+            <div id="log-disabled" class="defer">
+              <span class="lpart red">Logging disabled</span>
+            </div>
+            <div id="log-empty" class="defer">
+              <span class="lpart yellow">Log empty</span>
+            </div>
           </div>
         </div>
       </div>

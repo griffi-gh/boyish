@@ -6,12 +6,21 @@ main {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
+	gap: .75rem;
 }
-main > *:nth-child(2) {
+
+#right {
 	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
 	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+#debug {
+	background: white;
+	border-radius: .5rem;
+	padding: .33rem;
+	border: 2px solid teal;
+	margin-top: .75rem;
 }
 .defer {
 	display: none;
@@ -90,7 +99,7 @@ main > *:nth-child(2) {
 	--drop-bg: teal;
 	--default-bg: white;
 	background: var(--default-bg);
-	display: inline-block;
+	display: block;
 	padding: 1rem;
 	border: 2px dotted teal;
 	border-radius: 1rem;
