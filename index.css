@@ -2,6 +2,17 @@ body {
 	background: #e8f4f8;
 	font-family: 'Arial';
 }
+main {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+main > *:nth-child(2) {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+}
 .defer {
 	display: none;
 }

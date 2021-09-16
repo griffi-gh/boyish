@@ -187,7 +187,7 @@ function _ADDSUB(isAdd) {
     const a = this.r.a;
     const result = (a ${isAdd ? '+' : '-'} b);
     const f = this.f;
-    f.z = (result === 0);
+    f.z = ((result & 0xFF) === 0);
     f.n = ${(!isAdd).toString()};
     f.h = ((a & 0xF) ${isAdd ? '+' : '-'} (b & 0xF)) ${isAdd ? '>' : '<'} 0;
     f.c = ${isAdd ? '(result > 0xFF)' : '(result < 0x00)'};

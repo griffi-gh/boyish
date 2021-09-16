@@ -16,6 +16,10 @@ function button(id, fn) {
 function newGameboy() {
 	const gb = new Gameboy("gb-canvas");
 	//gb.setBreakpoint(0xFA);
+	gb.stubLY = $id("stubLY").checked;
+	if($id("skipBR").checked) {
+		gb.skipBoot();
+	}
 	return gb;
 }
 
@@ -70,11 +74,11 @@ window.addEventListener("load", function() {
 		loop();
 	});
 
-	button("btn-skip", (btn) => {
+	/*button("btn-skip", (btn) => {
 		gb.skipBoot();
 		loop();
 		btu();
-	});
+	});*/
 	window.GB = gb
 
 	function loop() {
