@@ -32,8 +32,16 @@ window.addEventListener("load", function() {
 		loop();
 	});
 
+	let btn_log = button("btn-swlog", (btn) => {
+		gb.disableLog ^= true;
+		if(gb.disableLog) { gb.logData = ''; }
+		btu();
+		loop();
+	});
+
 	function btu() {
-		btn_pause.textContent = gb.paused ? 'Play' : 'Pause';
+		btn_log.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
+		btn_pause.innerHTML = gb.paused ? 'Play' : 'Pause';
 	}
 
 	button("btn-step", (btn) => {
@@ -65,13 +73,6 @@ window.addEventListener("load", function() {
 
 	button("btn-dwn", (btn) => {
 		gb.downloadLog();
-	});
-
-	button("btn-swlog", (btn) => {
-		gb.disableLog ^= true;
-		btn.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
-		if(gb.disableLog) { gb.logData = ''; }
-		loop();
 	});
 
 	/*button("btn-skip", (btn) => {
