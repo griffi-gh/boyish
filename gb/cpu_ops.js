@@ -1013,7 +1013,7 @@ function _RR_INPUT() {
     if(this.f.c) { input += 0x100; }
     this.f.reset();
     this.f.c = !!(input & 0x01);
-    const input = (input >> 1) & 0xFF;
+    input = (input >> 1) & 0xFF;
     this.f.z = (input === 0);
   `)
 }
