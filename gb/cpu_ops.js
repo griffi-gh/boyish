@@ -942,12 +942,17 @@ function BIT_AHL(bit) {
   `);
 }
 
-function SWAP_R(r) {
-  return construct(`
-    let a = this.r.${r};
+function _SWAP() {
+  return (`
     a = ((a & 0x0F) << 4 | (a & 0xF0) >> 4);
     this.f.reset();
     this.f.z = (a === 0);
+   `)
+}
+function SWAP_R(r) {
+  return construct(`
+    let a = this.r.${r};
+    ${ _SWAP() }
     this.r.${r} = a;
     return [8, pc+1];
   `);
@@ -956,13 +961,12 @@ function SWAP_AHL() {
   return construct(`
     const hl = this.r.hl;
     let a = this.mmu.read(hl);
-    a = ((a & 0x0F) << 4 | (a & 0xF0) >> 4);
-    this.f.reset();
-    this.f.z = (a === 0);
+    ${ _SWAP() }
     this.mmu.write(hl, a);
     return [16, pc+1];
   `);
 }
+
 function RL_R(r) {
   return construct(`
     const input = this.r.${r};
@@ -975,11 +979,35 @@ function RL_AHL() {
   return construct(`
     const input = this.mmu.read(this.r.hl);
     ${ _RL_INPUT(false) }
-    this.mmu.write(this.r.hl, input)
+    this.mmu.write(this.r.hl, input);
     return [16, pc+1];
   `);
 }
 
+function _SRL() {
+  return (`
+    this.f.reset();
+    this.f.c = !!(input & 0x01);
+    input = (input >> 1);
+    this.f.z = (input === 0);
+  `)
+}
+function SRL_R {
+  return construct(`
+    let input = this.mmu.read(this.r.hl);;
+    ${ _SRL() }
+    this.mmu.write(this.r.hl, input);
+    return [8, pc+1];
+  `)
+}
+function SRL_AHL {
+  return construct(`
+    let input = this.r.${r};
+    ${ _SRL() }
+    this.r.${r} = input;
+    return [8, pc+1];
+  `)
+}
 
 CB_OPS[0x10] = RL_R('b');
 CB_OPS[0x11] = RL_R('c');
@@ -998,6 +1026,15 @@ CB_OPS[0x34] = SWAP_R('h');
 CB_OPS[0x35] = SWAP_R('l');
 CB_OPS[0x36] = SWAP_AHL();
 CB_OPS[0x37] = SWAP_R('a');
+
+CB_OPS[0x38] = SRL_R('b');
+CB_OPS[0x39] = SRL_R('c');
+CB_OPS[0x3A] = SRL_R('d');
+CB_OPS[0x3B] = SRL_R('e');
+CB_OPS[0x3C] = SRL_R('h');
+CB_OPS[0x3D] = SRL_R('l');
+CB_OPS[0x3E] = SRL_AHL();
+CB_OPS[0x3F] = SRL_R('a');
 
 CB_OPS[0x40] = BIT_R(0,'b');
 CB_OPS[0x41] = BIT_R(0,'c');
