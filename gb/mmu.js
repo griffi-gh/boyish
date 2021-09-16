@@ -121,7 +121,7 @@ export default class MMU {
         } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
           this.hram[addr - 0xFF80] = val; // High Ram
         } else {
-          this.gb.log(`[MMU] WRITE Addr 0x${toHex(addr,16)} isn't mapped to anything`+'\n');
+          //this.gb.log(`[MMU] WRITE Addr 0x${toHex(addr,16)} isn't mapped to anything`+'\n');
         }
     }
   }
