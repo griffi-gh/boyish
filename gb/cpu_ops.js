@@ -368,6 +368,7 @@ function CP_A_AHL() {
   `);
 }
 
+//CP A,u8
 function CP_A_U8() {
   return construct(`
     const b = this.mmu.read(pc+1);
@@ -376,6 +377,8 @@ function CP_A_U8() {
   `);
 }
 
+
+//ADD HL,RR
 function ADD_HL_RR(rr) {
   return construct(`
     let hl = this.r.hl;
@@ -702,6 +705,21 @@ function RETI() {
   `)
 }
 
+function ADD_SP_I8() {
+  return construct(`
+    let off = this.mmu.read(pc+1);
+    if((off & 0x80) !== 0) {
+      off += 0xFF00;
+    }
+    const sp = this.r.sp;
+    this.f.reset();
+    this.f.h = ((sp & 0xF) + (off & 0xF)) > 0xF;
+    this.f.c = ((sp & 0xFF) + (off & 0xFF)) > 0xFF;
+    this.r.sp += off;
+    return [16, pc+2];
+  `);
+}
+
 OPS[0x00] = NOP();              // NOP
 
 OPS[0x10] = STOP();             // STOP
@@ -955,6 +973,8 @@ OPS[0xF3] = DI();               // DI
 OPS[0xFB] = EI();               // EI
 
 OPS[0xD9] = RETI();             // RETI
+
+OPS[0xE8] = ADD_SP_I8();        // ADD SP,i8
 
 // CB_OPS
 
