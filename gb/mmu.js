@@ -114,7 +114,6 @@ export default class MMU {
         } else if (addr <= 0xBFFF) {
           this.eram[addr - 0xA000] = val; // External RAM
         } else if (addr <= 0xDFFF) {
-          if(addr==0xC000) {console.log("writing " + toHex(val))}
           this.wram[addr - 0xC000] = val; // Work RAM
         } else if (addr <= 0xFDFF) {
           this.wram[addr - 0xE000] = val; // Echo
