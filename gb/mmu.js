@@ -47,6 +47,10 @@ export default class MMU {
   read(addr) {
     addr &= 0xFFFF;
     switch (addr) {
+      case 0xFFFF:
+        return this.gb.cpu.irq.ie | 0;
+      case 0xFF0F:
+        return this.gb.cpu.irq.if | 0;
       case 0xFF50:
         return ((this.disableBios | 0) & 0xFF);
       case 0xFF44:
@@ -87,6 +91,10 @@ export default class MMU {
     addr &= 0xFFFF;
     val  &= 0xFF;
     switch (addr) {
+      case 0xFFFF:
+        this.gb.cpu.irq.ie = val;
+      case 0xFF0F:
+        this.gb.cpu.irq.if = val;
       case 0xFF50:
         console.log('BIOS Reg written')
         this.disableBios = (val | 0);

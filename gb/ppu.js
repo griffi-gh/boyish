@@ -138,6 +138,7 @@ export default class PPU {
           if(this.line == 143) {
             this.mode = MODE_VBLANK;
             this.canvas.blit();
+            this.gb.cpu.irq.if |= 1;
           } else {
             this.mode = MODE_OAM;
           }
