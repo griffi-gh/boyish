@@ -208,7 +208,15 @@ function ADD_A_AHL() {
   return construct(`
     const b = this.mmu.read(this.r.hl);
     ${ _ADDSUB(true) }
-    return [4, pc+1];
+    return [8, pc+1];
+  `);
+}
+//ADD A,u8
+function ADD_A_U8() {
+  return construct(`
+    const b = this.mmu.read(pc+1);
+    ${ _ADDSUB(true) }
+    return [8, pc+2];
   `);
 }
 
@@ -225,7 +233,15 @@ function SUB_A_AHL() {
   return construct(`
     const b = this.mmu.read(this.r.hl);
     ${ _ADDSUB(false) }
-    return [4, pc+1];
+    return [8, pc+1];
+  `);
+}
+//ADD A,u8
+function SUB_A_U8() {
+  return construct(`
+    const b = this.mmu.read(pc+1);
+    ${ _ADDSUB(false) }
+    return [8, pc+2];
   `);
 }
 
@@ -802,6 +818,8 @@ OPS[0x85] = ADD_A_R('l');       // ADD A,L
 OPS[0x86] = ADD_A_AHL();        // ADD A,(HL)
 OPS[0x87] = ADD_A_R('a');       // ADD A,L
 
+OPS[0xC6] = ADD_A_U8();         // ADD A,u8
+
 OPS[0x90] = SUB_A_R('b');       // SUB A,B
 OPS[0x91] = SUB_A_R('c');       // SUB A,C
 OPS[0x92] = SUB_A_R('d');       // SUB A,D
@@ -810,6 +828,8 @@ OPS[0x94] = SUB_A_R('h');       // SUB A,H
 OPS[0x95] = SUB_A_R('l');       // SUB A,L
 OPS[0x96] = SUB_A_AHL();        // SUB A,(HL)
 OPS[0x97] = SUB_A_R('a');       // SUB A,L
+
+OPS[0xD6] = SUB_A_U8();         // SUB A,u8
 
 OPS[0xA0] = AND_A_R('b');       // AND A,B
 OPS[0xA1] = AND_A_R('c');       // AND A,C
