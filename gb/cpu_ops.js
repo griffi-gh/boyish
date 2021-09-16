@@ -134,7 +134,7 @@ function LD_R_U8(r) {
 //LD R,R
 function LD_R_R(a, b) { 
   return construct(`
-    this.r.${a} = this.r.${b};
+    this.r.${a} = (this.r.${b} | 0);
     return [4, pc+1]; 
   `);
 } //
@@ -142,7 +142,8 @@ function LD_R_R(a, b) {
 //LD R,(HL)
 function LD_R_AHL(r) { 
   return construct(`
-    this.r.${r} = this.mmu.read(this.r.hl);
+    const v = this.mmu.read(this.r.hl)
+    this.reg.${r} = v;
     return [8, pc+1]; 
   `);
 }
@@ -692,8 +693,8 @@ function DAA() {
       if(this.f.c) { a -= 0x60; }
     } else {
       // Add
-      if ((a & 0xF) > 0x9 || flags.h) { a += 0x6; }
-      if (a > 0x9 || flags.c) { a += 0x60; }
+      if ((a & 0xF) > 0x9 || this.f.h) { a += 0x6; }
+      if (a > 0x9 || this.f.c) { a += 0x60; }
     }
     this.r.a = a & 0xFF;
     this.f.h = false;

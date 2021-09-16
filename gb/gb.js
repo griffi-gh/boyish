@@ -54,8 +54,8 @@ export class Gameboy {
       this.paused = true;
     }
   }
-  setBreakpoint(addr) {
-    this.breakpoints[addr] = true;
+  setBreakpoint(addr, val = true) {
+    this.breakpoints[addr] = val;
   }
   loadROM(data) {
     this.mmu.loadROM(data);
@@ -81,8 +81,8 @@ export class Gameboy {
     try {
       while(cpu.cycles < CYCLES_PER_FRAME) {
         if(this.breakpoints[this.cpu.reg.pc]) {
-          console.log("breakpoint " + toHex(this.cpu.reg.pc, 16) + " hit");
-          delete this.breakpoints[this.cpu.reg.pc];
+          //delete this.breakpoints[this.cpu.reg.pc];
+          console.log(`Breakpoint at ${toHex(this.cpu.reg.pc, 16)} hit`);
           this.pause();
           return;
         }

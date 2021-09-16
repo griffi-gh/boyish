@@ -58,13 +58,18 @@
           </form>
         </div>
         <div id="debug">
+          <div class="centered mb mb-med mt mt-sml">
+            <input id="brk-input" type="text" class="square-h" placeholder="Set PC breakpoint" class="mr" />
+            <button id="brk-add" type="button" class="square">+</button>
+            <button id="brk-rem" type="button" class="square">-</button>
+          </div>
           <div>
             <input id="skipBR" type="checkbox" checked />
-            <label for="skipBR">Skip Bootrom (Reset required)</label>
+            <label for="skipBR">Skip Bootrom *</label>
           </div>
           <div>
             <input id="stubLY" type="checkbox" checked />
-            <label for="stubLY">Stub LY to 0x90</label><br />
+            <label for="stubLY">Stub LY to 0x90 *</label><br />
           </div>
           <div>
             <input id="cdebug-toggle" type="checkbox" />
@@ -72,6 +77,9 @@
             <div id="cdebug-wrapper">
               <canvas id="cdebug"></canvas>
             </div>
+          </div>
+          <div class="mt mt-sml" style="opacity: .5; color: gray; font-size: .75em;">
+            * Reset required
           </div>
         </div>
       </div>

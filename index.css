@@ -10,6 +10,57 @@ main {
 	margin-bottom: 1rem;
 }
 
+*:is(.mb,.mr,.mt,.ml) {
+	--valueB: .33rem;
+	--valueR: .33rem;
+	--valueT: .33rem;
+	--valueL: .33rem;
+}
+.mt.mt-big { --valueT:  1rem; }
+.mb.mb-big { --valueB:  1rem; }
+.ml.ml-big { --valueL:  1rem; }
+.mr.mr-big { --valueR:  1rem; }
+.mt.mt-med { --valueT: .5rem; }
+.mb.mb-med { --valueB: .5rem; }
+.ml.ml-med { --valueL: .5rem; }
+.mr.mr-med { --valueR: .5rem; }
+.mt.mt-sml { --valueT: .25rem; }
+.mb.mb-sml { --valueB: .25rem; }
+.ml.ml-sml { --valueL: .25rem; }
+.mr.mr-sml { --valueR: .25rem; }
+
+.mb {
+	margin-bottom: var(--valueB);
+}
+.mr {
+	margin-right: var(--valueR);
+}
+.mt {
+	margin-top: var(--valueT);
+}
+.ml {
+	margin-left: var(--valueL);
+}
+
+.centered {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+}
+
+.square-h {
+	height: 1.46em;
+	padding: 0;
+	margin: 0;
+}
+.square {
+	width: 1.7em;
+	height: 1.7em;
+	padding: 0;
+	margin: 0;
+}
+
 #right {
 	display: flex;
 	justify-content: center;

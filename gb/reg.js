@@ -47,6 +47,7 @@ export class Registers {
     return this[a] << 8 | this[b];
   }
   mset(v, a, b) {
+    v &= 0xFFFF;
     this[a] = v >> 8; 
     this[b] = v & 0xff;
   }

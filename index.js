@@ -75,11 +75,6 @@ window.addEventListener("load", function() {
 		gb.downloadLog();
 	});
 
-	/*button("btn-skip", (btn) => {
-		gb.skipBoot();
-		loop();
-		btu();
-	});*/
 	window.GB = gb
 
 	function loop() {
@@ -108,7 +103,6 @@ window.addEventListener("load", function() {
 	}).observe(cw);
 
 	//File upload
-
 	function handleFile(file) {
 		const fr = new FileReader();
 		fr.onload = () => {
@@ -121,7 +115,6 @@ window.addEventListener("load", function() {
 	}
 
 	//Drag and drop
-
 	function drag_in(event) {
 		// Allow drop
 		event.preventDefault();
@@ -144,16 +137,12 @@ window.addEventListener("load", function() {
 		handleFile(event.dataTransfer.files[0]);
 	});
 
-	//Manual
+	//Manual Upload
 	$id("drop-manual").addEventListener('change', (event) => {
 		handleFile(event.target.files[0]);
 	});
 
-	const deferred = $class("defer");
-	for (let i = 0; i < deferred.length; i++) {
-		deferred[i].classList.remove("defer");
-	}
-
+	//Handle last rom
 	if(localStorage.getItem('lastrom')) {
 		$id("last-rom").style.setProperty('display', 'inline-block');
 	}
@@ -163,5 +152,23 @@ window.addEventListener("load", function() {
 		gb.loadROM(arr);
 	});
 
+	//Breakpoint buttons
+	function getBreakpointAddr() {
+		return parseInt($id("brk-input").value, 16);
+	}
+	button("brk-add", (btn) => {
+		console.log('Breakpoint set');
+		gb.setBreakpoint(getBreakpointAddr(), true);
+	});
+	button("brk-rem", (btn) => {
+		console.log('Breakpoint unset');
+		gb.setBreakpoint(getBreakpointAddr(), false);
+	});
+
+	//Remove deferred and noscript
+	const deferred = $class("defer");
+	for (let i = 0; i < deferred.length; i++) {
+		deferred[i].classList.remove("defer");
+	}
 	$id("noscript").remove();
 });
