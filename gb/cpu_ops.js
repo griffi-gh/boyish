@@ -990,17 +990,9 @@ function _SRL() {
     this.f.c = !!(input & 0x01);
     input = (input >> 1);
     this.f.z = (input === 0);
-  `)
+  `);
 }
-function SRL_R {
-  return construct(`
-    let input = this.mmu.read(this.r.hl);;
-    ${ _SRL() }
-    this.mmu.write(this.r.hl, input);
-    return [8, pc+1];
-  `)
-}
-function SRL_AHL {
+function SRL_R(r) {
   return construct(`
     let input = this.r.${r};
     ${ _SRL() }
@@ -1008,6 +1000,15 @@ function SRL_AHL {
     return [8, pc+1];
   `)
 }
+function SRL_AHL() {
+  return construct(`
+    let input = this.mmu.read(this.r.hl);;
+    ${ _SRL() }
+    this.mmu.write(this.r.hl, input);
+    return [16, pc+1];
+  `);
+}
+
 
 CB_OPS[0x10] = RL_R('b');
 CB_OPS[0x11] = RL_R('c');
