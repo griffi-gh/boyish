@@ -32,10 +32,13 @@ export default class PixelCanvas {
       data[i] = color[i % 4];
     }
   }
+  getLineOffset(y) {
+    return 4 * y * this.img.width;
+  }
   set(x, y, r, g, b) {
     let index = 4 * (x + y * this.img.width);
     let imgData = this.img.data;
-    imgData[index+0] = r;
+    imgData[index] = r;
     imgData[index+1] = g;
     imgData[index+2] = b;
   }

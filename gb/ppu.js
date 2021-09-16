@@ -107,12 +107,21 @@ export default class PPU {
     let x = (this.scx & 7);
     let lineStart = (this.scx >> 3);
     let tileIndex = this.vram[mapArea+lineStart];
+
+    //Draw
+    let drawOffset = this.canvas.getLineOffset(this.line, 0);
+    const img = this.canvas.img.data;
+
     //console.log(toHex(mapArea+lineStart+0x8000,16))
     if(!(this.tileDataArea) && tileIndex < 128){ tileIndex += 0x100 };
     let tile = this.tileCache[tileIndex][y];
     for(let i=0; i < SCREEN_SIZE[0]; i+=1) {
       let pix = this.pallete[tile[x]];
-      this.canvas.setArr(i, this.line, pix);
+      img[drawOffset] = pix[0];
+      img[drawOffset + 1] = pix[1];
+      img[drawOffset + 2] = pix[2];
+      drawOffset += 4;
+      //this.canvas.setArr(i, this.line, pix);
       x += 1;
       if(x >= 8) {
         lineStart = (lineStart + 1) & 31;
