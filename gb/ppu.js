@@ -101,8 +101,7 @@ export default class PPU {
   drawLine() {
     const h = (this.line + this.scy);
     const mapAreaRaw = (this.bgMapArea ? 0x1C00 : 0x1800);
-    //const mapArea = mapAreaRaw + ((h & 0xFF) >> 3);
-    const mapArea = mapAreaRaw + (((h & 0xFF)>>3)<<5);//((h & 0xFC) << 2);
+    const mapArea = mapAreaRaw + (((h & 0xFF)>>3)<<5);
     const y = (h & 7);
     let x = (this.scx & 7);
     let lineStart = (this.scx >> 3);
@@ -112,16 +111,16 @@ export default class PPU {
     let drawOffset = this.canvas.getLineOffset(this.line, 0);
     const img = this.canvas.img.data;
 
-    //console.log(toHex(mapArea+lineStart+0x8000,16))
     if(!(this.tileDataArea) && tileIndex < 128){ tileIndex += 0x100 };
     let tile = this.tileCache[tileIndex][y];
-    for(let i=0; i < SCREEN_SIZE[0]; i+=1) {
+    for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let pix = this.pallete[tile[x]];
+      // DRAW
       img[drawOffset] = pix[0];
       img[drawOffset + 1] = pix[1];
       img[drawOffset + 2] = pix[2];
       drawOffset += 4;
-      //this.canvas.setArr(i, this.line, pix);
+      // DRAW
       x += 1;
       if(x >= 8) {
         lineStart = (lineStart + 1) & 31;
