@@ -549,7 +549,6 @@ function RET_C_U16() {
   return construct(_RET_COND(false,'c'));
 }
 
-
 function _RL_INPUT(noZ) {
   return (`
     let result = (input << 1) | (this.f.c | 0);
@@ -979,7 +978,7 @@ function RL_AHL() {
   return construct(`
     const input = this.mmu.read(this.r.hl);
     ${ _RL_INPUT(false) }
-    this.mmu.write(this.r.hl, input);
+    this.mmu.write(this.r.hl, result);
     return [16, pc+1];
   `);
 }
@@ -1009,6 +1008,32 @@ function SRL_AHL() {
   `);
 }
 
+function _RR_INPUT() {
+  return (`
+    if(this.f.c) { input += 0x100; }
+    this.f.reset();
+    this.f.c = !!(input & 0x01);
+    const input = (input >> 1) & 0xFF;
+    this.f.z = (input === 0);
+  `)
+}
+
+function RR_R(r) {
+  return construct(`
+    const input = this.r.${r};
+    ${ _RR_INPUT(false) }
+    this.r.${r} = input;
+    return [8, pc+1];
+  `);
+}
+function RR_AHL() {
+  return construct(`
+    const input = this.mmu.read(this.r.hl);
+    ${ _RR_INPUT(false) }
+    this.mmu.write(this.r.hl, input);
+    return [16, pc+1];
+  `);
+}
 
 CB_OPS[0x10] = RL_R('b');
 CB_OPS[0x11] = RL_R('c');
@@ -1018,6 +1043,15 @@ CB_OPS[0x14] = RL_R('h');
 CB_OPS[0x15] = RL_R('l');
 CB_OPS[0x16] = RL_AHL();
 CB_OPS[0x17] = RL_R('a');
+
+CB_OPS[0x18] = RR_R('b');
+CB_OPS[0x19] = RR_R('c');
+CB_OPS[0x1A] = RR_R('d');
+CB_OPS[0x1B] = RR_R('e');
+CB_OPS[0x1C] = RR_R('h');
+CB_OPS[0x1D] = RR_R('l');
+CB_OPS[0x1E] = RR_AHL();
+CB_OPS[0x1F] = RR_R('a');
 
 CB_OPS[0x30] = SWAP_R('b');
 CB_OPS[0x31] = SWAP_R('c');
