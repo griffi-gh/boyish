@@ -195,6 +195,19 @@ function _ADDSUB(isAdd) {
   `;
 }
 
+function _ADCSBC(isAdd) {
+  return `
+    const carry = this.f.c | 0;
+    let a = this.r.a;
+    this.f.h = ((a & 0xF) + (b & 0xF) + carry) > 0xF;
+    a += (b + carry);
+    this.f.c = (a > 0xFF);
+    a &= 0xFF;
+    this.f.z = (a === 0);
+    this.r.a = a;
+  `
+}
+
 //ADD A,R
 function ADD_A_R(r) {
   return construct(`
@@ -236,11 +249,61 @@ function SUB_A_AHL() {
     return [8, pc+1];
   `);
 }
-//ADD A,u8
+//SUB A,u8
 function SUB_A_U8() {
   return construct(`
     const b = this.mmu.read(pc+1);
     ${ _ADDSUB(false) }
+    return [8, pc+2];
+  `);
+}
+
+//ADC A,R
+function ADC_A_R(r) {
+  return construct(`
+    const b = this.r.${r};
+    ${ _ADCSBC(true) }
+    return [4, pc+1];
+  `);
+}
+//ADC A,(HL)
+function ADC_A_AHL() {
+  return construct(`
+    const b = this.mmu.read(this.r.hl);
+    ${ _ADCSBC(true) }
+    return [8, pc+1];
+  `);
+}
+//ADC A,u8
+function ADC_A_U8() {
+  return construct(`
+    const b = this.mmu.read(pc+1);
+    ${ _ADCSBC(true) }
+    return [8, pc+2];
+  `);
+}
+
+//SBC A,R
+function SBC_A_R(r) {
+  return construct(`
+    const b = this.r.${r};
+    ${ _ADCSBC(false) }
+    return [4, pc+1];
+  `);
+}
+//SBC A,(HL)
+function SBC_A_AHL() {
+  return construct(`
+    const b = this.mmu.read(this.r.hl);
+    ${ _ADCSBC(false) }
+    return [8, pc+1];
+  `);
+}
+//SBC A,u8
+function SBC_A_U8() {
+  return construct(`
+    const b = this.mmu.read(pc+1);
+    ${ _ADCSBC(false) }
     return [8, pc+2];
   `);
 }
@@ -705,8 +768,8 @@ function RETI() {
   `)
 }
 
-function ADD_SP_I8() {
-  return construct(`
+function _SP_P_I8() {
+  return (`
     let off = this.mmu.read(pc+1);
     if((off & 0x80) !== 0) {
       off += 0xFF00;
@@ -715,7 +778,22 @@ function ADD_SP_I8() {
     this.f.reset();
     this.f.h = ((sp & 0xF) + (off & 0xF)) > 0xF;
     this.f.c = ((sp & 0xFF) + (off & 0xFF)) > 0xFF;
-    this.r.sp += off;
+    let result = sp + off;
+  `)
+}
+
+function ADD_SP_I8() {
+  return construct(`
+    ${ _SP_P_I8() }
+    this.r.sp = result;
+    return [16, pc+2];
+  `);
+}
+
+function LD_HL_SP_P_I8() {
+  return construct(`
+    ${ _SP_P_I8() }
+    this.r.hl = result;
     return [16, pc+2];
   `);
 }
@@ -836,6 +914,7 @@ OPS[0x14] = INC_R('d');         // INC D
 OPS[0x1C] = INC_R('e');         // INC E
 OPS[0x24] = INC_R('h');         // INC H
 OPS[0x2C] = INC_R('l');         // INC L
+OPS[0x34] = INC_AHL()           // INC (HL)
 OPS[0x3C] = INC_R('a');         // INC A
 
 OPS[0x05] = DEC_R('b');         // DEC B
@@ -844,6 +923,7 @@ OPS[0x15] = DEC_R('d');         // DEC D
 OPS[0x1D] = DEC_R('e');         // DEC E
 OPS[0x25] = DEC_R('h');         // DEC H
 OPS[0x2D] = DEC_R('l');         // DEC L
+OPS[0x35] = DEC_AHL()           // DEC (HL)
 OPS[0x3D] = DEC_R('a');         // DEC A
 
 OPS[0x03] = INC_RR('bc');       // INC BC
@@ -877,6 +957,28 @@ OPS[0x96] = SUB_A_AHL();        // SUB A,(HL)
 OPS[0x97] = SUB_A_R('a');       // SUB A,L
 
 OPS[0xD6] = SUB_A_U8();         // SUB A,u8
+
+OPS[0x88] = ADC_A_R('b');       // ADC A,B
+OPS[0x89] = ADC_A_R('c');       // ADC A,C
+OPS[0x8A] = ADC_A_R('d');       // ADC A,D
+OPS[0x8B] = ADC_A_R('e');       // ADC A,E
+OPS[0x8C] = ADC_A_R('h');       // ADC A,H
+OPS[0x8D] = ADC_A_R('l');       // ADC A,L
+OPS[0x8E] = ADC_A_AHL();        // ADC A,(HL)
+OPS[0x8F] = ADC_A_R('a');       // ADC A,L
+
+OPS[0xCE] = ADC_A_U8();         // ADC A,u8
+
+OPS[0x98] = SBC_A_R('b');       // SBC A,B
+OPS[0x99] = SBC_A_R('c');       // SBC A,C
+OPS[0x9A] = SBC_A_R('d');       // SBC A,D
+OPS[0x9B] = SBC_A_R('e');       // SBC A,E
+OPS[0x9C] = SBC_A_R('h');       // SBC A,H
+OPS[0x9D] = SBC_A_R('l');       // SBC A,L
+OPS[0x9E] = SBC_A_AHL();        // SBC A,(HL)
+OPS[0x9F] = SBC_A_R('a');       // SBC A,L
+
+OPS[0xDE] = SBC_A_U8();         // SBC A,u8
 
 OPS[0xA0] = AND_A_R('b');       // AND A,B
 OPS[0xA1] = AND_A_R('c');       // AND A,C
@@ -975,6 +1077,7 @@ OPS[0xFB] = EI();               // EI
 OPS[0xD9] = RETI();             // RETI
 
 OPS[0xE8] = ADD_SP_I8();        // ADD SP,i8
+OPS[0xF8] = LD_HL_SP_P_I8();    // LD HL,SP+i8
 
 // CB_OPS
 
