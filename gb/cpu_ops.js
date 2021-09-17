@@ -192,7 +192,7 @@ function _ADDSUB(isAdd) {
     const f = this.f;
     f.z = ((result & 0xFF) === 0);
     f.n = ${(!isAdd).toString()};
-    f.h = ((a & 0xF) ${isAdd ? '+' : '-'} (b & 0xF)) ${isAdd ? '>' : '<'} 0;
+    f.h = ((a & 0xF) ${isAdd ? '+' : '-'} (b & 0xF)) ${isAdd ? '> 0xF' : '< 0'};
     f.c = ${isAdd ? '(result > 0xFF)' : '(result < 0x00)'};
     this.r.a = result & 0xFF;
   `;
@@ -202,9 +202,9 @@ function _ADCSBC(isAdd) {
   return `
     const carry = this.f.c | 0;
     let a = this.r.a;
-    this.f.h = ((a & 0xF) + (b & 0xF) + carry) > 0xF;
-    a += (b + carry);
-    this.f.c = (a > 0xFF);
+    this.f.h = ((a & 0xF) ${isAdd ? '+' : '-'} (b & 0xF) ${isAdd ? '+' : '-'} carry) > ${isAdd ? '> 0xF' : '< 0'};
+    a ${isAdd ? '+' : '-'}= (b + carry);
+    this.f.c = (a ${isAdd ? '> 0xFF' : '< 0'});
     a &= 0xFF;
     this.f.z = (a === 0);
     this.r.a = a;
