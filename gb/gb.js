@@ -92,8 +92,8 @@ export class Gameboy {
           debugger;
           return;
         }
-        let c = this.cpu.step();
-        this.ppu.step(c);
+        let cycles = this.cpu.step();
+        this.ppu.step(cycles);
       }
       cpu.cycles -= CYCLES_PER_FRAME;
     } catch(e) {
