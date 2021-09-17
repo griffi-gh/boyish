@@ -49,16 +49,38 @@ main {
 	text-align: center;
 }
 
+.stretched {
+	display: flex;
+	flex-direction: row;
+	justify-content: stretch;
+	align-items: center;
+}
+.stretched > * {
+	flex-grow: 1;
+}
+
 .square-h {
 	height: 1.46em;
 	padding: 0;
 	margin: 0;
 }
-.square {
-	width: 1.7em;
-	height: 1.7em;
+.minw {
+	display: block;
+	display: inline-block;
+	width: auto;
+	min-width: 1.5rem;
+}
+.input-hex-fixed {
+	width: 17.5ch;
+	flex-shrink: 0;
+	flex-grow: 0;
+}
+.nopad {
 	padding: 0;
 	margin: 0;
+}
+.block {
+	display: block;
 }
 
 #right {

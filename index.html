@@ -58,10 +58,18 @@
           </form>
         </div>
         <div id="debug">
-          <div class="centered mb mb-med mt mt-sml">
-            <input id="brk-input" type="text" class="square-h" placeholder="Set PC breakpoint" class="mr" />
-            <button id="brk-add" type="button" class="square">+</button>
-            <button id="brk-rem" type="button" class="square">-</button>
+          <h4 class="nopad centered">DEBUG</h4>
+          <div class="stretched mb mb-med mt mt-sml">
+            <input id="brk-input" class="block nopad input-hex-fixed" type="text" placeholder="Set PC breakpoint"/>
+            <button id="brk-add" type="button" class="minw nopad">SET</button>
+            <button id="brk-rem" type="button" class="minw nopad">UNSET</button>
+          </div>
+          <div class="stretched mb mb-med">
+            <input id="mbrk-input" class="block nopad input-hex-fixed" type="text" placeholder="Set MMU breakpoint"/>
+            <button id="mbrk-r" type="button" class="minw nopad">R</button>
+            <button id="mbrk-w" type="button" class="minw nopad">W</button>
+            <button id="mbrk-a" type="button" class="minw nopad">RW</button>
+            <button id="mbrk-rem" type="button" class="minw nopad">UNSET</button>
           </div>
           <div>
             <input id="skipBR" type="checkbox" checked />

@@ -153,16 +153,36 @@ window.addEventListener("load", function() {
 	});
 
 	//Breakpoint buttons
-	function getBreakpointAddr() {
-		return parseInt($id("brk-input").value, 16);
+	function inputHex(id) {
+		return parseInt($id(id).value, 16)
 	}
+
+	//PC Breakpoints
 	button("brk-add", (btn) => {
 		console.log('Breakpoint set');
-		gb.setBreakpoint(getBreakpointAddr(), true);
+		gb.setBreakpoint(inputHex("brk-input"), true);
 	});
 	button("brk-rem", (btn) => {
 		console.log('Breakpoint unset');
-		gb.setBreakpoint(getBreakpointAddr(), false);
+		gb.setBreakpoint(inputHex("brk-input"), undefined);
+	});
+
+	//MMU Breakpoints
+	button("mbrk-r", (btn) => {
+		console.log('MMUBreakpoint set');
+		gb.setMMUbreakpoint(inputHex("mbrk-input"), 'r');
+	});
+	button("mbrk-w", (btn) => {
+		console.log('MMUBreakpoint set');
+		gb.setMMUbreakpoint(inputHex("mbrk-input"), 'w');
+	});
+	button("mbrk-a", (btn) => {
+		console.log('MMUBreakpoint set');
+		gb.setMMUbreakpoint(inputHex("mbrk-input"), 'a');
+	});
+	button("mbrk-rem", (btn) => {
+		console.log('MMUBreakpoint unset');
+		gb.setMMUbreakpoint(inputHex("mbrk-input"), undefined);
 	});
 
 	//Remove deferred and noscript

@@ -32,6 +32,7 @@ export default class MMU {
     this.eram = new Uint8Array(0x2000).fill(0x00);
     this.hram = new Uint8Array(0x7F).fill(0x00);
     this.disableBios = false;
+    this.accessBreakpoints = [];
     //load valid header into the ROM memory
     for(let i = 0; i <= 80; i++) {
       this.rom[0x100 + i] = header[i];
@@ -44,8 +45,19 @@ export default class MMU {
       this.rom[i] = (d[i] | 0);
     }
   }
+  handleBreakpoints(t,addr,val) {
+    if(this.accessBreakpoints[addr]) {
+      const b = this.accessBreakpoints[addr];
+      if(b === t || b === 'a') {
+        console.log('Address 0x' + toHex(addr,16) + (t === 'r' ? 'read' : 'write = ') + (val ? toHex(val,8) : ''));
+        let t = this.gb.cpu.OPContext; //import opcontext
+        debugger;
+      }
+    }
+  }
   read(addr) {
     addr &= 0xFFFF;
+    this.handleBreakpoints('r', addr);
     switch (addr) {
       case 0xFFFF:
         return this.gb.cpu.irq.ie | 0;
@@ -90,6 +102,7 @@ export default class MMU {
   write(addr, val) {
     addr &= 0xFFFF;
     val  &= 0xFF;
+    this.handleBreakpoints('w', addr, val);
     switch (addr) {
       case 0xFFFF:
         this.gb.cpu.irq.ie = val;
