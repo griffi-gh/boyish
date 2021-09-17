@@ -73,7 +73,7 @@ function INC_AHL() {
 function DEC_AHL() {
   return construct(`
     const hl = this.r.hl;
-    const result = this.mmu.read(hl) + 1;
+    const result = this.mmu.read(hl) - 1;
     ${_INCDEC_FLAGS(false)}
     this.mmu.write(hl, result);
     return [12, pc+1];
