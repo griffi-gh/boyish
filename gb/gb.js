@@ -57,6 +57,9 @@ export class Gameboy {
   setBreakpoint(addr, val = true) {
     this.breakpoints[addr] = val;
   }
+  setMMUbreakpoint(addr, val = true) {
+    
+  }
   loadROM(data) {
     this.mmu.loadROM(data);
     console.log('Rom loaded');
