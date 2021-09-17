@@ -134,7 +134,8 @@ function LD_R_U8(r) {
 //LD R,R
 function LD_R_R(a, b) { 
   return construct(`
-    this.r.${a} = (this.r.${b} | 0);
+    this.r.${a} = this.r.${b};
+    if(this.r.pc==0xDEF8){debugger;}
     return [4, pc+1]; 
   `);
 } //
