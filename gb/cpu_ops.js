@@ -142,11 +142,13 @@ function LD_R_R(a, b) {
 //LD R,(HL)
 function LD_R_AHL(r) { 
   return construct(`
-    const v = this.mmu.read(this.r.hl)
-    this.reg.${r} = v;
+    this.reg.${r} = this.mmu.read(this.r.hl) | 0;;
     return [8, pc+1]; 
   `);
 }
+/*if(pc === 0xC8CF){
+  debugger;
+}*/
 
 //LD (HL),R
 function LD_AHL_R(r) { 
