@@ -1116,6 +1116,44 @@ function BIT_AHL(bit) {
   `);
 }
 
+function _RES(bit) {
+  return ('& ' + (~(1 << bit)).toString(10));
+}
+
+function RES_R(bit, r) {
+  return construct(`
+    this.r.${r} = this.r.${r} ${ _RES(bit) };
+    return [8, pc+1];
+  `)
+}
+
+function RES_AHL(bit) {
+  return construct(`
+    const hl = this.r.hl;
+    this.mmu.write(hl, this.mmu.read(hl) ${ _RES(bit) })
+    return [8, pc+1];
+  `)
+}
+
+function _SET(bit) {
+  return ('| ' + (1 << bit).toString(10)); 
+}
+
+function SET_R(bit, r) {
+  return construct(`
+    this.r.${r} = this.r.${r} ${ _SET(bit) };
+    return [8, pc+1];
+  `)
+}
+
+function SET_AHL(bit) {
+  return construct(`
+    const hl = this.r.hl;
+    this.mmu.write(hl, this.mmu.read(hl) ${ _SET(bit) })
+    return [8, pc+1];
+  `)
+}
+
 function _SWAP() {
   return (`
     a = ((a & 0x0F) << 4 | (a & 0xF0) >> 4);
@@ -1307,3 +1345,154 @@ CB_OPS[0x7C] = BIT_R(7,'h');
 CB_OPS[0x7D] = BIT_R(7,'l');
 CB_OPS[0x7E] = BIT_AHL(7);
 CB_OPS[0x7F] = BIT_R(7,'a');
+
+
+
+
+CB_OPS[0x80] = RES_R(0,'b');
+CB_OPS[0x81] = RES_R(0,'c');
+CB_OPS[0x82] = RES_R(0,'d');
+CB_OPS[0x83] = RES_R(0,'e');
+CB_OPS[0x84] = RES_R(0,'h');
+CB_OPS[0x85] = RES_R(0,'l');
+CB_OPS[0x86] = RES_AHL(0);
+CB_OPS[0x87] = RES_R(0,'a');
+
+CB_OPS[0x88] = RES_R(1,'b');
+CB_OPS[0x89] = RES_R(1,'c');
+CB_OPS[0x8A] = RES_R(1,'d');
+CB_OPS[0x8B] = RES_R(1,'e');
+CB_OPS[0x8C] = RES_R(1,'h');
+CB_OPS[0x8D] = RES_R(1,'l');
+CB_OPS[0x8E] = RES_AHL(1);
+CB_OPS[0x8F] = RES_R(1,'a');
+
+CB_OPS[0x90] = RES_R(2,'b');
+CB_OPS[0x91] = RES_R(2,'c');
+CB_OPS[0x92] = RES_R(2,'d');
+CB_OPS[0x93] = RES_R(2,'e');
+CB_OPS[0x94] = RES_R(2,'h');
+CB_OPS[0x95] = RES_R(2,'l');
+CB_OPS[0x96] = RES_AHL(2);
+CB_OPS[0x97] = RES_R(2,'a');
+
+CB_OPS[0x98] = RES_R(3,'b');
+CB_OPS[0x99] = RES_R(3,'c');
+CB_OPS[0x9A] = RES_R(3,'d');
+CB_OPS[0x9B] = RES_R(3,'e');
+CB_OPS[0x9C] = RES_R(3,'h');
+CB_OPS[0x9D] = RES_R(3,'l');
+CB_OPS[0x9E] = RES_AHL(3);
+CB_OPS[0x9F] = RES_R(3,'a');
+
+CB_OPS[0xA0] = RES_R(4,'b');
+CB_OPS[0xA1] = RES_R(4,'c');
+CB_OPS[0xA2] = RES_R(4,'d');
+CB_OPS[0xA3] = RES_R(4,'e');
+CB_OPS[0xA4] = RES_R(4,'h');
+CB_OPS[0xA5] = RES_R(4,'l');
+CB_OPS[0xA6] = RES_AHL(4);
+CB_OPS[0xA7] = RES_R(4,'a');
+
+CB_OPS[0xA8] = RES_R(5,'b');
+CB_OPS[0xA9] = RES_R(5,'c');
+CB_OPS[0xAA] = RES_R(5,'d');
+CB_OPS[0xAB] = RES_R(5,'e');
+CB_OPS[0xAC] = RES_R(5,'h');
+CB_OPS[0xAD] = RES_R(5,'l');
+CB_OPS[0xAE] = RES_AHL(5);
+CB_OPS[0xAF] = RES_R(5,'a');
+
+CB_OPS[0xB0] = RES_R(6,'b');
+CB_OPS[0xB1] = RES_R(6,'c');
+CB_OPS[0xB2] = RES_R(6,'d');
+CB_OPS[0xB3] = RES_R(6,'e');
+CB_OPS[0xB4] = RES_R(6,'h');
+CB_OPS[0xB5] = RES_R(6,'l');
+CB_OPS[0xB6] = RES_AHL(6);
+CB_OPS[0xB7] = RES_R(6,'a');
+
+CB_OPS[0xB8] = RES_R(7,'b');
+CB_OPS[0xB9] = RES_R(7,'c');
+CB_OPS[0xBA] = RES_R(7,'d');
+CB_OPS[0xBB] = RES_R(7,'e');
+CB_OPS[0xBC] = RES_R(7,'h');
+CB_OPS[0xBD] = RES_R(7,'l');
+CB_OPS[0xBE] = RES_AHL(7);
+CB_OPS[0xBF] = RES_R(7,'a');
+
+
+
+
+
+CB_OPS[0xC0] = SET_R(0,'b');
+CB_OPS[0xC1] = SET_R(0,'c');
+CB_OPS[0xC2] = SET_R(0,'d');
+CB_OPS[0xC3] = SET_R(0,'e');
+CB_OPS[0xC4] = SET_R(0,'h');
+CB_OPS[0xC5] = SET_R(0,'l');
+CB_OPS[0xC6] = SET_AHL(0);
+CB_OPS[0xC7] = SET_R(0,'a');
+
+CB_OPS[0xC8] = SET_R(1,'b');
+CB_OPS[0xC9] = SET_R(1,'c');
+CB_OPS[0xCA] = SET_R(1,'d');
+CB_OPS[0xCB] = SET_R(1,'e');
+CB_OPS[0xCC] = SET_R(1,'h');
+CB_OPS[0xCD] = SET_R(1,'l');
+CB_OPS[0xCE] = SET_AHL(1);
+CB_OPS[0xCF] = SET_R(1,'a');
+
+CB_OPS[0xD0] = SET_R(2,'b');
+CB_OPS[0xD1] = SET_R(2,'c');
+CB_OPS[0xD2] = SET_R(2,'d');
+CB_OPS[0xD3] = SET_R(2,'e');
+CB_OPS[0xD4] = SET_R(2,'h');
+CB_OPS[0xD5] = SET_R(2,'l');
+CB_OPS[0xD6] = SET_AHL(2);
+CB_OPS[0xD7] = SET_R(2,'a');
+
+CB_OPS[0xD8] = SET_R(3,'b');
+CB_OPS[0xD9] = SET_R(3,'c');
+CB_OPS[0xDA] = SET_R(3,'d');
+CB_OPS[0xDB] = SET_R(3,'e');
+CB_OPS[0xDC] = SET_R(3,'h');
+CB_OPS[0xDD] = SET_R(3,'l');
+CB_OPS[0xDE] = SET_AHL(3);
+CB_OPS[0xDF] = SET_R(3,'a');
+
+CB_OPS[0xE0] = SET_R(4,'b');
+CB_OPS[0xE1] = SET_R(4,'c');
+CB_OPS[0xE2] = SET_R(4,'d');
+CB_OPS[0xE3] = SET_R(4,'e');
+CB_OPS[0xE4] = SET_R(4,'h');
+CB_OPS[0xE5] = SET_R(4,'l');
+CB_OPS[0xE6] = SET_AHL(4);
+CB_OPS[0xE7] = SET_R(4,'a');
+
+CB_OPS[0xE8] = SET_R(5,'b');
+CB_OPS[0xE9] = SET_R(5,'c');
+CB_OPS[0xEA] = SET_R(5,'d');
+CB_OPS[0xEB] = SET_R(5,'e');
+CB_OPS[0xEC] = SET_R(5,'h');
+CB_OPS[0xED] = SET_R(5,'l');
+CB_OPS[0xEE] = SET_AHL(5);
+CB_OPS[0xEF] = SET_R(5,'a');
+
+CB_OPS[0xF0] = SET_R(6,'b');
+CB_OPS[0xF1] = SET_R(6,'c');
+CB_OPS[0xF2] = SET_R(6,'d');
+CB_OPS[0xF3] = SET_R(6,'e');
+CB_OPS[0xF4] = SET_R(6,'h');
+CB_OPS[0xF5] = SET_R(6,'l');
+CB_OPS[0xF6] = SET_AHL(6);
+CB_OPS[0xF7] = SET_R(6,'a');
+
+CB_OPS[0xF8] = SET_R(7,'b');
+CB_OPS[0xF9] = SET_R(7,'c');
+CB_OPS[0xFA] = SET_R(7,'d');
+CB_OPS[0xFB] = SET_R(7,'e');
+CB_OPS[0xFC] = SET_R(7,'h');
+CB_OPS[0xFD] = SET_R(7,'l');
+CB_OPS[0xFE] = SET_AHL(7);
+CB_OPS[0xFF] = SET_R(7,'a');
