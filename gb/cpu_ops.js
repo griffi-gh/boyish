@@ -773,7 +773,7 @@ function RETI() {
   return construct(`
     ${ _RET() }
     this.irq.disableIME();
-    return [16, pc+1];
+    return [16, ret];
   `)
 }
 
