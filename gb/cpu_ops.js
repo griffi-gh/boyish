@@ -13,7 +13,7 @@ function NOP() {
   `);
 }
 
-//HALTg
+//HALT
 function HALT() {
   return construct(`
     this.gb.stateChange(this.gb.STATE_HALT);
