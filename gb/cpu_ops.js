@@ -134,8 +134,14 @@ function LD_R_U8(r) {
 //LD R,R
 function LD_R_R(a, b) { 
   return construct(`
-    this.r.${a} = this.r.${b};
-    if(this.r.pc==0xDEF8){debugger;}
+    const v = this.r.${b};
+    this.r.${a} = v;
+    if(this.r.pc==0xDEF8 && this.mmu.read(pc) == 0x48){
+      console.log(v);
+      console.log(this.reg.${b}, this.r.${a})
+      console.log('${b}','${a}')
+      debugger;
+    }
     return [4, pc+1]; 
   `);
 } //

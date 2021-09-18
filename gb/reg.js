@@ -2,20 +2,34 @@ import { toHex } from './common.js';
 
 export class Registers {
   constructor() {
-    this.r = new Uint8Array(7).fill(0);
+    // FLAGS
     this.flags = {};
+    let f = this.flags;
     this.flags.reset = (function() {
-      this.z = false;
-      this.n = false;
-      this.h = false;
-      this.c = false;
-    }).bind(this.flags);
+      f.z = false;
+      f.n = false;
+      f.h = false;
+      f.c = false;
+    });
     this.flags.reset();
+
+    // 16 BIT REGISTERS
     this.pc = 0;
     this.sp = 0;
+
+    // 8 BIT REGISTERS
+    this.b = 0;
+    this.c = 0;
+    this.d = 0;
+    this.e = 0;
+    this.h = 0;
+    this.l = 0;
+    this.a = 0;
+
+    //this.r = new Uint8Array(7).fill(0);
   }
 
-  get b() { return this.r[0]; }
+  /*get b() { return this.r[0]; }
   get c() { return this.r[1]; }
   get d() { return this.r[2]; }
   get e() { return this.r[3]; }
@@ -29,7 +43,7 @@ export class Registers {
   set e(v) { this.r[3] = v; }
   set h(v) { this.r[4] = v; }
   set l(v) { this.r[5] = v; }
-  set a(v) { this.r[6] = v; }
+  set a(v) { this.r[6] = v; }*/
 
   get f() {
     const f = this.flags;
