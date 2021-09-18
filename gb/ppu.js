@@ -36,7 +36,7 @@ export default class PPU {
 
     this.tileCache = [];
 
-    //LCDC REGISTERS
+    // LCDC REGISTERS
     this.lcdon = false;
     this.tileDataArea = false;
     this.bgMapArea = false;
@@ -45,6 +45,13 @@ export default class PPU {
     this.objSize = false;
     this.objEnable = false;
     this.bgWinEnable = false;
+
+    // STAT
+    this.intLYC = false;
+    this.intOAM = false;
+    this.intVBlank = false;
+    this.intHBlank = false;
+    this.lycEq = false;
   }
   writeVRAM(addr, val) {
     this.vram[addr] = val;
@@ -55,6 +62,24 @@ export default class PPU {
   readVRAM(addr) {
     return this.vram[addr];
   }
+
+  set stat(v) {
+    this.intLYC    = (v & 0b01000000) !== 0;
+    this.intOAM    = (v & 0b00100000) !== 0;
+    this.intVBlank = (v & 0b00010000) !== 0;
+    this.intHBlank = (v & 0b00001000) !== 0;
+  }
+  get stat() {
+    return (
+      this.intLYC    << 6 |
+      this.intOAM    << 5 |
+      this.intVBlank << 4 |
+      this.intHBlank << 3 |
+      this.lycEq     << 2 |
+      this.mode 
+    );
+  }
+
   set lcdc(v) {
     this.lcdon        = (v & 0b10000000) !== 0;
     this.winMapArea   = (v & 0b01000000) !== 0;
@@ -77,6 +102,7 @@ export default class PPU {
       this.bgWinEnable  << 0
     )
   }
+
   updateTile(addr) {
     const index = Math.floor(addr / 16);
     const y = Math.floor((addr & 0xF) / 2);
@@ -132,6 +158,7 @@ export default class PPU {
     }
   }
   step(c) {
+    this.lycEq = (this.lyc === this.line);
     if(!this.lcdon) {
       this.cycles = 0;
       this.mode = 0;

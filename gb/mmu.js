@@ -75,8 +75,10 @@ export default class MMU {
         return this.gb.ppu.scx | 0;
       case 0xFF42:
         return this.gb.ppu.scy | 0;
+      case 0xFF41:
+        return this.gb.ppu.stat;
       case 0xFF40:
-        return this.gb.ppu.lcdc | 0;
+        return this.gb.ppu.lcdc;
       case 0xFF00:
         return 0xFF; // stub input reg
       default:
@@ -119,6 +121,9 @@ export default class MMU {
         return;
       case 0xFF42:
         this.gb.ppu.scy = val;
+        return;
+      case 0xFF41:
+        this.gb.ppu.stat = val;
         return;
       case 0xFF40:
         this.gb.ppu.lcdc = val;
