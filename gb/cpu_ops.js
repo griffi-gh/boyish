@@ -810,7 +810,7 @@ function LD_HL_SP_P_I8() {
 function LD_AU16_SP() {
   return construct(`
     this.mmu.writeWord(this.mmu.readWord(pc+1), this.reg.sp);
-    return [20, pc+4];
+    return [20, pc+3];
   `);
 }
 
