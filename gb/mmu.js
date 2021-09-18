@@ -77,6 +77,8 @@ export default class MMU {
         return this.gb.ppu.scy | 0;
       case 0xFF40:
         return this.gb.ppu.lcdc | 0;
+      case 0xFF00:
+        return 0xFF; // stub input reg
       default:
         if (addr <= 0xFF) {
           if (this.disableBios === false) {

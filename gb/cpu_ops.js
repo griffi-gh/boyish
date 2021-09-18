@@ -1424,7 +1424,6 @@ CB_OPS[0xBF] = RES_R(7,'a');
 
 
 
-
 CB_OPS[0xC0] = SET_R(0,'b');
 CB_OPS[0xC1] = SET_R(0,'c');
 CB_OPS[0xC2] = SET_R(0,'d');
