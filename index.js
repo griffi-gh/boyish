@@ -185,6 +185,12 @@ window.addEventListener("load", function() {
 		gb.setMMUbreakpoint(inputHex("mbrk-input"), undefined);
 	});
 
+	//Stub LY toggle
+	const sly = $id("stubLY")
+	sly.addEventListener('change', () => {
+		gb.stubLY = sly.checked;
+	});
+
 	//Remove deferred and noscript
 	const deferred = $class("defer");
 	for (let i = 0; i < deferred.length; i++) {
