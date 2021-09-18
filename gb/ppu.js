@@ -52,6 +52,14 @@ export default class PPU {
     this.intVBlank = false;
     this.intHBlank = false;
     this.lycEq = false;
+    this.lcdstat = false;
+  }
+
+  handleSTATirq() {
+    const lcdstat = (this.intLYC && this.lycEq) || 
+                    (this.intOAM && (this.mode === MODE_OAM)) ||
+                    (this.intVBlank && (this.mode === MODE_VBLANK)) ||
+                    (this.intHBlank && (this.mode === MODE_HBLANK));
   }
   writeVRAM(addr, val) {
     this.vram[addr] = val;
