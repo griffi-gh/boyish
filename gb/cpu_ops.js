@@ -13,7 +13,7 @@ function NOP() {
   `);
 }
 
-//HALT
+//HALTg
 function HALT() {
   return construct(`
     this.gb.stateChange(this.gb.STATE_HALT);
@@ -807,7 +807,16 @@ function LD_HL_SP_P_I8() {
   `);
 }
 
+function LD_AU16_SP() {
+  return construct(`
+    this.mmu.writeWord(this.mmu.readWord(pc+1), this.reg.sp);
+    return [20, pc+4];
+  `);
+}
+
 OPS[0x00] = NOP();              // NOP
+
+OPS[0x08] = LD_AU16_SP();       // LD (u16),SP
 
 OPS[0x10] = STOP();             // STOP
 OPS[0x76] = HALT();             // HALT
