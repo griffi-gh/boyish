@@ -539,6 +539,15 @@ function JP_C_U16() {
   return construct(_JP_COND(false,'c'));
 }
 
+//RST
+function RST(addr) {
+  return construct(`
+    this.r.sp = (this.r.sp - 2) & 0xFFFF;
+    this.mmu.writeWord(this.r.sp, this.r.pc + 1);
+    return [16, ${addr}];
+  `);
+}
+
 //CALL
 function _CALL() {
   return (`
@@ -838,8 +847,8 @@ OPS[0x47] = LD_R_R('b','a');    // LD B,A
 
 OPS[0x48] = LD_R_R('c','b');    // LD C,B
 OPS[0x49] = LD_R_R('c','c');    // LD C,C
-OPS[0x4B] = LD_R_R('c','d');    // CD C,D
-OPS[0x4A] = LD_R_R('c','e');    // LD C,E
+OPS[0x4A] = LD_R_R('c','d');    // CD C,D
+OPS[0x4B] = LD_R_R('c','e');    // LD C,E
 OPS[0x4C] = LD_R_R('c','h');    // LD C,H
 OPS[0x4D] = LD_R_R('c','l');    // LD C,L
 OPS[0x4E] = LD_R_AHL('c');      // LD C,(HL)
@@ -1053,6 +1062,15 @@ OPS[0xC8] = RET_Z_U16();        // RET Z,u16
 OPS[0xD8] = RET_C_U16();        // RET C,u16
 OPS[0xC0] = RET_NZ_U16();       // RET NZ,u16
 OPS[0xD0] = RET_NC_U16();       // RET NC,u16
+
+OPS[0xC7] = RST(0x00);          // RST 00h
+OPS[0xCF] = RST(0x08);          // RST 08h
+OPS[0xD7] = RST(0x10);          // RST 10h
+OPS[0xDF] = RST(0x18);          // RST 18h
+OPS[0xE7] = RST(0x20);          // RST 20h
+OPS[0xEF] = RST(0x28);          // RST 28h
+OPS[0xF7] = RST(0x30);          // RST 30h
+OPS[0xFF] = RST(0x38);          // RST 38h
 
 OPS[0x07] = RLCA();             // RLCA
 OPS[0x17] = RLA();              // RLA
