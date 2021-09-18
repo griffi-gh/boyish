@@ -37,10 +37,10 @@ export class Interrupts {
 
 	tick() {
 		if(this.imePending) {
-			this.imePending--;
-			if(this.imePending === 0) {
+			if((--this.imePending) <= 0) {
 				this.imePending = false;
 				this.ime = true;
+				console.log('ime on')
 			}
 		}
 		if(this.ime && this.ie && this.if) {
