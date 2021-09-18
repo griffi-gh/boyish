@@ -807,6 +807,13 @@ function LD_HL_SP_P_I8() {
   `);
 }
 
+function LD_SP_HL() {
+  return construct(`
+    this.r.sp = this.r.hl;
+    return [8, pc+1];
+  `);
+}
+
 function LD_AU16_SP() {
   return construct(`
     this.mmu.writeWord(this.mmu.readWord(pc+1), this.reg.sp);
@@ -1106,6 +1113,7 @@ OPS[0xD9] = RETI();             // RETI
 OPS[0xE8] = ADD_SP_I8();        // ADD SP,i8
 OPS[0xF8] = LD_HL_SP_P_I8();    // LD HL,SP+i8
 
+OPS[0xF9] = LD_SP_HL();         // LD SP,HL
 // CB_OPS
 
 function BIT_R(bit, r) {
