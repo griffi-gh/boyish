@@ -56,11 +56,14 @@ export default class PPU {
   }
 
   handleSTATirq() {
-    const lcdstat = (this.intLYC && this.lycEq) || 
-                    (this.intOAM && (this.mode === MODE_OAM)) ||
-                    (this.intVBlank && (this.mode === MODE_VBLANK)) ||
-                    (this.intHBlank && (this.mode === MODE_HBLANK));
+    const lcdstat = (this.intLYC && this.lycEq) || (this.intOAM && (this.mode === MODE_OAM)) || (this.intVBlank && (this.mode === MODE_VBLANK)) || (this.intHBlank && (this.mode === MODE_HBLANK));
+    if(lcdstat && !(this.lcdstat)) {
+      this.gb.cpu.irq.if |= 2; //raise lcdstat
+      console.log('lcdstat raised')
+    }
+    this.lcdstat = lcdstat;
   }
+
   writeVRAM(addr, val) {
     this.vram[addr] = val;
     if(addr <= 0x17FF) {
@@ -167,6 +170,7 @@ export default class PPU {
   }
   step(c) {
     this.lycEq = (this.lyc === this.line);
+    this.handleSTATirq();
     if(!this.lcdon) {
       this.cycles = 0;
       this.mode = 0;
