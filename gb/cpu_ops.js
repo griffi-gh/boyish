@@ -673,11 +673,19 @@ function RRA() {
   `);
 }
 
+function _RLC() {
+  return (`
+    val = (val << 1) | (val >> 7);
+    this.f.c = (val & 0x100) !== 0;
+    val &= 0xFF;
+  `)
+}
+
 function RLCA() {
   return construct(`
-    const result = (this.r.a << 1) | (this.r.a >> 7);
-    this.f.c = (result & 0x100) !== 0;
-    this.r.a = (result & 0xFF);
+    let val = this.r.a;
+    ${ _RLC() }
+    this.r.a = val;
     return [4, pc+1];
   `);
 }
@@ -1254,6 +1262,34 @@ function RR_AHL() {
     return [16, pc+1];
   `);
 }
+
+function RLC_R(r) {
+  return construct(`
+    let val = this.r.${r};
+    ${ _RLC() }
+    this.f.z = (val === 0);
+    this.r.${r} = val;
+    return [8, pc+1];
+  `);
+}
+function RLC_AHL() {
+  return construct(`
+    let val = this.mmu.read(this.r.hl);
+    ${ _RLC() }
+    this.f.z = (val === 0);
+    this.mmu.write(this.r.hl, val);
+    return [16, pc+1];
+  `);
+}
+
+CB_OPS[0x00] = RLC_R('b');
+CB_OPS[0x01] = RLC_R('c');
+CB_OPS[0x02] = RLC_R('d');
+CB_OPS[0x03] = RLC_R('e');
+CB_OPS[0x04] = RLC_R('h');
+CB_OPS[0x05] = RLC_R('l');
+CB_OPS[0x06] = RLC_AHL();
+CB_OPS[0x07] = RLC_R('a');
 
 CB_OPS[0x10] = RL_R('b');
 CB_OPS[0x11] = RL_R('c');
