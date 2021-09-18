@@ -134,17 +134,7 @@ function LD_R_U8(r) {
 //LD R,R
 function LD_R_R(a, b) { 
   return construct(`
-    if(this.r.pc==0xDEF8 && this.mmu.read(pc) == 0x48){
-      debugger;
-    }
-    const v = this.r.${b};
-    this.r.${a} = v;
-    if(this.r.pc==0xDEF8 && this.mmu.read(pc) == 0x48){
-      console.log(v);
-      console.log(this.reg.${b}, this.r.${a})
-      console.log('${b}','${a}')
-      debugger;
-    }
+    this.r.${a} = this.r.${b};
     return [4, pc+1]; 
   `);
 } //
@@ -156,9 +146,6 @@ function LD_R_AHL(r) {
     return [8, pc+1]; 
   `);
 }
-/*if(pc === 0xC8CF){
-  debugger;
-}*/
 
 //LD (HL),R
 function LD_AHL_R(r) { 
@@ -849,12 +836,12 @@ OPS[0x45] = LD_R_R('b','l');    // LD B,L
 OPS[0x46] = LD_R_AHL('b');      // LD B,(HL)
 OPS[0x47] = LD_R_R('b','a');    // LD B,A
 
-OPS[0x48] = LD_R_R('с','b');    // LD C,B
-OPS[0x49] = LD_R_R('с','c');    // LD C,C
-OPS[0x4B] = LD_R_R('с','d');    // CD C,D
-OPS[0x4A] = LD_R_R('с','e');    // LD C,E
-OPS[0x4C] = LD_R_R('с','h');    // LD C,H
-OPS[0x4D] = LD_R_R('с','l');    // LD C,L
+OPS[0x48] = LD_R_R('c','b');    // LD C,B
+OPS[0x49] = LD_R_R('c','c');    // LD C,C
+OPS[0x4B] = LD_R_R('c','d');    // CD C,D
+OPS[0x4A] = LD_R_R('c','e');    // LD C,E
+OPS[0x4C] = LD_R_R('c','h');    // LD C,H
+OPS[0x4D] = LD_R_R('c','l');    // LD C,L
 OPS[0x4E] = LD_R_AHL('c');      // LD C,(HL)
 OPS[0x4F] = LD_R_R('c','a');    // LD C,A
 

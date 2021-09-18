@@ -25,25 +25,7 @@ export class Registers {
     this.h = 0;
     this.l = 0;
     this.a = 0;
-
-    //this.r = new Uint8Array(7).fill(0);
   }
-
-  /*get b() { return this.r[0]; }
-  get c() { return this.r[1]; }
-  get d() { return this.r[2]; }
-  get e() { return this.r[3]; }
-  get h() { return this.r[4]; }
-  get l() { return this.r[5]; }
-  get a() { return this.r[6]; }
-
-  set b(v) { this.r[0] = v; }
-  set c(v) { this.r[1] = v; }
-  set d(v) { this.r[2] = v; }
-  set e(v) { this.r[3] = v; }
-  set h(v) { this.r[4] = v; }
-  set l(v) { this.r[5] = v; }
-  set a(v) { this.r[6] = v; }*/
 
   get f() {
     const f = this.flags;
