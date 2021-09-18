@@ -134,6 +134,9 @@ function LD_R_U8(r) {
 //LD R,R
 function LD_R_R(a, b) { 
   return construct(`
+    if(this.r.pc==0xDEF8 && this.mmu.read(pc) == 0x48){
+      debugger;
+    }
     const v = this.r.${b};
     this.r.${a} = v;
     if(this.r.pc==0xDEF8 && this.mmu.read(pc) == 0x48){
