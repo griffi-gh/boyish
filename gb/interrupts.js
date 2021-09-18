@@ -17,9 +17,18 @@ export class Interrupts {
 			this.imePending = 2;	
 		}
 	}
+
 	disableIME() {
 		this.ime = false;
 		this.imePending = false;
+	}
+
+	set ime(v) {
+		if(v) {
+			this.enableIME();
+		} else {
+			this.disableIME();
+		}
 	}
 
 	dispatchInterrupt(i) {
