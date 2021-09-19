@@ -47,20 +47,21 @@ export default class PPU {
     this.objEnable = false;
     this.bgWinEnable = false;
 
+    this.lyc = 0;
+    this.lcdstat = false;
+
     // STAT
     this.intLYC = false;
     this.intOAM = false;
     this.intVBlank = false;
     this.intHBlank = false;
     this.lycEq = false;
-    this.lcdstat = false;
   }
 
   handleSTATirq() {
     const lcdstat = (this.intLYC && this.lycEq) || (this.intOAM && (this.mode === MODE_OAM)) || (this.intVBlank && (this.mode === MODE_VBLANK)) || (this.intHBlank && (this.mode === MODE_HBLANK));
     if(lcdstat && !(this.lcdstat)) {
       this.gb.cpu.irq.if |= 2; //raise lcdstat
-      console.log('lcdstat raised')
     }
     this.lcdstat = lcdstat;
   }

@@ -34,7 +34,7 @@ export class Interrupts {
     this.if ^= (1 << i);
     this.disableIME();
     //log
-    console.log('INT 0x'+addr.toString(16)+' '+i+' '+this.if.toString(2))
+    console.log('INT 0x'+addr.toString(16)+' '+i)
   }
 
   tick() {
@@ -45,11 +45,8 @@ export class Interrupts {
         console.log('ime on')
       }
     }
-    if(this.ime && this.ie && this.if) {
-      const t = (this.ie & this.if);
-      if(t !== 0) {
-        console.log("oh wow interrupt!")
-      }
+    const t = (this.ie & this.if);
+    if(this.ime && (t !== 0)) {
       for(let i = 0; i <= 7; i++) {
         if(t & (1 << i)) {
           this.dispatchInterrupt(i);

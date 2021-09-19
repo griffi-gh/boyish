@@ -65,6 +65,8 @@ export default class MMU {
         return this.gb.cpu.irq.if | 0;
       case 0xFF50:
         return ((this.disableBios | 0) & 0xFF);
+      case 0xFF45:
+        return this.gb.ppu.lyc | 0;
       case 0xFF44:
         if(this.gb.stubLY) {
           return 0x90;
@@ -115,6 +117,9 @@ export default class MMU {
       case 0xFF50:
         console.log('BIOS Reg written')
         this.disableBios = (val | 0);
+        return;
+      case 0xFF45:
+        this.gb.ppu.lyc = val;
         return;
       case 0xFF43:
         this.gb.ppu.scx = val;
