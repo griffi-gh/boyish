@@ -1,5 +1,5 @@
 import PixelCanvas from './pxcanvas.js';
-import { toHex, i8 } from './common.js';
+import { toHex, hexToRgb } from './common.js';
 
 const SCREEN_SIZE = [160, 144];
 
@@ -23,11 +23,12 @@ export default class PPU {
     this.vram = new Uint8Array(0x2000).fill(0);
     this.canvas = new PixelCanvas(id, SCREEN_SIZE);
 
+    //from light to dark
     this.pallete = [
-      [202,220,159],
-      [155,185,15],
-      [109,142,15],
-      [58,108,15]
+      hexToRgb('#fafbf6'),
+      hexToRgb('#c6b7be'),
+      hexToRgb('#565a75'),
+      hexToRgb('#0f0f1b'),
     ];
 
     this.cycles = 0;
