@@ -24,6 +24,7 @@ export class Gameboy {
     this.logData = '';
     this.disableLog = true;
     this.breakpoints = [];
+    this.cycleCounter = 0;
   }
   log(str) {
     if(!this.disableLog) {
@@ -82,20 +83,24 @@ export class Gameboy {
       this.ppu.writeVRAM(i, 0)
     }
   }
+  handleBreakpoints() {
+    if(this.breakpoints[this.cpu.reg.pc]) {
+      console.log(`Breakpoint at ${toHex(this.cpu.reg.pc, 16)} hit`);
+      this.pause();
+      debugger;
+      return;
+    }
+  }
   step() {
     const cpu = this.cpu;
     try {
-      while(cpu.cycles < CYCLES_PER_FRAME) {
-        if(this.breakpoints[this.cpu.reg.pc]) {
-          console.log(`Breakpoint at ${toHex(this.cpu.reg.pc, 16)} hit`);
-          this.pause();
-          debugger;
-          return;
-        }
+      while(this.cycleCounter < CYCLES_PER_FRAME) {
+        this.handleBreakpoints();
         let cycles = this.cpu.step();
         this.ppu.step(cycles);
+        this.cycleCounter += cycles;
       }
-      cpu.cycles -= CYCLES_PER_FRAME;
+      this.cycleCounter -= CYCLES_PER_FRAME;
     } catch(e) {
       console.log(e.name + ': ' + e.message);
       console.log(e.stack);

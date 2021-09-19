@@ -9,7 +9,7 @@ export default class CPU {
     this.gb = gb;
     this.reg = new Registers();
     this.irq = new Interrupts(gb);
-    this.cycles = 0;
+    //this.cycles = 0;
   }
   postInit() {
     this.OPContext = {
@@ -40,7 +40,8 @@ export default class CPU {
     )
   }
   step() {
-    if(!this.gb.state) { //If state isn't 0
+    let cycles = 0;
+    if(!this.gb.state) { //If state is 0
       this.log();
       let op = this.gb.mmu.read(this.reg.pc);
       let OPC = OPS;
@@ -51,18 +52,18 @@ export default class CPU {
         op = this.gb.mmu.read(++this.reg.pc);
       }
       if(op in OPC) {
-        let [cycles, next] = OPC[op].call(this.OPContext, this.reg.pc);
+        let [icycles, next] = OPC[op].call(this.OPContext, this.reg.pc);
         this.reg.pc = next & 0xFFFF;
-        cycles += this.irq.tick();
-        this.cycles += cycles;
-        return cycles;
+        cycles += icycles;
       } else {
         console.error(`Unimplemented instruction: ${isCB ? 'CB ' : ''}${toHex(op)}`);
         throw new Error("UnimplementedInstr");
         return;
       }
     } else {
-      return 4;
+      cycles += 4;
     }
+    cycles += this.irq.tick();
+    return cycles;
   }
 }
