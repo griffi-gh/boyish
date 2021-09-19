@@ -831,15 +831,15 @@ function LD_AU16_SP() {
 
 OPS[0x00] = NOP();              // NOP
 
-OPS[0x08] = LD_AU16_SP();       // LD (u16),SP
-
-OPS[0x10] = STOP();             // STOP
-OPS[0x76] = HALT();             // HALT
-
 OPS[0x01] = LD_RR_U16('bc');    // LD BC,u16
 OPS[0x11] = LD_RR_U16('de');    // LD DE,u16
 OPS[0x21] = LD_RR_U16('hl');    // LD HL,u16
 OPS[0x31] = LD_RR_U16('sp');    // LD SP,u16
+
+OPS[0x08] = LD_AU16_SP();       // LD (u16),SP
+
+OPS[0x10] = STOP();             // STOP
+OPS[0x76] = HALT();             // HALT
 
 OPS[0x0A] = LD_A_ARR('bc');     // LD A,(BC)
 OPS[0x1A] = LD_A_ARR('de');     // LD A,(DE)
