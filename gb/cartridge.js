@@ -29,7 +29,7 @@ export class CartridgeMBC1 extends Cartridge {
 		this.romBankAmount = Math.ceil(this.data / 0x4000);
 	}
 	write(a, v) {
-		if(a >= 0x2000) && (a <= 0x3FFF) {
+		if((a >= 0x2000) && (a <= 0x3FFF)) {
 			v &= 0x1F;
 			v = ((v == 0) ? 1 : v);
 			this.romBank = v;
@@ -46,15 +46,6 @@ export class CartridgeMBC1 extends Cartridge {
 			}
 		}
 		return 0;
-	}
-}
-
-export class CartridgeMBC1Ram extends CartridgeMBC1 {
-	constructor() {
-		super();
-	}
-	read(a) {
-		return super.read(a);
 	}
 }
 
