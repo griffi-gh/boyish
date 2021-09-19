@@ -29,10 +29,12 @@ export class Interrupts {
 		//Call vec
 		cpu.reg.sp -= 2;
 		mmu.writeWord(cpu.reg.sp, cpu.reg.pc);
-		cpu.pc = addr;
+		cpu.reg.pc = addr;
 		//flip IF bit and disable IME
 		this.if ^= (1 << i);
 		this.disableIME();
+		//log
+		console.log('INT 0x'+addr.toString(16)+' '+i+' '+this.if.toString(2))
 	}
 
 	tick() {

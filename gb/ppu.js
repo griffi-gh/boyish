@@ -151,8 +151,10 @@ export default class PPU {
 
     if(!(this.tileDataArea) && tileIndex < 128){ tileIndex += 0x100 };
     let tile = this.tileCache[tileIndex][y];
+
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
-      let pix = this.pallete[tile[x]];
+      let pix = this.pallete[this.bgWinEnable ? tile[x] : 0];
+
       // DRAW
       img[drawOffset] = pix[0];
       img[drawOffset + 1] = pix[1];
