@@ -67,13 +67,19 @@ export default class PPU {
   }
 
   writeVRAM(addr, val) {
-    this.vram[addr] = val;
-    if(addr <= 0x17FF) {
-      this.updateTile(addr)
+    if((this.mode !== MODE_VRAM) || this.gb.stubLY) {
+      this.vram[addr] = val;
+      if(addr <= 0x17FF) {
+        this.updateTile(addr)
+      }
     }
   }
   readVRAM(addr) {
-    return this.vram[addr];
+    if((this.mode !== MODE_VRAM) || this.gb.stubLY) {
+      return this.vram[addr];
+    } else {
+      return 0xFF;
+    }
   }
 
   set stat(v) {

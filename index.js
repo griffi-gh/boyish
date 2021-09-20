@@ -100,6 +100,7 @@ window.addEventListener("load", function() {
 	function handleFile(file) {
 		const fr = new FileReader();
 		fr.onload = () => {
+			$id("btn-reset").click();
 			const arr = new Uint8Array(fr.result);
 			gb.loadROM(arr);
 			localStorage.setItem('lastrom', JSON.stringify(arr));
@@ -143,6 +144,7 @@ window.addEventListener("load", function() {
 	button("last-rom", (btn) => {
 		const obj = JSON.parse(localStorage.getItem('lastrom'));
 		const arr = new Uint8Array(Object.values(obj));
+		$id("btn-reset").click();
 		gb.loadROM(arr);
 	});
 
