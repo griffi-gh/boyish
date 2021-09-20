@@ -28,21 +28,14 @@ window.addEventListener("load", function() {
 
 	let btn_pause = button("btn-pause", (btn) => { 
 		if(gb.paused) { gb.resume(); } else { gb.pause(); }
-		btu();
 		loop();
 	});
 
 	let btn_log = button("btn-swlog", (btn) => {
 		gb.disableLog ^= true;
 		if(gb.disableLog) { gb.logData = ''; }
-		btu();
 		loop();
 	});
-
-	function btu() {
-		btn_log.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
-		btn_pause.innerHTML = gb.paused ? 'Play' : 'Pause';
-	}
 
 	button("btn-step", (btn) => {
 		gb.step();
@@ -63,7 +56,6 @@ window.addEventListener("load", function() {
 				btn.innerHTML = orig;
 			}, 1000)
 		}
-		btu();
 		loop();
 	});
 
@@ -78,7 +70,9 @@ window.addEventListener("load", function() {
 	window.GB = gb
 
 	function loop() {
-		btu();
+		$id("gb-canvas").classList.toggle("scaled", $id("scale2x").checked);
+		btn_log.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
+		btn_pause.innerHTML = gb.paused ? 'Play' : 'Pause';
 		const log = gb.logData;
 		const emp = (log.length === 0);
 		$id('log-size').innerHTML = humanFileSize(log.length, true);
@@ -190,6 +184,9 @@ window.addEventListener("load", function() {
 	sly.addEventListener('change', () => {
 		gb.stubLY = sly.checked;
 	});
+
+	//scale toggle
+	$id("scale2x").addEventListener('change', loop);
 
 	//Remove deferred and noscript
 	const deferred = $class("defer");

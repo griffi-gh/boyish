@@ -20,7 +20,7 @@
         <div id="gb-wrapper-wrapper">
           <div id="gb-wrapper">
             <canvas id="gb-canvas"></canvas>
-            <div>
+            <div class="fill stretched">
               <button type="button" id="btn-step" class="button">Frame</button>
               <button type="button" id="btn-pause" class="button">Play</button>
               <button type="button" id="btn-reset" class="button">Reset</button>
@@ -58,6 +58,12 @@
           </form>
         </div>
         <div id="debug">
+          <h4 class="nopad centered">OPTIONS</h4>
+          <div>
+            <input id="scale2x" type="checkbox" checked />
+            <label for="scale2x">Scale display</label>
+          </div>
+          <div class="mb mb-sml"></div>
           <h4 class="nopad centered">DEBUG</h4>
           <div class="stretched mb mb-med mt mt-sml">
             <input id="brk-input" class="block nopad input-hex-fixed" type="text" placeholder="Set PC breakpoint"/>

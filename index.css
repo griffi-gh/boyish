@@ -107,6 +107,10 @@ main {
 	width: 160px;
 	height: 144px;
 }
+#gb-canvas.scaled {
+	width: calc( 160px * 2);
+	height: calc( 144px * 2);
+}
 #noJS {
 	color: darkred;
 	font-size: 1.33rem;
@@ -132,6 +136,9 @@ main {
 *.button.full {
 	display: block;
 	width: 100% !important;
+}
+.fill {
+	width: 100%;
 }
 *.button:not(.disabled):active {
 	transform: scale(0.9);
