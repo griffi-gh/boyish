@@ -31,7 +31,7 @@ export class Interrupts {
     mmu.writeWord(cpu.reg.sp, cpu.reg.pc);
     cpu.reg.pc = addr;
     //flip IF bit and disable IME
-    this.if ^= (1 << i);
+    this.if &= ~(1 << i);
     this.disableIME();
     //log
     //console.log('INT 0x'+addr.toString(16)+' '+i)
@@ -46,7 +46,7 @@ export class Interrupts {
     }
     let t = (this.ie & this.if);
     if(this.ime && (t !== 0)) {
-      for(let i = 0; i <= 7; i++) {
+      for(let i = 0; i < 5; i++) {
         if(t & (1 << i)) {
           this.dispatchInterrupt(i);
           return 20;
