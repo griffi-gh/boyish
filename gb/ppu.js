@@ -61,7 +61,7 @@ export default class PPU {
   handleSTATirq() {
     const lcdstat = (this.intLYC && this.lycEq) || (this.intOAM && (this.mode === MODE_OAM)) || (this.intVBlank && (this.mode === MODE_VBLANK)) || (this.intHBlank && (this.mode === MODE_HBLANK));
     if(lcdstat && !(this.lcdstat)) {
-      this.gb.cpu.irq.if |= 2; //raise lcdstat
+      this.gb.cpu.irq.if |= 0x02; //raise lcdstat
     }
     this.lcdstat = lcdstat;
   }
@@ -189,7 +189,7 @@ export default class PPU {
           if(this.line == 143) {
             this.mode = MODE_VBLANK;
             this.canvas.blit();
-            this.gb.cpu.irq.if |= 1;
+            this.gb.cpu.irq.if |= 0x01;
           } else {
             this.mode = MODE_OAM;
           }

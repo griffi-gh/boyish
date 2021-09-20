@@ -780,7 +780,7 @@ function DI() {
 function RETI() {
   return construct(`
     ${ _RET() }
-    this.irq.disableIME();
+    this.irq.enableIME();
     return [16, ret];
   `)
 }
@@ -1221,6 +1221,31 @@ function RL_AHL() {
   `);
 }
 
+function _SLA_INPUT() {
+  return (`
+    this.f.reset();
+    this.f.c = (input & 0x80) !== 0;
+    const result = (input << 1) & 0xFF;
+    this.f.z = (result === 0);
+  `);
+}
+function SLA_R(r) {
+  return construct(`
+    const input = this.r.${r};
+    ${ _SLA_INPUT() }
+    this.r.${r} = result;
+    return [8, pc+1];
+  `);
+}
+function SLA_AHL() {
+  return construct(`
+    const input = this.mmu.read(this.r.hl);
+    ${ _SLA_INPUT() }
+    this.mmu.write(this.r.hl, result);
+    return [16, pc+1];
+  `);
+}
+
 function _SRL() {
   return (`
     this.f.reset();
@@ -1308,6 +1333,15 @@ CB_OPS[0x1C] = RR_R('h');
 CB_OPS[0x1D] = RR_R('l');
 CB_OPS[0x1E] = RR_AHL();
 CB_OPS[0x1F] = RR_R('a');
+
+CB_OPS[0x20] = SLA_R('b');
+CB_OPS[0x21] = SLA_R('c');
+CB_OPS[0x22] = SLA_R('d');
+CB_OPS[0x23] = SLA_R('e');
+CB_OPS[0x24] = SLA_R('h');
+CB_OPS[0x25] = SLA_R('l');
+CB_OPS[0x26] = SLA_AHL();
+CB_OPS[0x27] = SLA_R('a');
 
 CB_OPS[0x30] = SWAP_R('b');
 CB_OPS[0x31] = SWAP_R('c');
