@@ -179,6 +179,11 @@ window.addEventListener("load", function() {
 		gb.setMMUbreakpoint(inputHex("mbrk-input"), undefined);
 	});
 
+	//skip br toggle
+	$id("skipBR").addEventListener('change', () => {
+		$id("btn-reset").click();
+	});
+
 	//Stub LY toggle
 	const sly = $id("stubLY")
 	sly.addEventListener('change', () => {
