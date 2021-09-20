@@ -42,12 +42,10 @@ export class Interrupts {
       if((--this.imePending) <= 0) {
         this.imePending = false;
         this.ime = true;
-        //console.log('ime on')
       }
     }
     let t = (this.ie & this.if);
     if(this.ime && (t !== 0)) {
-      //console.log("Interrupt...")
       for(let i = 0; i <= 7; i++) {
         if(t & (1 << i)) {
           this.dispatchInterrupt(i);

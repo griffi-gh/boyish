@@ -115,11 +115,11 @@ export default class MMU {
       case 0xFF0F:
         this.gb.cpu.irq.if = val;
       case 0xFF50:
-        console.log('BIOS Reg written')
         this.disableBios = (val | 0);
         return;
       case 0xFF45:
         this.gb.ppu.lyc = val;
+        //console.log('lyc '+val)
         return;
       case 0xFF43:
         this.gb.ppu.scx = val;

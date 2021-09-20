@@ -162,6 +162,7 @@ export default class PPU {
       img[drawOffset + 2] = pix[2];
       drawOffset += 4;
       // DRAW
+
       x += 1;
       if(x >= 8) {
         lineStart = (lineStart + 1) & 31;
