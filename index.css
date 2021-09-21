@@ -28,19 +28,10 @@ main {
 .mb.mb-sml { --valueB: .25rem; }
 .ml.ml-sml { --valueL: .25rem; }
 .mr.mr-sml { --valueR: .25rem; }
-
-.mb {
-	margin-bottom: var(--valueB);
-}
-.mr {
-	margin-right: var(--valueR);
-}
-.mt {
-	margin-top: var(--valueT);
-}
-.ml {
-	margin-left: var(--valueL);
-}
+.mb { margin-bottom: var(--valueB); }
+.mr { margin-right: var(--valueR); }
+.mt { margin-top: var(--valueT); }
+.ml { margin-left: var(--valueL); }
 
 .centered {
 	display: flex;
@@ -107,6 +98,7 @@ main {
 	display: block;
 	overflow: hidden;
 	border: 2px solid #a0c5d1;
+	line-height : 0;
 }
 #gb-canvas {
 	width: 160px;
@@ -207,7 +199,6 @@ main {
 #cdebug-toggle:not(:checked)~#cdebug-wrapper {
 	display: none;
 }
-
 #drop-wrapper {
 	position: relative;
 	transition: all .1s linear;
@@ -243,8 +234,6 @@ main {
 	bottom: 0;
 	display: none;
 	fill: white;
-	/*color: white;
-	font-weight: bold;*/
 }
 #drop-form {
 	white-space: nowrap;
@@ -255,7 +244,3 @@ main {
 #last-rom {
 	display: none;
 }
-/*#cdebug {
-	width: 100%;
-	height: 100%;
-}*/

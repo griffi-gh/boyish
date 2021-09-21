@@ -6,7 +6,8 @@ const keyMap = {
 }
 
 export default class Input {
-  constructor() {
+  constructor(gb) {
+    this.gb = gb;
     this._callback = null;
     this.enabled = false;
   }

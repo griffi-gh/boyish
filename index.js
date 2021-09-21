@@ -13,13 +13,24 @@ function button(id, fn) {
 	btn.style.cssText += `width: ${(btn.getBoundingClientRect().width + 10).toString()}px;`;
 	return btn;
 }
-function newGameboy(p) {
-	if(p) { p.input.disable(); p.pause(); }
-	const gb = new Gameboy("gb-canvas");
-	gb.stubLY = $id("stubLY").checked;
-	if($id("skipBR").checked) { gb.skipBoot(); }
-	window.GB = gb; // for debugging
-	return gb;
+
+let gb 
+
+function newGameboy() {
+	
+	const newGb = new Gameboy("gb-canvas");
+	newGb.stubLY = $id("stubLY").checked;
+	if($id("skipBR").checked) { newGb.skipBoot(); }
+	if(gb) { 
+		gb.pause(); 
+		newGb.pause();
+		if(gb.input.enabled) {
+			gb.input.disable();
+			newGb.input.enable();
+		}
+	}
+	window.GB = newGb; // for debugging
+	gb = newGb;
 }
 
 window.addEventListener("load", function() {
@@ -27,7 +38,7 @@ window.addEventListener("load", function() {
 });
 
 window.addEventListener("DOMContentLoaded", function() {
-	let gb = newGameboy();
+	newGameboy();
 
 	let btn_pause = button("btn-pause", (btn) => { 
 		if(gb.paused) { gb.resume(); } else { gb.pause(); }
@@ -48,7 +59,7 @@ window.addEventListener("DOMContentLoaded", function() {
 	button("btn-reset", (btn) => {
 		gb.pause();
 		console.clear(); 
-		gb = newGameboy(gb);
+		newGameboy();
 		const OK = 'OK!';
 		let orig = btn.textContent;
 		if(orig!==OK) {
@@ -74,16 +85,19 @@ window.addEventListener("DOMContentLoaded", function() {
 		$id("gb-canvas").classList.toggle("scaled", $id("scale2x").checked);
 		btn_log.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
 		btn_pause.innerHTML = gb.paused ? 'Play' : 'Pause';
-		const log = gb.logData;
-		const emp = (log.length === 0);
-		$id('log-size').innerHTML = humanFileSize(log.length, true);
-		$id('log-line').innerHTML = log.split(/\r?\n/).at(-2);
-		$id('log-info').style.display = (gb.disableLog || emp) ? 'none' : 'unset';
-		$id('log-empty').style.display = (emp & (!gb.disableLog)) ? 'unset' : 'none';
+		if(!gb.disableLog) {
+			const log = gb.logData;
+			const emp = (log.length === 0);
+			$id('log-size').innerHTML = humanFileSize(log.length, true);
+			$id('log-line').innerHTML = log.split(/\r?\n/).at(-2);
+			$id('log-info').style.display = (gb.disableLog || emp) ? 'none' : 'unset';
+			$id('log-empty').style.display = (emp & (!gb.disableLog)) ? 'unset' : 'none';
+		}
 		$id('log-disabled').style.display = gb.disableLog ? 'unset' : 'none';
 		if($id('cdebug-toggle').checked) {
 			gb.ppu.debugTileset("cdebug");
 		}
+		//_input = gb.input.enabled;
 		$id("input-popup").classList.toggle("hide", gb.input.enabled);
 	}
 	setInterval(loop, 1000);
