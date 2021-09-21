@@ -28,17 +28,23 @@ export default class Input {
     this.select = v & 0x30;
   }
   inputHandler(ev) {
-    const code = ev.code;
-    if(code in keyMap) {
-      let keyMask = keyMap[code];
-      if(event.type === 'keydown') {
-        this.keyState &= (~keyMask) & 0xFF;
-        this.gb.cpu.irq.if |= 0x10;
-      } else {
-        this.keyState |= keyMask;
+    if(!this.gb.paused) {
+      const code = ev.code;
+      if(code in keyMap) {
+        const keyMask = keyMap[code];
+        const isCurrent = ((keyMask >= 0x10 && this.select == 0x10) || (keyMask < 0x10 && this.select == 0x20));
+        if(event.type === 'keydown') {
+          this.keyState &= (~keyMask) & 0xFF;
+          if(isCurrent) {
+            //Raise JOYP interrupt
+            this.gb.cpu.irq.if |= 0x10;
+          }
+        } else {
+          this.keyState |= keyMask;
+        }
+        ev.preventDefault();
+        ev.stopPropagation();
       }
-      ev.preventDefault();
-      ev.stopPropagation();
     }
   }
   enable() {
