@@ -702,23 +702,28 @@ function CPL() {
 
 function DAA() {
   return construct(`
+    const f = this.f;
     let a = this.r.a;
-    if(this.f.n) {
-      // Sub
-      if(this.f.h) { a = (a - 0x6) & 0xFF; }
-      if(this.f.c) { a -= 0x60; }
-    } else {
-      // Add
-      if ((a & 0xF) > 0x9 || this.f.h) { a += 0x6; }
-      if (a > 0x9 || this.f.c) { a += 0x60; }
+
+    let correction = f.c ? 0x60 : 0x00;
+    if(f.h || (!f.n && ((a & 0x0F) > 9))) {
+      correction |= 0x06;
     }
-    this.r.a = a & 0xFF;
-    this.f.h = false;
-    if((a & 0x100) == 0x100) { 
-      // Real hardware doesn't reset the Carry flag
-      this.f.c = true;
-    } 
-    this.f.z = (this.r.a === 0);
+    if(f.c || (!f.n && (a > 0x99))) {
+      correction |= 0x60;
+    }
+
+    a += (f.n ? -correction : correction);
+    a &= 0xFF;
+
+    if(((correction << 2) & 0x100) !== 0) {
+      f.c = true;
+    }
+    f.h = false;
+    f.z = (a === 0);
+
+    this.r.a = a;
+
     return [4, pc+1];
   `);
 }
