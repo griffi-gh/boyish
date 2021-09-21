@@ -33,6 +33,7 @@ export default class Input {
       let keyMask = keyMap[code];
       if(event.type === 'keydown') {
         this.keyState &= (~keyMask) & 0xFF;
+        this.gb.cpu.irq.if |= 0x10;
       } else {
         this.keyState |= keyMask;
       }
