@@ -1,8 +1,12 @@
 const keyMap = {
-  ArrowRight: 0x01,
-  ArrowLeft:  0x02,
-  ArrowUp:    0x04,
-  ArrowDown:  0x08,
+  ArrowRight: (1 << 0),
+  ArrowLeft:  (1 << 1),
+  ArrowUp:    (1 << 2),
+  ArrowDown:  (1 << 3),
+  KeyZ:  (1 << 4),
+  KeyX:  (1 << 5),
+  Space: (1 << 6),
+  Enter: (1 << 7),
 }
 
 export default class Input {
@@ -10,11 +14,28 @@ export default class Input {
     this.gb = gb;
     this._callback = null;
     this.enabled = false;
+    this.keyState = 0xFF;
+    this.select = 0;
+  }
+  get joyp() {
+    switch (this.select) {
+      case 0x10: return (this.keyState >> 4);
+      case 0x20: return (this.keyState & 0xFF);
+      default: return 0;
+    }
+  }
+  set joyp(v) {
+    this.select = v & 0x30;
   }
   inputHandler(ev) {
     const code = ev.code;
-    const down = (event.type === 'keyup');
     if(code in keyMap) {
+      let keyMask = keyMap[code];
+      if(event.type === 'keydown') {
+        this.keyState &= (~keyMask) & 0xFF;
+      } else {
+        this.keyState |= keyMask;
+      }
       ev.preventDefault();
       ev.stopPropagation();
     }

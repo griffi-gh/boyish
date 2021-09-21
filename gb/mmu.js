@@ -82,7 +82,8 @@ export default class MMU {
       case 0xFF40:
         return this.gb.ppu.lcdc;
       case 0xFF00:
-        return 0xFF; // stub input reg
+        return this.gb.input.joyp;
+        //return 0xFF; // stub input reg
       default:
         if (addr <= 0xFF) {
           if (this.disableBios === false) {
@@ -132,6 +133,9 @@ export default class MMU {
         return;
       case 0xFF40:
         this.gb.ppu.lcdc = val;
+        return;
+      case 0xFF00:
+        this.gb.input.joyp = val;
         return;
       default:
         if (addr >= 0x8000 && addr <= 0x9FFF) {
