@@ -9,7 +9,10 @@ function humanFileSize(B,i){var e=i?1e3:1024;if(Math.abs(B)<e)return B+" B";var 
 function button(id, fn) {
 	const btn = document.getElementById(id);
 	//btn.onclick = () => { fn(btn); };
-	btn.addEventListener("click", () => { fn(btn); });
+	btn.addEventListener("click", (ev) => {
+		ev.stopPropagation();
+		fn(btn, ev);
+	});
 	btn.style.cssText += `width: ${(btn.getBoundingClientRect().width + 10).toString()}px;`;
 	return btn;
 }
@@ -17,7 +20,6 @@ function button(id, fn) {
 let gb 
 
 function newGameboy() {
-	
 	const newGb = new Gameboy("gb-canvas");
 	newGb.stubLY = $id("stubLY").checked;
 	if($id("skipBR").checked) { newGb.skipBoot(); }
@@ -212,9 +214,19 @@ window.addEventListener("DOMContentLoaded", function() {
 	$id("scale2x").addEventListener('change', loop);
 
 	//Enable input on click
-	$id("gb-canvas-wrapper").onclick = ((ev) => {
+	$id("gb-canvas-wrapper").addEventListener('click', (ev) => {
+		ev.stopPropagation();
 		gb.input.enable();
 		loop();
+	});
+	document.addEventListener('click', (ev) => {
+		let et = event.target;
+		let tn = event.target.tagName;
+		let dis = (tn=="MAIN" || tn=="BODY" || tn=="HTML" || et.classList.contains("pass"));
+		if(dis) {
+			gb.input.disable();
+			loop();
+		}
 	});
 
 	//Remove deferred and noscript

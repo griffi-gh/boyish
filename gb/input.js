@@ -16,6 +16,7 @@ export default class Input {
     const down = (event.type === 'keyup');
     if(code in keyMap) {
       ev.preventDefault();
+      ev.stopPropagation();
     }
   }
   enable() {
