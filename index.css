@@ -102,15 +102,49 @@ main {
 /*canvas {
 	border: 1px solid black;
 }*/
-#gb-canvas {
+#gb-canvas-wrapper {
+	position: relative;
+	display: block;
+	overflow: hidden;
 	border: 2px solid #a0c5d1;
+}
+#gb-canvas {
 	width: 160px;
 	height: 144px;
+	padding: 0;
+	margin: 0;
 }
 #gb-canvas.scaled {
-	width: calc( 160px * 2);
-	height: calc( 144px * 2);
+	--scale: 2;
+	width: calc( 160px * var(--scale));
+	height: calc( 144px * var(--scale));
 }
+#input-popup {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+	background: rgba(0,0,0,.5);
+	color: rgba(255,255,255,.9);
+	border: 2px solid rgba(255,255,255,.1);
+	cursor: default;
+	opacity: 1;
+	transition: all .5s ease;
+}
+#input-popup > img {
+	width: 24px;
+	height: 24px;
+	padding-right: .33ch;
+}
+#input-popup.hide {
+	opacity: 0;
+	transform: translateY(-200%);
+}
+
 #noJS {
 	color: darkred;
 	font-size: 1.33rem;

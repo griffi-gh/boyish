@@ -49,7 +49,7 @@ export class CartridgeMBC1 extends Cartridge {
 	}
 }
 
-export function Cartridge(i) {
+export default function Cartridge(i) {
 	switch (i) {
 		case 0x00:
 			return CartridgeNone;

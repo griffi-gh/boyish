@@ -1,21 +1,21 @@
 import PixelCanvas from './pxcanvas.js';
 import { toHex, hexToRgb } from './common.js';
 
-const SCREEN_SIZE = [160, 144];
+export const SCREEN_SIZE = [160, 144];
 
-const MODE_HBLANK = 0;
-const MODE_VBLANK = 1;
-const MODE_OAM = 2;
-const MODE_VRAM = 3;
+export const MODE_HBLANK = 0;
+export const MODE_VBLANK = 1;
+export const MODE_OAM = 2;
+export const MODE_VRAM = 3;
 
-const DATA_AREA_8800 = false;
-const DATA_AREA_8000 = true;
+export const DATA_AREA_8800 = false;
+export const DATA_AREA_8000 = true;
 
-const MAP_AREA_9800 = false;
-const MAP_AREA_9C00 = true;
+export const MAP_AREA_9800 = false;
+export const MAP_AREA_9C00 = true;
 
-const OBJ_SIZE_8 = false;
-const OBJ_SIZE_16 = true;
+export const OBJ_SIZE_8 = false;
+export const OBJ_SIZE_16 = true;
 
 export default class PPU {
   constructor(gb, id) {

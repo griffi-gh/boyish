@@ -19,7 +19,15 @@
       <div>
         <div id="gb-wrapper-wrapper">
           <div id="gb-wrapper">
-            <canvas id="gb-canvas"></canvas>
+            <div id="gb-canvas-wrapper" class="defer">
+              <div id="input-popup" class="hide">
+                <img onerror="this.remove();" src="https://img.icons8.com/external-those-icons-lineal-color-those-icons/24/ffffff/external-gamepad-video-games-those-icons-lineal-color-those-icons-2.png"/>
+                Click to enable input!
+              </div>
+              <canvas id="gb-canvas">
+                Canvas not supported
+              </canvas>
+            </div>
             <div class="fill stretched">
               <button type="button" id="btn-step" class="button">Frame</button>
               <button type="button" id="btn-pause" class="button">Play</button>

@@ -3,6 +3,7 @@ import { toHex, downloadString } from './common.js';
 import CPU from './cpu.js';
 import MMU from './mmu.js';
 import PPU from './ppu.js';
+import Input from './input.js';
 
 const CYCLES_PER_FRAME = 70224;
 
@@ -11,8 +12,9 @@ export class Gameboy {
     this.mmu = new MMU(this);
     this.cpu = new CPU(this);
     this.ppu = new PPU(this, id);
+    this.input = new Input(this);
     //call postinit for all parts
-    for (const v of ['mmu','cpu','ppu']) {
+    for (const v of ['input','mmu','cpu','ppu']) {
       const init = this[v].postInit;
       if (typeof init === "function") { init.apply(this[v]); }
     }

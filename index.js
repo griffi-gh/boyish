@@ -13,17 +13,20 @@ function button(id, fn) {
 	btn.style.cssText += `width: ${(btn.getBoundingClientRect().width + 10).toString()}px;`;
 	return btn;
 }
-function newGameboy() {
+function newGameboy(p) {
+	if(p) { p.input.disable(); p.pause(); }
 	const gb = new Gameboy("gb-canvas");
-	//gb.setBreakpoint(0xFA);
 	gb.stubLY = $id("stubLY").checked;
-	if($id("skipBR").checked) {
-		gb.skipBoot();
-	}
+	if($id("skipBR").checked) { gb.skipBoot(); }
+	window.GB = gb; // for debugging
 	return gb;
 }
 
 window.addEventListener("load", function() {
+	$id("input-popup").classList.remove("hide");
+});
+
+window.addEventListener("DOMContentLoaded", function() {
 	let gb = newGameboy();
 
 	let btn_pause = button("btn-pause", (btn) => { 
@@ -45,7 +48,7 @@ window.addEventListener("load", function() {
 	button("btn-reset", (btn) => {
 		gb.pause();
 		console.clear(); 
-		gb = newGameboy();
+		gb = newGameboy(gb);
 		const OK = 'OK!';
 		let orig = btn.textContent;
 		if(orig!==OK) {
@@ -67,8 +70,6 @@ window.addEventListener("load", function() {
 		gb.downloadLog();
 	});
 
-	window.GB = gb
-
 	function loop() {
 		$id("gb-canvas").classList.toggle("scaled", $id("scale2x").checked);
 		btn_log.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
@@ -83,6 +84,7 @@ window.addEventListener("load", function() {
 		if($id('cdebug-toggle').checked) {
 			gb.ppu.debugTileset("cdebug");
 		}
+		$id("input-popup").classList.toggle("hide", gb.input.enabled);
 	}
 	setInterval(loop, 1000);
 	loop();
@@ -194,6 +196,12 @@ window.addEventListener("load", function() {
 
 	//scale toggle
 	$id("scale2x").addEventListener('change', loop);
+
+	//Enable input on click
+	$id("gb-canvas-wrapper").onclick = ((ev) => {
+		gb.input.enable();
+		loop();
+	});
 
 	//Remove deferred and noscript
 	const deferred = $class("defer");
