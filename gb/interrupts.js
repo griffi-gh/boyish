@@ -9,7 +9,11 @@ export class Interrupts {
     this.ie = 0;
     this.if = 0;
   }
-  
+
+  //debug
+  /*set if(v) { this._if = v; }
+  get if() { return this._if; }*/
+
   enableIME(now) {
     if(now) {
       this.ime = true
@@ -26,15 +30,17 @@ export class Interrupts {
     const cpu = this.gb.cpu;
     const mmu = this.gb.mmu;
     const addr = VEC[i];
+    //Unhalt
+    this.gb.state = this.gb.STATE_RUNNING;
     //Call vec
     cpu.reg.sp -= 2;
     mmu.writeWord(cpu.reg.sp, cpu.reg.pc);
     cpu.reg.pc = addr;
     //flip IF bit and disable IME
-    this.if &= ~(1 << i);
+    this.if &= (~(1 << i)) & 0xFF;
     this.disableIME();
     //log
-    //console.log('INT 0x'+addr.toString(16)+' '+i)
+    console.log('INT 0x'+addr.toString(16)+' '+i)
   }
 
   tick() {
@@ -45,7 +51,7 @@ export class Interrupts {
       }
     }
     let t = (this.ie & this.if);
-    if(this.ime && (t !== 0)) {
+    if((this.ime || this.gb.state == this.gb.STATE_HALT) && (t !== 0)) {
       for(let i = 0; i < 5; i++) {
         if(t & (1 << i)) {
           this.dispatchInterrupt(i);
