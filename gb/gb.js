@@ -39,8 +39,8 @@ export class Gameboy {
     this.pause();
   }
   destroy() {
+    this.pause();
     setImmediate(() => {
-      this.pause();
       this.input.disable();
       let c = this.ppu.canvas;
       c.clear(255,255,255);
@@ -71,6 +71,9 @@ export class Gameboy {
   }
   pause() {
     this.paused = true;
+    if(this._t) { clearTimeout(this._t) };
+    if(this._i) { clearImmediate(this._i) };
+    if(this._a) { window.cancelAnimationFrame(this._a) }
   }
   setBreakpoint(addr, val = true) {
     if(!val) { val = undefined; }
@@ -131,14 +134,14 @@ export class Gameboy {
     if(!this.paused) {
       switch(this.loopMode) {
         case 'vsync':
-          window.requestAnimationFrame(this._step);
+          this._a = window.requestAnimationFrame(this._step);
           return;
         case 'fast':
-          setImmediate(this._step);
+          this._i = setImmediate(this._step);
           return;
         default: // fall through
         case 'real':
-          setTimeout(this._step, 16.6 - this.perf);
+          this._t = setTimeout(this._step, 16.6 - this.perf);
           return;
       }
     }
