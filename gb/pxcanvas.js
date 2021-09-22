@@ -15,7 +15,8 @@ export default class PixelCanvas {
     this.canvas.style.setProperty('-ms-interpolation-mode', 'nearest-neighbor');
     this.ctx = this.canvas.getContext('2d', {
       alpha: false,
-      desynchronized: true
+      desynchronized: true,
+      preserveDrawingBuffer: true
     });
     if(!this.ctx) { throw new Error("Failed to get Canvas context"); }
     this.ctx.webkitImageSmoothingEnabled = false;
