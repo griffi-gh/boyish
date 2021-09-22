@@ -40,7 +40,7 @@ export class Interrupts {
     this.if &= (~(1 << i)) & 0xFF;
     this.disableIME();
     //log
-    console.log('INT 0x'+addr.toString(16)+' '+i)
+    //console.log('INT 0x'+addr.toString(16)+' '+i)
   }
 
   tick() {
