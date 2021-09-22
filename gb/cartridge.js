@@ -1,3 +1,5 @@
+// NOT USED YET
+
 export class CartridgeNone {
 	constructor() {
 		this.data = new Uint8Array(0x8000).fill(0);
