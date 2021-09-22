@@ -6,6 +6,7 @@ import CPU from './cpu.js';
 import MMU from './mmu.js';
 import PPU from './ppu.js';
 import Input from './input.js';
+import Timer from './timer.js';
 
 const CYCLES_PER_FRAME = 70224;
 
@@ -15,8 +16,9 @@ export class Gameboy {
     this.cpu = new CPU(this);
     this.ppu = new PPU(this, id);
     this.input = new Input(this);
+    this.timer = new Timer(this);
     //call postinit for all parts
-    for (const v of ['input','mmu','cpu','ppu']) {
+    for (const v of ['timer','input','mmu','cpu','ppu']) {
       const init = this[v].postInit;
       if (typeof init === "function") { init.apply(this[v]); }
     }
@@ -113,6 +115,7 @@ export class Gameboy {
       while(!this.frame || this.cycleCounter < CYCLES_PER_FRAME) {
         this.handleBreakpoints();
         let cycles = this.cpu.step();
+        this.timer.step(cycles);
         this.ppu.step(cycles);
         this.cycleCounter += cycles;
       }

@@ -81,6 +81,8 @@ export default class MMU {
         return this.gb.ppu.stat;
       case 0xFF40:
         return this.gb.ppu.lcdc;
+      case 0xFF04:
+        return this.gb.timer.div;
       case 0xFF00:
         return this.gb.input.joyp;
         //return 0xFF; // stub input reg
@@ -133,6 +135,9 @@ export default class MMU {
         return;
       case 0xFF40:
         this.gb.ppu.lcdc = val;
+        return;
+      case 0xFF04:
+        this.gb.timer.div = 0;
         return;
       case 0xFF00:
         this.gb.input.joyp = val;
