@@ -197,6 +197,7 @@ export default class PPU {
             this.mode = MODE_VBLANK;
             this.canvas.blit();
             this.gb.cpu.irq.if |= 0x01;
+            this.gb.frame = true;
           } else {
             this.mode = MODE_OAM;
           }

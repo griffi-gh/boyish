@@ -69,6 +69,21 @@
             <input id="scale2x" type="checkbox" checked />
             <label for="scale2x">Scale display</label>
           </div>
+          <div>
+            <p class="nopad">Frame limit:</p>
+            <div>
+              <input id="fps-real" type="radio" class="flimit" name="flimit" checked="checked" required="required" value="real" />
+              <label for="fps-real">Realistic (60FPS)</label>
+            </div>
+            <div>
+              <input id="fps-vsync" type="radio" class="flimit" name="flimit" required="required" value="vsync" />
+              <label for="fps-vsync">VSync</label>
+            </div>
+            <div>
+              <input id="fps-none" type="radio" class="flimit" name="flimit" required="required" value="fast" />
+              <label for="fps-none">None</label>
+            </div>
+          </div>
           <div class="mb mb-sml"></div>
           <h4 class="nopad centered">DEBUG</h4>
           <div class="stretched mb mb-med mt mt-sml">

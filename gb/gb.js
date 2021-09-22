@@ -1,3 +1,5 @@
+import './lib/setImmediate.js';
+
 import { toHex, downloadString } from './common.js';
 
 import CPU from './cpu.js';
@@ -27,6 +29,21 @@ export class Gameboy {
     this.disableLog = true;
     this.breakpoints = [];
     this.cycleCounter = 0;
+    this._step = () => { this.step(); };
+
+    this.frame = false;
+    this.loopMode = 'vsync';
+
+    this.pause();
+  }
+  destroy() {
+    setImmediate(() => {
+      this.pause();
+      this.input.disable();
+      let c = this.ppu.canvas;
+      c.clear(255,255,255);
+      c.blit();
+    });
   }
   log(str) {
     if(!this.disableLog) {
@@ -45,17 +62,13 @@ export class Gameboy {
     this.state = state;
   }
   resume() {
-    if(this.paused === true) {
+    if(this.paused) {
       this.paused = false;
-      this.interval = setInterval(() => { this.step(); }, 0);
+      this.step();
     }
   }
   pause() {
-    if(this.paused === false) {
-      clearTimeout(this.interval);
-      this.interval = null;
-      this.paused = true;
-    }
+    this.paused = true;
   }
   setBreakpoint(addr, val = true) {
     if(!val) { val = undefined; }
@@ -94,9 +107,10 @@ export class Gameboy {
     }
   }
   step() {
+    this.perf = performance.now();
     const cpu = this.cpu;
     try {
-      while(this.cycleCounter < CYCLES_PER_FRAME) {
+      while(!this.frame || this.cycleCounter < CYCLES_PER_FRAME) {
         this.handleBreakpoints();
         let cycles = this.cpu.step();
         this.ppu.step(cycles);
@@ -108,6 +122,22 @@ export class Gameboy {
       console.log(e.stack);
       this.pause();
       return;
+    }
+    this.frame = false;
+    this.perf = performance.now() - this.perf;
+    if(!this.paused) {
+      switch(this.loopMode) {
+        case 'vsync':
+          window.requestAnimationFrame(this._step);
+          return;
+        case 'fast':
+          setImmediate(this._step);
+          return;
+        default: // fall through
+        case 'real':
+          setTimeout(this._step, 16.6 - this.perf);
+          return;
+      }
     }
   }
 }
