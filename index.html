@@ -87,6 +87,10 @@
             <input id="scale2x" type="checkbox" checked />
             <label for="scale2x">Scale display</label>
           </div>
+          <div>
+            <input id="skipBR" type="checkbox" checked />
+            <label for="skipBR" class="restart-needed">Skip Bootrom</label>
+          </div>
           <div class="mb mb-sml"></div>
           <h4 class="nopad centered">DEBUG</h4>
           <div class="stretched mb mb-med mt mt-sml">
@@ -102,14 +106,10 @@
             <button id="mbrk-rem" type="button" class="minw nopad">UNSET</button>
           </div>
           <div>
-            <input id="skipBR" type="checkbox" checked />
-            <label for="skipBR">Skip Bootrom *</label>
-          </div>
-          <div>
             <input id="stubLY" type="checkbox" />
             <label for="stubLY">Stub LY to 0x90</label><br />
           </div>
-          <div class="mt mt-sml" style="opacity: .5; color: gray; font-size: .75em;">
+          <div class="mt mt-sml note">
             * Reset required
           </div>
         </div>

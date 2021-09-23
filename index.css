@@ -33,6 +33,22 @@ main {
 .mt { margin-top: var(--valueT); }
 .ml { margin-left: var(--valueL); }
 
+.note {
+	opacity: .5; color: gray; font-size: .75em;
+}
+.restart-needed::after {
+	display: inline-block;
+	height: 0em;
+	line-height: 0px;
+	content: '*';
+	color: gray;
+	font-weight: bold;
+	font-size: 1.33em;
+	display: inline-block;
+	transform: translateY(0.25em);
+	padding-left: .1ch;
+}
+
 .centered {
 	display: flex;
 	justify-content: center;

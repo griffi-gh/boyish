@@ -20,7 +20,7 @@ export default class PixelCanvas {
     });
     if(!this.ctx) { throw new Error("Failed to get Canvas context"); }
     this.ctx.webkitImageSmoothingEnabled = false;
-    this.ctx.mozImageSmoothingEnabled = false;
+    //this.ctx.mozImageSmoothingEnabled = false;
     this.ctx.imageSmoothingEnabled = false;
     this.img = this.ctx.createImageData(width, height);
     this.clear(255,255,255);
