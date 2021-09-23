@@ -39,6 +39,16 @@ main {
 	align-items: center;
 	text-align: center;
 }
+.centered.only-vertially {
+	justify-content: unset;
+	text-align: unset;
+}
+.centered.only-horizontally {
+	align-items: unset;
+}
+.centered.no-text {
+	text-align: unset;
+}
 
 .stretched {
 	display: flex;
@@ -80,11 +90,13 @@ main {
 	align-items: center;
 	flex-direction: column;
 }
-#debug {
+.options-box {
 	background: white;
 	border-radius: .5rem;
 	padding: .33rem;
 	border: 2px solid teal;
+}
+#debug {
 	margin-top: .75rem;
 }
 .defer {
@@ -190,14 +202,16 @@ main {
 	color: darkorange;
 }
 #cdebug-wrapper {
-	width: 223px;
-	height: 172px;
+	width: 360px;
+	height: 330px;
 	overflow: hidden;
 	resize: both;
 	border: 1px solid rgba(0, 0, 0, .5);
 }
 #cdebug-toggle:not(:checked)~#cdebug-wrapper {
-	display: none;
+	visibility: hidden;
+	height: 0;
+	cursor: default;
 }
 #drop-wrapper {
 	position: relative;

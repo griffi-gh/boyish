@@ -16,7 +16,7 @@
       </div>
     </noscript>
     <main class="pass">
-      <div class="pass">
+      <div class="pass centered no-text">
         <div id="gb-wrapper-wrapper" class="pass">
           <div id="gb-wrapper" class="pass">
             <div id="gb-canvas-wrapper" class="defer">
@@ -40,7 +40,7 @@
           </div>
         </div>
       </div>
-      <div id="right" class="pass">
+      <div id="right" class="pass centered no-text">
         <div id="drop-wrapper">
           <div id="drop-hint">
             <svg
@@ -63,7 +63,7 @@
             <input type="file" id="drop-manual" style="display: none;" />
           </form>
         </div>
-        <div id="debug">
+        <div id="debug" class="options-box">
           <h4 class="nopad centered">OPTIONS</h4>
           <div>
             <p class="nopad">&nbsp;Frame limit:</p>
@@ -109,15 +109,17 @@
             <input id="stubLY" type="checkbox" />
             <label for="stubLY">Stub LY to 0x90</label><br />
           </div>
-          <div>
-            <input id="cdebug-toggle" type="checkbox" />
-            <label for="cdebug-toggle">Draw Tilemap</label>
-            <div id="cdebug-wrapper">
-              <canvas id="cdebug"></canvas>
-            </div>
-          </div>
           <div class="mt mt-sml" style="opacity: .5; color: gray; font-size: .75em;">
             * Reset required
+          </div>
+        </div>
+      </div>
+      <div class="pass centered">
+        <div class="options-box">
+          <input id="cdebug-toggle" type="checkbox" />
+          <label for="cdebug-toggle">Draw Tilemap</label>
+          <div id="cdebug-wrapper">
+            <canvas id="cdebug"></canvas>
           </div>
         </div>
       </div>

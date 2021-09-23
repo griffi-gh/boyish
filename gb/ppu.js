@@ -256,7 +256,7 @@ export default class PPU {
     let dy = 0;
     let w = 17;
     //const [i,v] of this.tileCache.entries()
-    for(let i=0;i<=0x7F;i++) {
+    for(let i=0;i<=0x17E;i++) {
       let v = this.tileCache[i];
       for(let y = 0; y < 8; y++){
         for(let x = 0; x < 8; x++){
