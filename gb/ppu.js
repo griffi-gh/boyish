@@ -36,6 +36,7 @@ export default class PPU {
     this.mode = 2;
 
     this.tileCache = [];
+    this.bgpal = [0,1,2,3];
 
     // LCDC REGISTERS
     this.lcdon = false;
@@ -80,6 +81,21 @@ export default class PPU {
     } else {
       return 0xFF;
     }
+  }
+
+  set bgp(v) {
+    this.bgpal[0] = (v & 0b00000011);
+    this.bgpal[1] = (v & 0b00001100) >> 2;
+    this.bgpal[2] = (v & 0b00110000) >> 4;
+    this.bgpal[3] = (v & 0b11000000) >> 6;
+  }
+  get bgp() {
+    return (
+      this.bgpal[0] |
+      (this.bgpal[1] << 2) |
+      (this.bgpal[2] << 4) |
+      (this.bgpal[3] << 6)
+    )
   }
 
   set stat(v) {
@@ -160,7 +176,8 @@ export default class PPU {
     let tile = this.tileCache[tileIndex][y];
 
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
-      let pix = this.pallete[this.bgWinEnable ? tile[x] : 0];
+      let color = this.bgWinEnable ? tile[x] : 0;
+      let pix = this.pallete[this.bgpal[color]];
 
       // DRAW
       img[drawOffset] = pix[0];
