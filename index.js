@@ -14,7 +14,7 @@ function button(id, fn) {
     ev.stopPropagation();
     fn(btn, ev);
   });
-  btn.style.cssText += `width: ${(btn.getBoundingClientRect().width + 10).toString()}px;`;
+  //btn.style.cssText += `width: ${(btn.getBoundingClientRect().width + 10).toString()}px;`;
   return btn;
 }
 
@@ -83,19 +83,21 @@ window.addEventListener("DOMContentLoaded", function() {
   });
 
   function loop() {
-    $id("gb-canvas").classList.toggle("scaled", $id("scale2x").checked);
+    $id("gb-canvas-wrapper").classList.toggle("scaled", $id("scale2x").checked);
     //gb.vsync = $id("vsync").checked;
     gb.loopMode = $('input[name="flimit"]:checked').value;
     btn_log.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
     btn_pause.innerHTML = gb.paused ? 'Play' : 'Pause';
+    
+    const emp = (gb.logData.length === 0);
     if(!gb.disableLog) {
       const log = gb.logData;
-      const emp = (log.length === 0);
       $id('log-size').innerHTML = humanFileSize(log.length, true);
       $id('log-line').innerHTML = log.split(/\r?\n/).at(-2);
-      $id('log-info').style.display = (gb.disableLog || emp) ? 'none' : 'unset';
-      $id('log-empty').style.display = (emp & (!gb.disableLog)) ? 'unset' : 'none';
     }
+    $id('log-info').style.display = (gb.disableLog || emp) ? 'none' : 'unset';
+    $id('log-empty').style.display = (emp & (!gb.disableLog)) ? 'unset' : 'none';
+
     $id('log-disabled').style.display = gb.disableLog ? 'unset' : 'none';
     if($id('cdebug-toggle').checked) {
       gb.ppu.debugTileset("cdebug");

@@ -58,6 +58,7 @@ main {
 }
 .stretched > * {
 	flex-grow: 1;
+	flex-basis: 0;
 }
 
 .square-h {
@@ -118,7 +119,7 @@ main {
 	padding: 0;
 	margin: 0;
 }
-#gb-canvas.scaled {
+#gb-canvas-wrapper.scaled > #gb-canvas {
 	--scale: 2;
 	width: calc( 160px * var(--scale));
 	height: calc( 144px * var(--scale));
@@ -139,14 +140,26 @@ main {
 	opacity: 1;
 	transition: all .5s ease;
 }
+#input-popup.hide {
+	opacity: 0;
+	transform: translateY(-200%);
+}
 #input-popup > img {
 	width: 24px;
 	height: 24px;
 	padding-right: .33ch;
 }
-#input-popup.hide {
-	opacity: 0;
-	transform: translateY(-200%);
+#gb-canvas-wrapper:not(.scaled) #input-popup > img {
+	width: 18px;
+	height: 18px;
+	padding-right: .2ch;
+}
+#input-popup > span {
+	height: 100%;
+	font-size: 1rem;
+}
+#gb-canvas-wrapper:not(.scaled) #input-popup > span {
+	font-size: .75rem;
 }
 
 #noJS {
