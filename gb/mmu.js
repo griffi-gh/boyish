@@ -1,3 +1,4 @@
+import Cartridge from './cartridge.js';
 import {toHex} from './common.js';
 
 export const bios = new Uint8Array([
@@ -39,6 +40,8 @@ export default class MMU {
     }
   }
   loadROM(d) {
+    //this.cart = new Cartridge(d[0x147]);
+    //this.cart.load(d);
     this.rom.fill(0x00);
     const size = Math.min(d.length - 1, 0x7FFF);
     for(let i = 0; i <= size; i++) {
