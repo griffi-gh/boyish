@@ -59,33 +59,34 @@ export default class MMU {
     addr &= 0xFFFF;
     this.handleBreakpoints('r', addr);
     switch (addr) {
-      case 0xFFFF:
-        return this.gb.cpu.irq.ie | 0;
+      case 0xFF00:
+        return this.gb.input.joyp;
+      case 0xFF04:
+        return this.gb.timer.div;
       case 0xFF0F:
         return this.gb.cpu.irq.if | 0;
-      case 0xFF50:
-        return ((this.disableBios | 0) & 0xFF);
-      case 0xFF45:
-        return this.gb.ppu.lyc | 0;
+      case 0xFF40:
+        return this.gb.ppu.lcdc;
+      case 0xFF41:
+        return this.gb.ppu.stat;
+      case 0xFF42:
+        return this.gb.ppu.scy | 0;
+      case 0xFF43:
+        return this.gb.ppu.scx | 0;
       case 0xFF44:
         if(this.gb.stubLY) {
           return 0x90;
         } else {
           return this.gb.ppu.line | 0;
         }
-      case 0xFF43:
-        return this.gb.ppu.scx | 0;
-      case 0xFF42:
-        return this.gb.ppu.scy | 0;
-      case 0xFF41:
-        return this.gb.ppu.stat;
-      case 0xFF40:
-        return this.gb.ppu.lcdc;
-      case 0xFF04:
-        return this.gb.timer.div;
-      case 0xFF00:
-        return this.gb.input.joyp;
-        //return 0xFF; // stub input reg
+      case 0xFF45:
+        return this.gb.ppu.lyc | 0;
+      case 0xFF47:
+        return this.gb.ppu.bgp;
+      case 0xFF50:
+        return ((this.disableBios | 0) & 0xFF);
+      case 0xFFFF:
+        return this.gb.cpu.irq.ie | 0;
       default:
         if (addr <= 0xFF) {
           if (this.disableBios === false) {
@@ -113,34 +114,38 @@ export default class MMU {
     val  &= 0xFF;
     this.handleBreakpoints('w', addr, val);
     switch (addr) {
-      case 0xFFFF:
-        this.gb.cpu.irq.ie = val;
-      case 0xFF0F:
-        this.gb.cpu.irq.if = val;
-      case 0xFF50:
-        this.disableBios = (val | 0);
-        return;
-      case 0xFF45:
-        this.gb.ppu.lyc = val;
-        //console.log('lyc '+val)
-        return;
-      case 0xFF43:
-        this.gb.ppu.scx = val;
-        return;
-      case 0xFF42:
-        this.gb.ppu.scy = val;
-        return;
-      case 0xFF41:
-        this.gb.ppu.stat = val;
-        return;
-      case 0xFF40:
-        this.gb.ppu.lcdc = val;
+      case 0xFF00:
+        this.gb.input.joyp = val;
         return;
       case 0xFF04:
         this.gb.timer.div = 0;
         return;
-      case 0xFF00:
-        this.gb.input.joyp = val;
+      case 0xFF0F:
+        this.gb.cpu.irq.if = val;
+        return;
+      case 0xFF40:
+        this.gb.ppu.lcdc = val;
+        return;
+      case 0xFF41:
+        this.gb.ppu.stat = val;
+        return;
+      case 0xFF42:
+        this.gb.ppu.scy = val;
+        return;
+      case 0xFF43:
+        this.gb.ppu.scx = val;
+        return;
+      case 0xFF45:
+        this.gb.ppu.lyc = val;
+        return;
+      case 0xFF47:
+        this.gb.ppu.bgp = val;
+        return;
+      case 0xFF50:
+        this.disableBios = (val | 0);
+        return;
+      case 0xFFFF:
+        this.gb.cpu.irq.ie = val;
         return;
       default:
         if (addr >= 0x8000 && addr <= 0x9FFF) {
