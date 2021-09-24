@@ -90,6 +90,26 @@ export class CartridgeMBC1 extends CartridgeNone {
     super.load(d);
     this.eram = new Uint8Array(this.ramSize * 1024).fill(0);
   }
+
+  read(a) {
+    if(a <= 0x7FFF) {
+      if(a >= 0x4000) {
+        let bank = this.romBank;
+        if(this.mode === 0) {
+          bank += this.ramBank << 5;
+        }
+        const ra = (bank * 0x4000) + (a % 0x4000);
+        return (this.rom[ra] | 0);
+      } else {
+        return (this.rom[a] | 0);
+      }
+    } else {
+      if(this.ramEnable) {
+        return (this.eram[(a - 0xA000) + (ramBank * 0x2000)] | 0);
+      }
+    }
+    return 0;
+  }
   write(a, v) {
     if(a <= 0x7FFF) {
       if(a <= 0x1FFF) {
@@ -120,26 +140,28 @@ export class CartridgeMBC1 extends CartridgeNone {
       }
     }
   }
-  saveEram(force) {
+
+  getSaveName(slot) {
+    if(slot == null) slot = 'DEFAULT';
+    return `SAVE_${slot}_${this.header.name}`
+  }
+  saveEram(slot, force) {
     if(force || (this.options.battery && this.eramUnsaved)) {
-      localStorage.setItem('GAMESAVE_' + this.header.name, JSON.stringify(this.eram));
+      localStorage.setItem(this.getSaveName(slot), JSON.stringify(this.eram));
+      console.log('Saved!');
     }
   }  
-  read(a) {
-    if(a <= 0x7FFF) {
-      if(a >= 0x4000) {
-        let bank = this.romBank;
-        if(this.mode === 0) {
-          bank += this.ramBank << 5;
-        }
-        const ra = (bank * 0x4000) + (a % 0x4000);
-        return (this.rom[ra] | 0);
+  loadEram(slot, force) {
+    if(force || (this.options.battery && this.eramUnsaved)) {
+      let data = localStorage.getItem(this.getSaveName(slot));
+      if(data) {
+        this.eram = new Uint8Array(Object.values(JSON.parse(data)));
       } else {
-        return (this.rom[a] | 0);
+        console.error("No save file found!");
       }
     }
-    return 0;
   }
+
 }
 
 export default function newCartridge(i) {
