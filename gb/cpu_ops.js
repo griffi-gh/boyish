@@ -834,6 +834,16 @@ function LD_AU16_SP() {
   `);
 }
 
+function CCF() {
+  return construct(`
+    const f = this.f;
+    f.c = !(f.c);
+    f.n = false;
+    f.h = false;
+    return [4, pc+1];
+  `)
+}
+
 OPS[0x00] = NOP();              // NOP
 
 OPS[0x01] = LD_RR_U16('bc');    // LD BC,u16
@@ -1107,6 +1117,7 @@ OPS[0x17] = RLA();              // RLA
 OPS[0x1F] = RRA();              // RLA
 
 OPS[0x2F] = CPL();              // CPL
+OPS[0x3F] = CCF();              //CCF
 
 OPS[0x27] = DAA();              // DAA
 

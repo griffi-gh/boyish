@@ -140,7 +140,13 @@ export default class MMU {
         this.gb.cpu.irq.ie = val;
         return;
       default:
-        if (addr >= 0x8000 && addr <= 0x9FFF) {
+        if (addr <= 0x7FFF) {
+          if((addr <= 0xFF) && (this.disableBios === false)) {
+            return;
+          }
+          this.cart.write(addr, val);
+          return; 
+        } else if (addr <= 0x9FFF) {
           this.gb.ppu.writeVRAM(addr - 0x8000, val);
         } else if (addr <= 0xBFFF) {
           this.eram[addr - 0xA000] = val; // External RAM

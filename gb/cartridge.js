@@ -49,7 +49,8 @@ export class CartridgeNone {
   constructor() {
     this.rom = new Uint8Array(0x8000).fill(0);
     this.header = {}
-    //copy valid header
+    this.parseHeader();
+    //copy valid header (make bootrom work)
     for(let i = 0; i <= 80; i++) {
       this.rom[0x100 + i] = validHeader[i];
     }
@@ -84,6 +85,8 @@ export class CartridgeMBC1 extends CartridgeNone {
 
     this.romBank = 1;
     this.romBankAmount = Math.ceil(this.rom / 0x4000);
+
+    this.mode = 0;
   }
   write(a, v) {
     if((a >= 0x2000) && (a <= 0x3FFF)) {
@@ -91,15 +94,18 @@ export class CartridgeMBC1 extends CartridgeNone {
       v = ((v == 0) ? 1 : v);
       this.romBank = v;
       return;
+    } else if((a >= 0x6000) && (a <= 0x7FFF)) {
+      this.mode = v & 1;
+      return;
     }
   }
   read(a) {
     if(a <= 0x7FFF) {
       if(a >= 0x4000) {
         const ra = (this.romBank * 0x4000) + (a % 0x4000);
-        return this.rom[ra]
+        return (this.rom[ra] | 0);
       } else {
-        return this.rom[a];
+        return (this.rom[a] | 0);
       }
     }
     return 0;
@@ -111,10 +117,12 @@ export default function Cartridge(i,...args) {
   if(isArray(i)) i = i[0x147];
   switch (i) {
     case 0x00:
+      console.log(i+'No MBC');
       return new CartridgeNone(args);
     case 0x01:
     case 0x02:
     case 0x03:
+      console.log(i+'MBC1');
       return new CartridgeMBC1(args);
     default:
       throw new Error('Invalid MBC type: ' + i.toString(16));
