@@ -14,6 +14,7 @@ export function parseHeader(rom) {
     }
   }
   h.type = rom[0x147];
+  // Note: Rom/Ram sizes are measured in kb
   h._romSize = rom[0x148]
   h.romSize  = 32 << h._romSize;
   h._ramSize = rom[0x149];
@@ -41,12 +42,12 @@ export function parseHeader(rom) {
       h.ramSize = 64;
       break;
   }
-  h.ramSize *= 1024
   return h;
 }
 
 export class CartridgeNone {
-  constructor() {
+  constructor(options) {
+    this.options = options;
     this.rom = new Uint8Array(0x8000).fill(0);
     this.header = {}
     this.parseHeader();
@@ -77,32 +78,61 @@ export class CartridgeNone {
 }
 
 export class CartridgeMBC1 extends CartridgeNone {
-  constructor() {
-    super();
-    
+  constructor(options) {
+    super(options);
+    this.eram = new Uint8Array(1024).fill(0);
     this.ramBank = 0;
     this.ramEnable = false;
-
     this.romBank = 1;
-    this.romBankAmount = Math.ceil(this.rom / 0x4000);
-
     this.mode = 0;
   }
+  load(d) {
+    super.load(d);
+    this.eram = new Uint8Array(this.ramSize * 1024).fill(0);
+  }
   write(a, v) {
-    if((a >= 0x2000) && (a <= 0x3FFF)) {
-      v &= 0x1F;
-      v = ((v == 0) ? 1 : v);
-      this.romBank = v;
-      return;
-    } else if((a >= 0x6000) && (a <= 0x7FFF)) {
-      this.mode = v & 1;
-      return;
+    if(a <= 0x7FFF) {
+      if(a <= 0x1FFF) {
+        this.ramEnable = ((v & 0x0A) === 0x0A);
+        return;
+      } else if(a <= 0x3FFF) {
+        v &= 0x1F;
+        v = ((v == 0) ? 1 : v);
+        this.romBank = v;
+        return;
+      } else if(a <= 0x5FFF) {
+        this.ramBank = (v & 0x03);
+        return;
+      } else {
+        this.mode = v & 1;
+        return;
+      }
+    } else {
+      if(this.ramEnable) {
+        let ramBank = 0;
+        if(this.mode) {
+          ramBank = this.ramBank;
+        }
+        this.eram[(a - 0xA000) + (ramBank * 0x2000)] = v;
+        if(this.options.battery) {
+          this.eramUnsaved = true;
+        }
+      }
     }
   }
+  saveEram(force) {
+    if(force || (this.options.battery && this.eramUnsaved)) {
+      localStorage.setItem('GAMESAVE_' + this.header.name, JSON.stringify(this.eram));
+    }
+  }  
   read(a) {
     if(a <= 0x7FFF) {
       if(a >= 0x4000) {
-        const ra = (this.romBank * 0x4000) + (a % 0x4000);
+        let bank = this.romBank;
+        if(this.mode === 0) {
+          bank += this.ramBank << 5;
+        }
+        const ra = (bank * 0x4000) + (a % 0x4000);
         return (this.rom[ra] | 0);
       } else {
         return (this.rom[a] | 0);
@@ -112,18 +142,21 @@ export class CartridgeMBC1 extends CartridgeNone {
   }
 }
 
-export default function Cartridge(i,...args) {
+export default function newCartridge(i) {
   if(i == null)  i = 0;
   if(isArray(i)) i = i[0x147];
+  let options = {};
   switch (i) {
-    case 0x00:
+    case 0x00: //NONE
       console.log(i+'No MBC');
-      return new CartridgeNone(args);
-    case 0x01:
-    case 0x02:
-    case 0x03:
+      return new CartridgeNone(options);
+    case 0x03: //MBC1+RAM+BATTERY
+      options.battery = true;
+      // fall through
+    case 0x02: //MBC1+RAM
+    case 0x01: //MBC1
       console.log(i+'MBC1');
-      return new CartridgeMBC1(args);
+      return new CartridgeMBC1(options);
     default:
       throw new Error('Invalid MBC type: ' + i.toString(16));
   }

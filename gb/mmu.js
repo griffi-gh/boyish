@@ -1,4 +1,4 @@
-import Cartridge from './cartridge.js';
+import newCartridge from './cartridge.js';
 import {toHex} from './common.js';
 
 export const bios = new Uint8Array([
@@ -26,7 +26,7 @@ export default class MMU {
     this.init();
   }
   init() {
-    this.cart = Cartridge();
+    this.cart = newCartridge();
     this.wram = new Uint8Array(0x2000).fill(0x00);
     this.eram = new Uint8Array(0x2000).fill(0x00);
     this.hram = new Uint8Array(0x7F).fill(0x00);
@@ -34,7 +34,7 @@ export default class MMU {
     this.accessBreakpoints = [];
   }
   loadROM(d) {
-    this.cart = Cartridge(d[0x147]);
+    this.cart = newCartridge(d[0x147]);
     this.cart.load(d);
   }
   handleBreakpoints(t,addr,val) {
