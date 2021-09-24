@@ -103,7 +103,7 @@ export class CartridgeMBC1 extends CartridgeNone {
       }
     } else {
       if(this.ramEnable) {
-        return (this.eram[(a - 0xA000) + (ramBank * 0x2000)] | 0);
+        return (this.eram[(a - 0xA000) + (this.ramBank * 0x2000)] | 0);
       }
     }
     return 0;
