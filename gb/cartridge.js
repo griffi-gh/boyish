@@ -98,8 +98,7 @@ export class CartridgeMBC1 extends CartridgeNone {
         if(this.mode === 0) {
           bank += this.ramBank << 5;
         }
-        const ra = (bank * 0x4000) + (a % 0x4000);
-        return (this.rom[ra] | 0);
+        return (this.rom[(bank * 0x4000) + (a - 0x4000)] | 0);
       } else {
         return (this.rom[a] | 0);
       }
@@ -138,6 +137,7 @@ export class CartridgeMBC1 extends CartridgeNone {
           this.eramUnsaved = true;
         }
       }
+      return;
     }
   }
 
