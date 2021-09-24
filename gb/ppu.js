@@ -77,7 +77,7 @@ export default class PPU {
   }
   readVRAM(addr) {
     if((this.mode !== MODE_VRAM) || this.gb.stubLY) {
-      return this.vram[addr];
+      return (this.vram[addr] | 0);
     } else {
       return 0xFF;
     }

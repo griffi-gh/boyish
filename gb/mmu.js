@@ -20,36 +20,25 @@ export const bios = new Uint8Array([
   0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
 ]);
 
-const header = new Uint8Array([0x00, 0xC3, 0x37, 0x06, 0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D, 0x00, 0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E, 0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99, 0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC, 0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E, 0x43, 0x50, 0x55, 0x5F, 0x49, 0x4E, 0x53, 0x54, 0x52, 0x53, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x3B, 0xF5, 0x30]);
-
 export default class MMU {
   constructor(gb){
     this.gb = gb;
     this.init();
   }
   init() {
-    this.rom  = new Uint8Array(0x8000).fill(0x00);
+    this.cart = Cartridge();
     this.wram = new Uint8Array(0x2000).fill(0x00);
     this.eram = new Uint8Array(0x2000).fill(0x00);
     this.hram = new Uint8Array(0x7F).fill(0x00);
     this.disableBios = false;
     this.accessBreakpoints = [];
-    //load valid header into the ROM memory
-    for(let i = 0; i <= 80; i++) {
-      this.rom[0x100 + i] = header[i];
-    }
   }
   loadROM(d) {
-    //this.cart = new Cartridge(d[0x147]);
-    //this.cart.load(d);
-    this.rom.fill(0x00);
-    const size = Math.min(d.length - 1, 0x7FFF);
-    for(let i = 0; i <= size; i++) {
-      this.rom[i] = (d[i] | 0);
-    }
+    this.cart = Cartridge(d[0x147]);
+    this.cart.load(d);
   }
   handleBreakpoints(t,addr,val) {
-    if(this.accessBreakpoints[addr]) {
+    if(addr in this.accessBreakpoints) {
       const b = this.accessBreakpoints[addr];
       if(b === t || b === 'a') {
         console.log('Address 0x' + toHex(addr,16) + (t === 'r' ? 'read' : 'write = ') + (val ? toHex(val,8) : ''));
@@ -95,14 +84,14 @@ export default class MMU {
           if (this.disableBios === false) {
             return bios[addr] | 0;
           } else {
-            return this.rom[addr] | 0;
+            return this.cart.read(addr);
           }
         } else if (addr <= 0x7FFF) {
-          return this.rom[addr] | 0;
+          return this.cart.read(addr);
         } else if (addr <= 0x9FFF) {
-          return (this.gb.ppu.readVRAM(addr - 0x8000) | 0);
+          return this.gb.ppu.readVRAM(addr - 0x8000);
         } else if (addr <= 0xBFFF) {
-          return this.eram[addr - 0xA000] | 0; // External RAM
+          return this.cart.read(addr); // External RAM
         } else if (addr <= 0xFDFF) {
           return this.wram[addr & 0x1FFF] | 0; // Work RAM and Echo RAM
         } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
