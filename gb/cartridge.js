@@ -62,8 +62,7 @@ export class CartridgeNone {
   }
   load(d) {
     this.rom.fill(0x00);
-    const size = Math.max(d.length, 0x8000);
-    for(let i = 0; i <= size; i++) {
+    for(let i = 0; i < d.length; i++) {
       this.rom[i] = (d[i] | 0);
     }
     this.parseHeader();
