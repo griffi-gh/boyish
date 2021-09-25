@@ -102,7 +102,7 @@ export class Gameboy {
     this.ppu.bgp = 0xFC;
     this.ppu.line = 0;
     this.ppu.cycles = 0;
-    this.timer.div = 0xAB;
+    this.timer.clk.div = 0xAB;
     this.input.joyp = 0xCF;
     this.mmu.write(0xFF50, 1); //disable bootrom
     for(let i = 0; i < 0x2000; i++) {
