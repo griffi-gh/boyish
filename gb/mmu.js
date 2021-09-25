@@ -75,6 +75,8 @@ export default class MMU {
         return this.gb.ppu.lyc | 0;
       case 0xFF47:
         return this.gb.ppu.bgp;
+      case 0xFF4D:
+        return 0xFF; //DMG Mode
       case 0xFF50:
         return ((this.disableBios | 0) & 0xFF);
       case 0xFFFF:
