@@ -85,7 +85,7 @@ export class CartridgeMBC1 extends CartridgeNone {
 
   load(d) {
     super.load(d);
-    this.eram = new Uint8Array(this.header.ramSize * 1024).fill(0);
+    this.eram = new Uint8Array(128 * 1024).fill(0);
   }
 
   read(a) {
