@@ -85,7 +85,7 @@ export class CartridgeMBC1 extends CartridgeNone {
 
   load(d) {
     super.load(d);
-    this.eram = new Uint8Array(this.ramSize * 1024).fill(0);
+    this.eram = new Uint8Array(this.header.ramSize * 1024).fill(0);
   }
 
   read(a) {
@@ -101,7 +101,10 @@ export class CartridgeMBC1 extends CartridgeNone {
       }
     } else {
       if(this.ramEnable) {
-        return (this.eram[(a - 0xA000) + (this.ramBank * 0x2000)] | 0);
+        let ramBank = 0;
+        if(this.mode) ramBank = this.ramBank;
+        let v = (this.eram[(a - 0xA000) + (ramBank * 0x2000)] | 0);
+        return v;
       }
     }
     return 0;
@@ -129,6 +132,14 @@ export class CartridgeMBC1 extends CartridgeNone {
         if(this.mode) ramBank = this.ramBank;
         this.eram[(a - 0xA000) + (ramBank * 0x2000)] = v;
         if(this.options.battery) this.eramUnsaved = true;
+        /*console.log(
+          'WRITE => ',
+          'mapped = ' + ((a - 0xA000) + (ramBank * 0x2000)).toString(16),
+          'v = ' + v.toString(16),
+          'a = ' + a.toString(16),
+          'read = ' + this.read(a),
+          'bank = ' + ramBank + `(${this.ramBank})`
+        );*/
       }
       return;
     }

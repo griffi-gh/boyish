@@ -149,7 +149,7 @@ export default class MMU {
         } else if (addr <= 0x9FFF) {
           this.gb.ppu.writeVRAM(addr - 0x8000, val);
         } else if (addr <= 0xBFFF) {
-          this.eram[addr - 0xA000] = val; // External RAM
+          this.cart.write(addr, val); // ERAM
         } else if (addr <= 0xDFFF) {
           this.wram[addr - 0xC000] = val; // Work RAM
         } else if (addr <= 0xFDFF) {
