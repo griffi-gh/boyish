@@ -200,10 +200,11 @@ function _ADCSBC(isAdd) {
     const carry = this.f.c | 0;
     let a = this.r.a;
     this.f.h = ((a & 0xF) ${isAdd ? '+' : '-'} (b & 0xF) ${isAdd ? '+' : '-'} carry) ${isAdd ? '> 0xF' : '< 0'};
-    a ${isAdd ? '+' : '-'}= (b + carry);
+    a ${isAdd ? '+=' : '-='} (b + carry);
     this.f.c = (a ${isAdd ? '> 0xFF' : '< 0'});
     a &= 0xFF;
     this.f.z = (a === 0);
+    this.f.n = ${(!isAdd).toString()};
     this.r.a = a;
   `
 }
