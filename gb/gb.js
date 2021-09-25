@@ -94,10 +94,16 @@ export class Gameboy {
     this.cpu.reg.de = 0x00D8;
     this.cpu.reg.hl = 0x014D;
     this.cpu.reg.sp = 0xFFFE;
-    this.cpu.reg.pc = 0x0101;
+    this.cpu.reg.pc = 0x0100;
+    this.cpu.irq.ie = 0x00;
+    this.cpu.irq.if = 0xE1;
     this.ppu.lcdc = 0x91;
+    this.ppu.stat = 0x85;
+    this.ppu.bgp = 0xFC;
     this.ppu.line = 0;
     this.ppu.cycles = 0;
+    this.timer.div = 0xAB;
+    this.input.joyp = 0xCF;
     this.mmu.write(0xFF50, 1); //disable bootrom
     for(let i = 0; i < 0x2000; i++) {
       this.ppu.writeVRAM(i, 0)
