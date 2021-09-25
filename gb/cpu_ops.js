@@ -118,7 +118,7 @@ function LD_ARR_A(r) {
 //LD (HL),u8
 function LD_AHL_U8() { 
   return construct(`
-    this.mmu.write(this.r.hl, this.mmu.read((pc+1) & 0xFFFF));
+    this.mmu.write(this.r.hl, this.mmu.read(pc+1));
     return [12, pc+2]; 
   `);
 }
