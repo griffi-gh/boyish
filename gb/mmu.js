@@ -140,7 +140,7 @@ export default class MMU {
         this.gb.cpu.irq.ie = val;
         return;
       default:
-        if (addr <= 0x7FFF) {
+        if(addr <= 0x7FFF) {
           if((addr <= 0xFF) && (this.disableBios === false)) {
             return;
           }

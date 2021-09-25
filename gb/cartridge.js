@@ -61,7 +61,7 @@ export class CartridgeNone {
     console.log(JSON.stringify(this.header, null, 2));
   }
   load(d) {
-    this.rom.fill(0x00);
+    this.rom = new Uint8Array(1024 * this.header.romSize).fill(0);
     for(let i = 0; i < d.length; i++) {
       this.rom[i] = (d[i] | 0);
     }
@@ -85,6 +85,7 @@ export class CartridgeMBC1 extends CartridgeNone {
     this.romBank = 1;
     this.mode = 0;
   }
+
   load(d) {
     super.load(d);
     this.eram = new Uint8Array(this.ramSize * 1024).fill(0);
@@ -94,8 +95,8 @@ export class CartridgeMBC1 extends CartridgeNone {
     if(a <= 0x7FFF) {
       if(a >= 0x4000) {
         let bank = this.romBank;
-        if(this.mode === 0) {
-          bank += this.ramBank << 5;
+        if(this.mode == 0) {
+          bank += (this.ramBank << 5);
         }
         return (this.rom[(bank * 0x4000) + (a - 0x4000)] | 0);
       } else {
@@ -128,13 +129,9 @@ export class CartridgeMBC1 extends CartridgeNone {
     } else {
       if(this.ramEnable) {
         let ramBank = 0;
-        if(this.mode) {
-          ramBank = this.ramBank;
-        }
+        if(this.mode) ramBank = this.ramBank;
         this.eram[(a - 0xA000) + (ramBank * 0x2000)] = v;
-        if(this.options.battery) {
-          this.eramUnsaved = true;
-        }
+        if(this.options.battery) this.eramUnsaved = true;
       }
       return;
     }
@@ -160,7 +157,6 @@ export class CartridgeMBC1 extends CartridgeNone {
       }
     }
   }
-
 }
 
 export default function newCartridge(i) {
