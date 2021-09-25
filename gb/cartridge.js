@@ -61,10 +61,7 @@ export class CartridgeNone {
     console.log(JSON.stringify(this.header, null, 2));
   }
   load(d) {
-    this.rom = new Uint8Array(1024 * this.header.romSize).fill(0);
-    for(let i = 0; i < d.length; i++) {
-      this.rom[i] = (d[i] | 0);
-    }
+    this.rom = d.slice();
     this.parseHeader();
   }
   read(a) {
