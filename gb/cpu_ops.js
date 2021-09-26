@@ -677,7 +677,7 @@ function RRA() {
 function _RLC() {
   return (`
     val = (val << 1) | (val >> 7);
-    this.f.c = (val & 0x100) !== 0;
+    this.f.c = (val >= 0xFF);
     val &= 0xFF;
   `)
 }
@@ -1266,6 +1266,31 @@ function RL_AHL() {
   `);
 }
 
+function _SRL() {
+  return (`
+    this.f.reset();
+    this.f.c = !!(input & 0x01);
+    input = (input >> 1);
+    this.f.z = (input === 0);
+  `);
+}
+function SRL_R(r) {
+  return construct(`
+    let input = this.r.${r};
+    ${ _SRL() }
+    this.r.${r} = input;
+    return [8, pc+1];
+  `)
+}
+function SRL_AHL() {
+  return construct(`
+    let input = this.mmu.read(this.r.hl);;
+    ${ _SRL() }
+    this.mmu.write(this.r.hl, input);
+    return [16, pc+1];
+  `);
+}
+
 function _SLA_INPUT() {
   return (`
     this.f.reset();
@@ -1291,26 +1316,26 @@ function SLA_AHL() {
   `);
 }
 
-function _SRL() {
+function _SRA_INPUT() {
   return (`
-    this.f.reset();
-    this.f.c = !!(input & 0x01);
-    input = (input >> 1);
-    this.f.z = (input === 0);
+    ${ _SRL() }
+    if((input & 0x40) !== 0) {
+      input += 0x80;
+    }
   `);
 }
-function SRL_R(r) {
+function SRA_R(r) {
   return construct(`
     let input = this.r.${r};
-    ${ _SRL() }
+    ${ _SRA_INPUT() }
     this.r.${r} = input;
     return [8, pc+1];
-  `)
+  `);
 }
-function SRL_AHL() {
+function SRA_AHL() {
   return construct(`
-    let input = this.mmu.read(this.r.hl);;
-    ${ _SRL() }
+    let input = this.mmu.read(this.r.hl);
+    ${ _SRA_INPUT() }
     this.mmu.write(this.r.hl, input);
     return [16, pc+1];
   `);
@@ -1415,6 +1440,15 @@ CB_OPS[0x24] = SLA_R('h');
 CB_OPS[0x25] = SLA_R('l');
 CB_OPS[0x26] = SLA_AHL();
 CB_OPS[0x27] = SLA_R('a');
+
+CB_OPS[0x28] = SRA_R('b');
+CB_OPS[0x29] = SRA_R('c');
+CB_OPS[0x2A] = SRA_R('d');
+CB_OPS[0x2B] = SRA_R('e');
+CB_OPS[0x2C] = SRA_R('h');
+CB_OPS[0x2D] = SRA_R('l');
+CB_OPS[0x2E] = SRA_AHL();
+CB_OPS[0x2F] = SRA_R('a');
 
 CB_OPS[0x30] = SWAP_R('b');
 CB_OPS[0x31] = SWAP_R('c');
