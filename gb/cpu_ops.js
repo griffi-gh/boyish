@@ -677,6 +677,7 @@ function RRA() {
 function _RLC() {
   return (`
     val = (val << 1) | (val >> 7);
+    this.f.reset();
     this.f.c = (val >= 0xFF);
     val &= 0xFF;
   `)
@@ -684,6 +685,7 @@ function _RLC() {
 
 function _RRC() {
   return (`
+    this.f.reset();
     this.f.c = (val & 0x01) !== 0;
     val = ((val >> 1) | (val << 7)) & 0xFF;
   `)
