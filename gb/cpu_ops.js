@@ -7,9 +7,9 @@ function construct(body) {
 }
 
 //NOP
-function NOP() { 
+function NOP() {
   return construct(`
-    return [4, pc+1]; 
+    return [4, pc+1];
   `);
 }
 
@@ -29,7 +29,7 @@ function STOP() {
   `);
 }
 
-function _INCDEC_FLAGS(n) { 
+function _INCDEC_FLAGS(n) {
   return `
     const f = this.f;
     f.z = ((result & 0xFF) == 0);
@@ -47,7 +47,7 @@ function INC_R(r) {
     ${_INCDEC_FLAGS(true)}
     this.r.${r} = result & 0xFF;
     return [4, pc+1];
-  `) 
+  `)
 }
 //DEC R
 function DEC_R(r) {
@@ -56,7 +56,7 @@ function DEC_R(r) {
     ${_INCDEC_FLAGS(false)}
     this.r.${r} = result & 0xFF;
     return [4, pc+1];
-  `) 
+  `)
 }
 
 //INC (HL)
@@ -67,7 +67,7 @@ function INC_AHL() {
     ${_INCDEC_FLAGS(true)}
     this.mmu.write(hl, result);
     return [12, pc+1];
-  `) 
+  `)
 }
 //DEC (HL)
 function DEC_AHL() {
@@ -77,7 +77,7 @@ function DEC_AHL() {
     ${_INCDEC_FLAGS(false)}
     this.mmu.write(hl, result);
     return [12, pc+1];
-  `) 
+  `)
 }
 
 //
@@ -99,85 +99,85 @@ function DEC_RR(r) {
 }
 
 //LD A,(RR)
-function LD_A_ARR(r) { 
+function LD_A_ARR(r) {
   return construct(`
     this.r.a = this.mmu.read(this.r.${r});
-    return [8, pc+1]; 
+    return [8, pc+1];
   `);
 }
 //if(pc===0x39) { console.log(this.toHex(this.r.d), this.toHex(this.r.e),'${r}',this.toHex(this.r.${r},16), this.toHex(this.mmu.read(this.r.${r}))) }
     
 //LD (RR),A
-function LD_ARR_A(r) { 
+function LD_ARR_A(r) {
   return construct(`
     this.mmu.write(this.r.${r}, this.r.a);
-    return [8, pc+1]; 
+    return [8, pc+1];
   `);
 }
 
 //LD (HL),u8
-function LD_AHL_U8() { 
+function LD_AHL_U8() {
   return construct(`
     this.mmu.write(this.r.hl, this.mmu.read(pc+1));
-    return [12, pc+2]; 
+    return [12, pc+2];
   `);
 }
 
 //LD R,u8
-function LD_R_U8(r) { 
+function LD_R_U8(r) {
   return construct(`
     this.r.${r} = this.mmu.read((pc+1) & 0xFFFF);
-    return [8, pc+2]; 
+    return [8, pc+2];
   `);
 }
 
 //LD R,R
-function LD_R_R(a, b) { 
+function LD_R_R(a, b) {
   return construct(`
     this.r.${a} = this.r.${b};
-    return [4, pc+1]; 
+    return [4, pc+1];
   `);
 } //
 
 //LD R,(HL)
-function LD_R_AHL(r) { 
+function LD_R_AHL(r) {
   return construct(`
     this.reg.${r} = this.mmu.read(this.r.hl) | 0;;
-    return [8, pc+1]; 
+    return [8, pc+1];
   `);
 }
 
 //LD (HL),R
-function LD_AHL_R(r) { 
+function LD_AHL_R(r) {
   return construct(`
     this.mmu.write(this.r.hl, this.r.${r});
-    return [8, pc+1]; 
+    return [8, pc+1];
   `);
 }
 
 //LD RR,u16
-function LD_RR_U16(r) { 
+function LD_RR_U16(r) {
   return construct(`
     this.r.${r} = this.mmu.readWord(pc+1);
     return [12, pc+3];
-  `) 
+  `)
 }
 
 //PUSH RR
-function PUSH_RR(r) { 
+function PUSH_RR(r) {
   return construct(`
     this.r.sp = (this.r.sp - 2) & 0xFFFF;
     this.mmu.writeWord(this.r.sp, this.r.${r});
-    return [16, pc+1]; 
+    return [16, pc+1];
   `);
 }
 
 //POP RR
-function POP_RR(r) {  
+function POP_RR(r) {
   return construct(`
     this.r.${r} = this.mmu.readWord(this.r.sp);
     this.r.sp = (this.r.sp + 2) & 0xFFFF;
-    return [12, pc+1]; 
+    return [12, pc+1];
   `);
 }
 
@@ -316,18 +316,18 @@ function AND_A_R(r) {
     this.f.reset();
     this.f.z = (this.r.a === 0);
     this.f.h = true;
-    return [4, pc+1]; 
+    return [4, pc+1];
   `);
 }
 
-//AND A,(HL) 
+//AND A,(HL)
 function AND_A_AHL() {
   return construct(`
     this.r.a &= this.mmu.read(this.r.hl);
     this.f.reset();
     this.f.z = (this.r.a === 0);
     this.f.h = true;
-    return [8, pc+1]; 
+    return [8, pc+1];
   `);
 }
 
@@ -338,7 +338,7 @@ function AND_A_U8() {
     this.f.reset();
     this.f.z = (this.r.a === 0);
     this.f.h = true;
-    return [8, pc+2]; 
+    return [8, pc+2];
   `);
 }
 
@@ -348,17 +348,17 @@ function OR_A_R(r) {
     this.r.a |= this.r.${r};
     this.f.reset();
     this.f.z = (this.r.a === 0);
-    return [4, pc+1]; 
+    return [4, pc+1];
   `);
 }
 
-//OR A,(HL) 
+//OR A,(HL)
 function OR_A_AHL(r) {
   return construct(`
     this.r.a |= this.mmu.read(this.r.hl);
     this.f.reset();
     this.f.z = (this.r.a === 0);
-    return [8, pc+1]; 
+    return [8, pc+1];
   `);
 }
 
@@ -368,7 +368,7 @@ function OR_A_U8(r) {
     this.r.a |= this.mmu.read(pc+1);
     this.f.reset();
     this.f.z = (this.r.a === 0);
-    return [8, pc+2]; 
+    return [8, pc+2];
   `);
 }
 
@@ -378,17 +378,17 @@ function XOR_A_R(r) {
     this.r.a ^= this.r.${r};
     this.f.reset();
     this.f.z = (this.r.a === 0);
-    return [4, pc+1]; 
+    return [4, pc+1];
   `);
 }
 
-//XOR A,(HL) 
+//XOR A,(HL)
 function XOR_A_AHL(r) {
   return construct(`
     this.r.a ^= this.mmu.read(this.r.hl);
     this.f.reset();
     this.f.z = (this.r.a === 0);
-    return [8, pc+1]; 
+    return [8, pc+1];
   `);
 }
 
@@ -398,7 +398,7 @@ function XOR_A_U8() {
     this.r.a ^= this.mmu.read(pc+1);
     this.f.reset();
     this.f.z = (this.r.a === 0);
-    return [8, pc+2]; 
+    return [8, pc+2];
   `);
 }
 
@@ -468,7 +468,7 @@ function _JR_COND(isN, flag) {
     if(${isN ? '!' : ''}this.f.${flag}) {
       ${_JR()}
     }
-    return [8, pc+2]; 
+    return [8, pc+2];
   `)
 }
 
@@ -500,9 +500,9 @@ function JR_C_I8() {
 function _JP_COND(isN, flag) {
   return (`
     if(${isN ? '!' : ''}this.f.${flag}) {
-      return [16, this.mmu.readWord(pc+1)]; 
+      return [16, this.mmu.readWord(pc+1)];
     }
-    return [12, pc+3]; 
+    return [12, pc+3];
   `)
 }
 
@@ -563,7 +563,7 @@ function _CALL_COND(isN, flag) {
     if(${isN ? '!' : ''}this.f.${flag}) {
       ${ _CALL() }
     }
-    return [12, pc+3]; 
+    return [12, pc+3];
   `);
 }
 
@@ -604,14 +604,14 @@ function _RET_COND(isN, flag) {
       ${ _RET() }
       return [20, ret];
     }
-    return [8, pc+1]; 
+    return [8, pc+1];
   `);
 }
 
 function RET() {
   return construct(`
     ${_RET()}
-    return [16, ret]; 
+    return [16, ret];
   `);
 }
 
@@ -682,10 +682,26 @@ function _RLC() {
   `)
 }
 
+function _RRC() {
+  return (`
+    this.f.c = (val & 0x01) !== 0;
+    val = ((val >> 1) | (val << 7)) & 0xFF;
+  `)
+}
+
 function RLCA() {
   return construct(`
     let val = this.r.a;
     ${ _RLC() }
+    this.r.a = val;
+    return [4, pc+1];
+  `);
+}
+
+function RRCA() {
+  return construct(`
+    let val = this.r.a;
+    ${ _RRC() }
     this.r.a = val;
     return [4, pc+1];
   `);
@@ -931,7 +947,7 @@ OPS[0x65] = LD_R_R('h','l');    // LD H,L
 OPS[0x66] = LD_R_AHL('h');      // LD H,(HL)
 OPS[0x67] = LD_R_R('h','a');    // LD H,A
 
-OPS[0x68] = LD_R_R('l','b');    // LD L,B 
+OPS[0x68] = LD_R_R('l','b');    // LD L,B
 OPS[0x69] = LD_R_R('l','c');    // LD L,C
 OPS[0x6A] = LD_R_R('l','d');    // LD L,D
 OPS[0x6B] = LD_R_R('l','e');    // LD L,E
@@ -1123,9 +1139,10 @@ OPS[0xF7] = RST(0x30);          // RST 30h
 OPS[0xFF] = RST(0x38);          // RST 38h
 
 OPS[0x07] = RLCA();             // RLCA
-OPS[0x17] = RLA();              // RLA
+OPS[0x0F] = RRCA();             // RRCA
 
-OPS[0x1F] = RRA();              // RLA
+OPS[0x17] = RLA();              // RLA
+OPS[0x1F] = RRA();              // RRA
 
 OPS[0x2F] = CPL();              // CPL
 OPS[0x3F] = CCF();              //CCF
@@ -1189,7 +1206,7 @@ function RES_AHL(bit) {
 }
 
 function _SET(bit) {
-  return ('| ' + (1 << bit).toString(10)); 
+  return ('| ' + (1 << bit).toString(10));
 }
 
 function SET_R(bit, r) {
@@ -1344,6 +1361,15 @@ CB_OPS[0x05] = RLC_R('l');
 CB_OPS[0x06] = RLC_AHL();
 CB_OPS[0x07] = RLC_R('a');
 
+CB_OPS[0x08] = RRC_R('b');
+CB_OPS[0x09] = RRC_R('c');
+CB_OPS[0x0A] = RRC_R('d');
+CB_OPS[0x0B] = RRC_R('e');
+CB_OPS[0x0C] = RRC_R('h');
+CB_OPS[0x0D] = RRC_R('l');
+CB_OPS[0x0E] = RRC_AHL();
+CB_OPS[0x0F] = RRC_R('a');
+
 CB_OPS[0x10] = RL_R('b');
 CB_OPS[0x11] = RL_R('c');
 CB_OPS[0x12] = RL_R('d');
@@ -1461,9 +1487,6 @@ CB_OPS[0x7D] = BIT_R(7,'l');
 CB_OPS[0x7E] = BIT_AHL(7);
 CB_OPS[0x7F] = BIT_R(7,'a');
 
-
-
-
 CB_OPS[0x80] = RES_R(0,'b');
 CB_OPS[0x81] = RES_R(0,'c');
 CB_OPS[0x82] = RES_R(0,'d');
@@ -1535,9 +1558,6 @@ CB_OPS[0xBC] = RES_R(7,'h');
 CB_OPS[0xBD] = RES_R(7,'l');
 CB_OPS[0xBE] = RES_AHL(7);
 CB_OPS[0xBF] = RES_R(7,'a');
-
-
-
 
 CB_OPS[0xC0] = SET_R(0,'b');
 CB_OPS[0xC1] = SET_R(0,'c');
