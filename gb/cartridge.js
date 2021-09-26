@@ -154,7 +154,7 @@ export class CartridgeMBC1 extends CartridgeNone {
       localStorage.setItem(this.getSaveName(slot), JSON.stringify(this.eram));
       console.log('Saved!');
     }
-  }  
+  }
   loadEram(slot, force) {
     if(force || (this.options.battery && this.eramUnsaved)) {
       let data = localStorage.getItem(this.getSaveName(slot));
@@ -175,6 +175,9 @@ export default function newCartridge(i) {
     case 0x00: //NONE
       console.log(i+'No MBC');
       return new CartridgeNone(options);
+    default:
+      console.error('Invalid MBC type: ' + i.toString(16));
+      console.warn('Falling back to MBC1+RAM+BATTERY');
     case 0x03: //MBC1+RAM+BATTERY
       options.battery = true;
       // fall through
@@ -182,7 +185,5 @@ export default function newCartridge(i) {
     case 0x01: //MBC1
       console.log(i+'MBC1');
       return new CartridgeMBC1(options);
-    default:
-      throw new Error('Invalid MBC type: ' + i.toString(16));
   }
 }
