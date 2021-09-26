@@ -1352,6 +1352,25 @@ function RLC_AHL() {
   `);
 }
 
+function RRC_R(r) {
+  return construct(`
+    let val = this.r.${r};
+    ${ _RRC() }
+    this.f.z = (val === 0);
+    this.r.${r} = val;
+    return [8, pc+1];
+  `);
+}
+function RRC_AHL() {
+  return construct(`
+    let val = this.mmu.read(this.r.hl);
+    ${ _RRC() }
+    this.f.z = (val === 0);
+    this.mmu.write(this.r.hl, val);
+    return [16, pc+1];
+  `);
+}
+
 CB_OPS[0x00] = RLC_R('b');
 CB_OPS[0x01] = RLC_R('c');
 CB_OPS[0x02] = RLC_R('d');
