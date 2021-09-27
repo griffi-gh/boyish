@@ -10,11 +10,15 @@ export default class Timer {
     this.rate = 0;
     this._timaInc = false;
     this.tma = 0x00;
+    this.timaResetPending = false;
   }
   get div() { return (this.clk.div >> 8); }
   set div(v) { this.clk.div = 0; }
   get tima() { return this.clk.tima; }
-  set tima(v) { this.clk.tima = v; }
+  set tima(v) {
+    this.clk.tima = v;
+    this.timaResetPending = false;
+  }
   get tac() {
     return this.rate | (this.enable << 2);
   }
@@ -26,6 +30,11 @@ export default class Timer {
     if(this.gb.state === this.gb.STATE_STOP) {
       this.clk.div = 0;
     } else {
+      if(this.timaResetPending) {
+        this.timaResetPending = false;
+        this.clk.tima = this.tma;
+        this.gb.cpu.irq.if |= 0b100;
+      }
       this.clk.div += cycles;
       this.clk.div &= 0xFFFF;
       let pos;
@@ -48,8 +57,8 @@ export default class Timer {
       if(this._timaInc && !timaInc) {
         this.clk.tima++;
         if(this.clk.tima > 0xFF) {
-          this.clk.tima = this.tma;
-          this.gb.cpu.irq.if |= 0b100;
+          this.clk.tima = 0;
+          this.timaResetPending = true;
         }
       }
       this._timaInc = timaInc;
