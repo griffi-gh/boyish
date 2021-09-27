@@ -2,10 +2,16 @@ export default class Timer {
   constructor(gb) {
     this.gb = gb;
     this.main = 0;
+    this.clocks = [
+      1 << 9,
+      1 << 3,
+      1 << 5,
+      1 << 7,
+    ];
     this.clk = {
       div: 0,
       tima: 0,
-    }
+    };
     this.enable = false;
     this.rate = 0;
     this._timaInc = false;
@@ -37,22 +43,7 @@ export default class Timer {
       }
       this.clk.div += cycles;
       this.clk.div &= 0xFFFF;
-      let pos;
-      switch(this.rate) {
-        default:
-        case 0b00:
-          pos = 9;
-          break;
-        case 0b01:
-          pos = 3;
-          break;
-        case 0b10:
-          pos = 5;
-          break;
-        case 0b11:
-          pos = 7;
-      }
-      let divBit = (!!(this.clk.div & (1 << pos))) | 0;
+      let divBit = (!!(this.clk.div & this.clocks[this.rate])) | 0;
       let timaInc = !!(divBit & (this.enable | 0));
       if(this._timaInc && !timaInc) {
         this.clk.tima++;
