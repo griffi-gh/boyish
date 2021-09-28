@@ -18,7 +18,7 @@ export class Interrupts {
     if(now) {
       this.ime = true
     } else if(this.imePending === false) {
-      this.imePending = 2;  
+      this.imePending = 2;
     }
   }
   disableIME() {
@@ -51,11 +51,17 @@ export class Interrupts {
       }
     }
     let t = (this.ie & this.if);
-    if((this.ime || this.gb.state == this.gb.STATE_HALT) && (t !== 0)) {
-      for(let i = 0; i < 5; i++) {
-        if(t & (1 << i)) {
-          this.dispatchInterrupt(i);
-          return 20;
+    if(t !== 0) {
+      if(this.ime) {
+        for(let i = 0; i < 5; i++) {
+          if(t & (1 << i)) {
+            this.dispatchInterrupt(i);
+            return 20;
+          }
+        }
+      } else {
+        if(this.gb.state == this.gb.STATE_HALT) {
+          this.gb.state = this.gb.STATE_RUNNING;
         }
       }
     }
