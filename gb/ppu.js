@@ -111,7 +111,7 @@ export default class PPU {
       this.intVBlank << 4 |
       this.intHBlank << 3 |
       this.lycEq     << 2 |
-      this.mode 
+      this.mode
     );
   }
 
@@ -121,8 +121,8 @@ export default class PPU {
     this.winEnable    = (v & 0b00100000) !== 0;
     this.tileDataArea = (v & 0b00010000) !== 0;
     this.bgMapArea    = (v & 0b00001000) !== 0;
-    this.objSize      = (v & 0b00000100) !== 0;     
-    this.objEnable    = (v & 0b00000010) !== 0;   
+    this.objSize      = (v & 0b00000100) !== 0;
+    this.objEnable    = (v & 0b00000010) !== 0;
     this.bgWinEnable  = (v & 0b00000001) !== 0;
   }
   get lcdc() {
@@ -192,7 +192,7 @@ export default class PPU {
         x = 0;
         tileIndex = this.vram[mapArea+lineStart];
         if(!(this.tileDataArea) && tileIndex < 128){ tileIndex += 0x100 };
-        tile = this.tileCache[tileIndex][y]; 
+        tile = this.tileCache[tileIndex][y];
       }
     }
   }

@@ -105,6 +105,8 @@ export class CartridgeMBC1 extends CartridgeNone {
         if(this.mode) ramBank = this.ramBank;
         let v = (this.eram[(a - 0xA000) + (ramBank * 0x2000)] | 0);
         return v;
+      } else {
+        return 0;
       }
     }
     return 0;
