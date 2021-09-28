@@ -9,15 +9,18 @@ function humanFileSize(B,i){var e=i?1e3:1024;if(Math.abs(B)<e)return B+" B";var 
 
 function arrayToString(arr) {
   let str = '';
-  for(let i = 0; i < arr.length; i++){
-    str += String.fromCharCode(arr[i]);
+  for(let i = 0; i < arr.length; i += 2){
+    str += String.fromCharCode((arr[i] << 8) | arr[i+1]);
   }
   return str;
 }
 function stringToArray(str) {
   let arr = new Uint8Array(str.length).fill(0);
+  let ai = 0;
   for(let i = 0; i < str.length; i++){
-    arr[i] = str.charCodeAt(i);
+    let c = str.charCodeAt(i);
+    arr[ai++] = c >> 8;
+    arr[ai++] = c & 0xFF;
   }
   return arr;
 }
