@@ -231,17 +231,52 @@ main {
 	color: darkorange;
 }
 #cdebug-wrapper {
+	position: relative;
 	width: 360px;
 	height: 330px;
 	overflow: hidden;
 	resize: both;
 	border: 1px solid rgba(0, 0, 0, .5);
+	transition: background 1s;
 }
-#cdebug-toggle:not(:checked)~#cdebug-wrapper {
-	visibility: hidden;
-	height: 0;
-	cursor: default;
+#cdebug-toggle:not(:checked)~#cdebug-wrapper > canvas {
+	display: none;
 }
+
+#cdebug-wrapper::before {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	content: '';
+	background: repeating-linear-gradient(
+	  45deg,
+	  rgba(255, 255, 255, 0.2),
+	  rgba(0, 0, 0, 0.2) 10px,
+	  rgba(0, 0, 0, 0.3) 10px,
+	  rgba(255, 255, 255, 0.3) 20px
+	), #aecdd8;
+	transition: opacity .33s ease;
+}
+#cdebug-wrapper::after {
+	content: 'Enable "Draw tilemap"';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: rgba(0,0,0,.65);
+	color: white;
+	padding: .25rem .33rem;
+	border-radius: .25rem;
+	transition: opacity .44s ease;
+	border: 2px solid rgba(255, 255, 255, .33);
+}
+#cdebug-toggle:checked~#cdebug-wrapper::before,
+#cdebug-toggle:checked~#cdebug-wrapper::after {
+	opacity: 0;
+}
+
 #drop-wrapper {
 	position: relative;
 	transition: all .1s linear;
