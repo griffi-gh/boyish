@@ -7,6 +7,21 @@ const $class = (i) => { return document.getElementsByClassName(i); }
 // https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string/10420404
 function humanFileSize(B,i){var e=i?1e3:1024;if(Math.abs(B)<e)return B+" B";var a=i?["kB","MB","GB","TB","PB","EB","ZB","YB"]:["KiB","MiB","GiB","TiB","PiB","EiB","ZiB","YiB"],t=-1;do B/=e,++t;while(Math.abs(B)>=e&&t<a.length-1);return B.toFixed(1)+" "+a[t]}
 
+function arrayToString(arr) {
+  let str = '';
+  for(let i = 0; i < arr.length; i++){
+    str += String.fromCharCode(arr[i]);
+  }
+  return str;
+}
+function stringToArray(str) {
+  let arr = new Uint8Array(str.length).fill(0);
+  for(let i = 0; i < str.length; i++){
+    arr[i] = str.charCodeAt(i);
+  }
+  return arr;
+}
+
 function button(id, fn) {
   const btn = document.getElementById(id);
   //btn.onclick = () => { fn(btn); };
@@ -27,7 +42,7 @@ function newGameboy() {
   const newGb = new Gameboy("gb-canvas");
   newGb.stubLY = $id("stubLY").checked;
   if($id("skipBR").checked) { newGb.skipBoot(); }
-  if(gb) { 
+  if(gb) {
     if(gb.input.enabled) {
       gb.input.disable();
       newGb.input.enable();
@@ -41,7 +56,7 @@ function newGameboy() {
 window.addEventListener("DOMContentLoaded", function() {
   newGameboy();
 
-  let btn_pause = button("btn-pause", (btn) => { 
+  let btn_pause = button("btn-pause", (btn) => {
     if(gb.paused) { gb.resume(); } else { gb.pause(); }
     loop();
   });
@@ -59,7 +74,7 @@ window.addEventListener("DOMContentLoaded", function() {
 
   button("btn-reset", (btn) => {
     gb.pause();
-    console.clear(); 
+    console.clear();
     newGameboy();
     const OK = 'OK!';
     let orig = btn.textContent;
@@ -124,7 +139,7 @@ window.addEventListener("DOMContentLoaded", function() {
       $id("btn-reset").click();
       const arr = new Uint8Array(fr.result);
       gb.loadROM(arr);
-      localStorage.setItem('lastrom', JSON.stringify(arr));
+      localStorage.setItem('lastrom', arrayToString(arr));
       localStorage.getItem('lastrom');
     }
     fr.readAsArrayBuffer(file);
@@ -163,8 +178,7 @@ window.addEventListener("DOMContentLoaded", function() {
     $id("last-rom").style.setProperty('display', 'inline-block');
   }
   button("last-rom", (btn) => {
-    const obj = JSON.parse(localStorage.getItem('lastrom'));
-    const arr = new Uint8Array(Object.values(obj));
+    const arr = stringToArray(localStorage.getItem('lastrom'));
     $id("btn-reset").click();
     gb.loadROM(arr);
   });
