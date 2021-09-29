@@ -35,8 +35,18 @@ export default class PPU {
     this.line = 0;
     this.mode = 2;
 
+    // BG
     this.tileCache = [];
     this.bgpal = [0,1,2,3];
+
+    this.scx = 0;
+    this.scy = 0;
+
+    // WINDOW
+    this.wx = 0;
+    this.wy = 0;
+    this.wly = 0;
+    this._window = false;
 
     // LCDC REGISTERS
     this.lcdon = false;
@@ -175,25 +185,35 @@ export default class PPU {
     if(!(this.tileDataArea) && tileIndex < 128){ tileIndex += 0x100 };
     let tile = this.tileCache[tileIndex][y];
 
-    for(let i=0; i < SCREEN_SIZE[0]; i++) {
-      let color = this.bgWinEnable ? tile[x] : 0;
-      let pix = this.pallete[this.bgpal[color]];
+    if(this.line == this.wy) {
+      this._window = true;
+    }
+    let windowX = false;
+    const winCondY = (this.winEnable && this._window);
+    if(winCondY) this.wly++;
 
-      // DRAW
+    for(let i=0; i < SCREEN_SIZE[0]; i++) {
+      let color;
+      if((i + 7) == this.wx) windowX = true;
+      if(windowX && winCondY) {
+        color = i % 4;
+      } else {
+        let data = this.bgWinEnable ? tile[x] : 0;
+        color = this.bgpal[data];
+        x += 1;
+        if(x >= 8) {
+          lineStart = (lineStart + 1) & 31;
+          x = 0;
+          tileIndex = this.vram[mapArea+lineStart];
+          if(!(this.tileDataArea) && tileIndex < 128){ tileIndex += 0x100 };
+          tile = this.tileCache[tileIndex][y];
+        }
+      }
+      let pix = this.pallete[color];
       img[drawOffset] = pix[0];
       img[drawOffset + 1] = pix[1];
       img[drawOffset + 2] = pix[2];
       drawOffset += 4;
-      // DRAW
-
-      x += 1;
-      if(x >= 8) {
-        lineStart = (lineStart + 1) & 31;
-        x = 0;
-        tileIndex = this.vram[mapArea+lineStart];
-        if(!(this.tileDataArea) && tileIndex < 128){ tileIndex += 0x100 };
-        tile = this.tileCache[tileIndex][y];
-      }
     }
   }
   step(c) {
@@ -213,8 +233,8 @@ export default class PPU {
           if(this.line == 143) {
             this.mode = MODE_VBLANK;
             this.canvas.blit();
-            this.gb.cpu.irq.if |= 0x01;
             this.gb.frame = true;
+            this.gb.cpu.irq.if |= 0x01;
           } else {
             this.mode = MODE_OAM;
           }
@@ -228,6 +248,7 @@ export default class PPU {
           if(this.line > 154) {
             this.mode = MODE_OAM;
             this.line = 0;
+            this._window = false;
           }
         }
         break;
