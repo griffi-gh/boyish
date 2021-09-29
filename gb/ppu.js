@@ -214,6 +214,7 @@ export default class PPU {
           tile = this.tileCache[tileIndex][y];
         }
       }
+      console.assert(color <= 4, color, '<=');
       let pix = this.pallete[color];
       img[drawOffset] = pix[0];
       img[drawOffset + 1] = pix[1];
