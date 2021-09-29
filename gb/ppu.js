@@ -29,6 +29,7 @@ export default class PPU {
       hexToRgb('#c6b7be'),
       hexToRgb('#565a75'),
       hexToRgb('#0f0f1b'),
+      hexToRgb('#ff0000') //used for debugging
     ];
 
     this.cycles = 0;
@@ -170,6 +171,7 @@ export default class PPU {
     //console.log(index+' '+_t)
   }
   drawLine() {
+    //Bg
     const h = (this.line + this.scy);
     const mapAreaRaw = (this.bgMapArea ? 0x1C00 : 0x1800);
     const mapArea = mapAreaRaw + (((h & 0xFF)>>3)<<5);
@@ -178,25 +180,28 @@ export default class PPU {
     let lineStart = (this.scx >> 3);
     let tileIndex = this.vram[mapArea+lineStart];
 
+    if(!(this.tileDataArea) && tileIndex < 128){ tileIndex += 0x100 };
+    let tile = this.tileCache[tileIndex][y];
+
+    //Win
+    if(this.line == this.wy) {
+      this._window = true;
+    }
+    const winCondY = (this.winEnable && this._window);
+    if(winCondY) this.wly++;
+    let windowX = false;
+
     //Draw
     let drawOffset = this.canvas.getLineOffset(this.line, 0);
     const img = this.canvas.img.data;
 
-    if(!(this.tileDataArea) && tileIndex < 128){ tileIndex += 0x100 };
-    let tile = this.tileCache[tileIndex][y];
-
-    if(this.line == this.wy) {
-      this._window = true;
-    }
-    let windowX = false;
-    const winCondY = (this.winEnable && this._window);
-    if(winCondY) this.wly++;
-
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let color;
-      if((i + 7) == this.wx) windowX = true;
+      if((i + 7) == this.wx){
+        windowX = true;
+      }
       if(windowX && winCondY) {
-        color = i % 4;
+        color = 4;
       } else {
         let data = this.bgWinEnable ? tile[x] : 0;
         color = this.bgpal[data];
