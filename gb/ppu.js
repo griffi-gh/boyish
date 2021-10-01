@@ -186,7 +186,7 @@ export default class PPU {
     if(this.line == this.wy) {
       this._window = true;
     }
-    const winCondY = (this.winEnable && this._window);
+    const winCondY = (this.winEnable && this._window && (this.wx < SCREEN_SIZE[0]));
     let windowX = false;
     const wY = (this.wly & 7);
     let wX = 0;//(this.wx & 7);
@@ -196,8 +196,10 @@ export default class PPU {
     let wTileIndex = this.vram[wMapArea+wLineStart];
     if(!(this.tileDataArea) && wTileIndex < 128){ wTileIndex += 0x100 };
     let wTile = this.tileCache[wTileIndex][wY];
+    if(winCondY) {
+      this.wly++;
+    }
 
-    if(winCondY) this.wly++;
     //Draw
     let drawOffset = this.canvas.getLineOffset(this.line, 0);
     const img = this.canvas.img.data;
