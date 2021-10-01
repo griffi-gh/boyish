@@ -835,7 +835,7 @@ function LD_HL_SP_P_I8() {
   return construct(`
     ${ _SP_P_I8() }
     this.r.hl = result;
-    return [16, pc+2];
+    return [12, pc+2];
   `);
 }
 
@@ -1184,7 +1184,7 @@ function BIT_AHL(bit) {
     this.f.z = (this.mmu.read(this.r.hl) & ${1 << bit}) === 0;
     this.f.n = false;
     this.f.h = true;
-    return [16, pc+1];
+    return [12, pc+1];
   `);
 }
 
@@ -1203,7 +1203,7 @@ function RES_AHL(bit) {
   return construct(`
     const hl = this.r.hl;
     this.mmu.write(hl, this.mmu.read(hl) ${ _RES(bit) })
-    return [8, pc+1];
+    return [16, pc+1];
   `)
 }
 
@@ -1222,7 +1222,7 @@ function SET_AHL(bit) {
   return construct(`
     const hl = this.r.hl;
     this.mmu.write(hl, this.mmu.read(hl) ${ _SET(bit) })
-    return [8, pc+1];
+    return [16, pc+1];
   `)
 }
 
