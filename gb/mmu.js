@@ -42,7 +42,7 @@ export default class MMU {
       const b = this.accessBreakpoints[addr];
       if(b === t || b === 'a') {
         console.log('Address 0x' + toHex(addr,16) + (t === 'r' ? 'read' : 'write = ') + (val ? toHex(val,8) : ''));
-        let t = this.gb.cpu.OPContext; //import opcontext
+        let ctx = this.gb.cpu.OPContext; //import opcontext
         debugger;
       }
     }
