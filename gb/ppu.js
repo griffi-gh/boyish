@@ -189,8 +189,8 @@ export default class PPU {
     const winCondY = (this.winEnable && this._window && (this.wx < SCREEN_SIZE[0]));
     let windowX = false;
     const wY = (this.wly & 7);
-    let wX = 0;//(this.wx & 7);
-    let wLineStart = 0;//(this.wx >> 3);
+    let wX = 0;
+    let wLineStart = 0;
     const wMapAreaRaw = (this.winMapArea ? 0x1C00 : 0x1800);
     const wMapArea = wMapAreaRaw + (((this.wly & 0xFF) >> 3) << 5);
     let wTileIndex = this.vram[wMapArea+wLineStart];
@@ -207,7 +207,7 @@ export default class PPU {
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let color;
 
-      if((i + 7) == this.wx){
+      if(((i + 7) == this.wx) || (this.wx == 166)){
         windowX = true;
       }
       if(windowX && winCondY) {
