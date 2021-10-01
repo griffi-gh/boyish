@@ -44,7 +44,7 @@ export default class PPU {
     this.scy = 0;
 
     // WINDOW
-    this.wx = 0;
+    this.wx = 8;
     this.wy = 0;
     this.wly = 0;
     this._window = false;
@@ -220,6 +220,7 @@ export default class PPU {
           if(!(this.tileDataArea) && wTileIndex < 128){ wTileIndex += 0x100 };
           wTile = this.tileCache[wTileIndex][wY];
         }
+        //color = 4
       } else {
         let data = this.bgWinEnable ? tile[x] : 0;
         color = this.bgpal[data];
