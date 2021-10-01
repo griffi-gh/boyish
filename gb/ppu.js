@@ -186,7 +186,7 @@ export default class PPU {
     if(this.line == this.wy) {
       this._window = true;
     }
-    const winCondY = (this.winEnable && this._window && (this.wx < SCREEN_SIZE[0]));
+    const winCondY = (this.winEnable && this._window && (this.wx < (SCREEN_SIZE[0] + 7)));
     let windowX = false;
     const wY = (this.wly & 7);
     let wX = 0;
