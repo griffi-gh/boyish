@@ -174,12 +174,11 @@ export default class PPU {
     //Bg
     const h = (this.line + this.scy);
     const mapAreaRaw = (this.bgMapArea ? 0x1C00 : 0x1800);
-    const mapArea = mapAreaRaw + (((h & 0xFF)>>3)<<5);
+    const mapArea = mapAreaRaw + (((h & 0xFF) >> 3) << 5);
     const y = (h & 7);
     let x = (this.scx & 7);
     let lineStart = (this.scx >> 3);
     let tileIndex = this.vram[mapArea+lineStart];
-
     if(!(this.tileDataArea) && tileIndex < 128){ tileIndex += 0x100 };
     let tile = this.tileCache[tileIndex][y];
 
@@ -188,20 +187,37 @@ export default class PPU {
       this._window = true;
     }
     const winCondY = (this.winEnable && this._window);
-    if(winCondY) this.wly++;
     let windowX = false;
+    const wY = (this.wly & 7);
+    let wX = 0;//(this.wx & 7);
+    let wLineStart = 0;//(this.wx >> 3);
+    const wMapAreaRaw = (this.winMapArea ? 0x1C00 : 0x1800);
+    const wMapArea = wMapAreaRaw + (((this.wly & 0xFF) >> 3) << 5);
+    let wTileIndex = this.vram[wMapArea+wLineStart];
+    if(!(this.tileDataArea) && wTileIndex < 128){ wTileIndex += 0x100 };
+    let wTile = this.tileCache[wTileIndex][wY];
 
+    if(winCondY) this.wly++;
     //Draw
     let drawOffset = this.canvas.getLineOffset(this.line, 0);
     const img = this.canvas.img.data;
 
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let color;
+
       if((i + 7) == this.wx){
         windowX = true;
       }
       if(windowX && winCondY) {
-        color = 4;
+        color = this.bgWinEnable ? wTile[wX] : 0;
+        wX++;
+        if(wX >= 8) {
+          wLineStart = (wLineStart + 1) & 31;
+          wX = 0;
+          wTileIndex = this.vram[wMapArea+wLineStart];
+          if(!(this.tileDataArea) && wTileIndex < 128){ wTileIndex += 0x100 };
+          wTile = this.tileCache[wTileIndex][wY];
+        }
       } else {
         let data = this.bgWinEnable ? tile[x] : 0;
         color = this.bgpal[data];
@@ -214,6 +230,7 @@ export default class PPU {
           tile = this.tileCache[tileIndex][y];
         }
       }
+
       console.assert(color <= 4, color, '<=');
       let pix = this.pallete[color];
       img[drawOffset] = pix[0];
@@ -229,6 +246,7 @@ export default class PPU {
       this.cycles = 0;
       this.mode = 0;
       this.line = 0;
+      this.wly = 0;
       return;
     }
     this.cycles += c;
@@ -254,6 +272,7 @@ export default class PPU {
           if(this.line > 154) {
             this.mode = MODE_OAM;
             this.line = 0;
+            this.wly = 0;
             this._window = false;
           }
         }
