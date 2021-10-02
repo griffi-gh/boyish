@@ -156,8 +156,10 @@ export default class MMU {
         return;
       case 0xFF4A:
         this.gb.ppu.wy = val;
+        return;
       case 0xFF4B:
         this.gb.ppu.wx = val;
+        return;
       case 0xFF50:
         this.disableBios = (val | 0);
         return;
