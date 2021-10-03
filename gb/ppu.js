@@ -17,6 +17,24 @@ export const MAP_AREA_9C00 = true;
 export const OBJ_SIZE_8 = false;
 export const OBJ_SIZE_16 = true;
 
+export class OAMObject {
+  constructor() {
+    this.x = -8;
+    this.y = -16;
+    this.tile = 0;
+    this.pal = 0;
+    this.flipX = false;
+    this.flipY = false;
+    this.priority = false;
+  }
+  get OAMdata() {
+
+  }
+  set OAMdata(v) {
+    
+  }
+}
+
 export default class PPU {
   constructor(gb, id) {
     this.gb = gb;
