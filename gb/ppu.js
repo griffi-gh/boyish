@@ -58,6 +58,7 @@ export class OAMObject {
         this.flipY    = (v & 0b01000000) !== 0;
         this.flipX    = (v & 0b00100000) !== 0;
         this.pal      = (v & 0b00010000) !== 0;
+    }
   }
   isVisible() {
     return (this.x >= 0) && (this.y >= 0) &&
