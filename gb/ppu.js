@@ -27,11 +27,49 @@ export class OAMObject {
     this.flipY = false;
     this.priority = false;
   }
-  get OAMdata() {
-
+  getOAMdata(i) {
+    switch(i) {
+      case 0:
+        return this.y + 16;
+      case 1:
+        return this.x + 8;
+      case 2:
+        return this.tile;
+      case 3:
+        return (
+          (this.priority  << 7) |
+          (this.flipY     << 6) |
+          (this.flipX     << 5) |
+          (this.pal       << 4)
+        );
+    }
+    throw new Error("Invalid OAMdata index");
   }
-  set OAMdata(v) {
-    
+  setOAMdata(i,v) {
+    switch(i) {
+      case 0:
+        this.y = v - 16;
+      case 1:
+        this.x = v - 8;
+      case 2:
+        this.tile = v;
+      case 3:
+        this.priority = (v & 0b10000000) !== 0;
+        this.flipY    = (v & 0b01000000) !== 0;
+        this.flipX    = (v & 0b00100000) !== 0;
+        this.pal      = (v & 0b00010000) !== 0;
+  }
+  isVisible() {
+    return (this.x >= 0) && (this.y >= 0) &&
+           (this.x <= SCREEN_SIZE[0]) && (this.y <= SCREEN_SIZE[1]);
+  }
+  isEmpty() {
+    let oami = 0;
+    let acc = 0;
+    for(let i = 0; i<=3; i++) {
+      this.acc += this.getOAMdata(i++);
+    }
+    return (acc === 0);
   }
 }
 
@@ -135,11 +173,11 @@ export default class PPU {
   }
   get stat() {
     return (
-      this.intLYC    << 6 |
-      this.intOAM    << 5 |
-      this.intVBlank << 4 |
-      this.intHBlank << 3 |
-      this.lycEq     << 2 |
+      (this.intLYC    << 6) |
+      (this.intOAM    << 5) |
+      (this.intVBlank << 4) |
+      (this.intHBlank << 3) |
+      (this.lycEq     << 2) |
       this.mode
     );
   }
@@ -156,14 +194,14 @@ export default class PPU {
   }
   get lcdc() {
     return (
-      this.lcdon        << 7 |
-      this.winMapArea   << 6 |
-      this.winEnable    << 5 |
-      this.tileDataArea << 4 |
-      this.bgMapArea    << 3 |
-      this.objSize      << 2 |
-      this.objEnable    << 1 |
-      this.bgWinEnable  << 0
+      (this.lcdon        << 7) |
+      (this.winMapArea   << 6) |
+      (this.winEnable    << 5) |
+      (this.tileDataArea << 4) |
+      (this.bgMapArea    << 3) |
+      (this.objSize      << 2) |
+      (this.objEnable    << 1) |
+      (this.bgWinEnable  << 0)
     )
   }
 
