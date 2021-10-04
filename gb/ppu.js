@@ -286,11 +286,11 @@ export default class PPU {
 
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let color;
-
       if(((i + 7) == this.wx) || (this.wx == 166)){
         windowX = true;
       }
-      if(windowX && winCondY) {
+      let isWin = windowX && winCondY;
+      if(isWin) {
         color = this.bgWinEnable ? wTile[wX] : 0;
         wX++;
         if(wX >= 8) {
@@ -313,23 +313,39 @@ export default class PPU {
           tile = this.tileCache[tileIndex][y];
         }
       }
+      if(this.objEnable) {
+        const s = lineSprites;
+        for(let o = 0; o < s.length; o++) {
+          let obj = s[o];
+          let tile = this.tileCache[obj.tile];
+          if(tile[this.line][])
+        }
+      }
       let pix = this.pallete[color];
       cl.linePut(pix[0],pix[1],pix[2]);
     }
   }
   scanOAM() {
-    const s = this.lineSprites;
-    s.length = 0
-    for(const [i,v] of Object.entries(this.oamCache)) {
-      const ydiff = (this.line - v.y);
-      if((ydiff >= 0) && (ydiff < 8)) {
-        s.push(ydiff);
-        if(s.length >= 10) break;
+    if(this.objEnable) {
+      const s = this.lineSprites;
+      s.length = 0;
+      for(const [i,v] of Object.entries(this.oamCache)) {
+        const ydiff = (this.line - v.y);
+        if((ydiff >= 0) && (ydiff < 8)) {
+          s.push(ydiff);
+        }
       }
+      s.sort((a,b) => {
+        return b.x - a.x;
+      });
+      s.length = Math.min(s.length, 10);
+      /*this.lineSprites.length = 0;
+      for(const [i,v] of Object.entries(s)) {
+        for(let p = 0; p < 8; p++) {
+          this.lineSprites[v.x + p] = v;
+        }
+      }*/
     }
-    s.sort((a,b) => {
-      return b.x - a.x;
-    });
   }
   step(c) {
     this.lycEq = (this.lyc === this.line);
