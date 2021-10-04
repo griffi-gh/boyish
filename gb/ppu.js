@@ -332,7 +332,7 @@ export default class PPU {
       if(this.objEnable) {
         if(csprites[i] >> 1) {
           if(!((csprites[i] & 1) && (color !== 0))) {
-            pix = csprites[i];
+            pix = csprites[i] >> 1;
           }
         }
       }
