@@ -47,6 +47,9 @@ export default class PixelCanvas {
     _d[this._i+2] = b;
     this._i += 4;
   }
+  lineSkip() {
+    this._i += 4;
+  }
 
   getLineOffset(y) {
     return 4 * y * this.img.width;

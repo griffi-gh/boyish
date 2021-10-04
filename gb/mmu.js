@@ -106,6 +106,8 @@ export default class MMU {
           return this.cart.read(addr); // External RAM
         } else if (addr <= 0xFDFF) {
           return this.wram[addr & 0x1FFF] | 0; // Work RAM and Echo RAM
+        } else if (addr <= 0xFE9F) {
+          return this.gb.ppu.readOAM(addr);
         } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
           return this.hram[addr - 0xFF80] | 0; // High Ram
         }
@@ -151,6 +153,13 @@ export default class MMU {
       case 0xFF45:
         this.gb.ppu.lyc = val;
         return;
+      case 0xFF46:
+        //OAM DMA TRANSFER
+        const source = val * 0x100;
+        for(let i = 0; i <= 0x9F; i++) {
+          this.write(0xFE00 | i, this.read(source + i));
+        }
+        return;
       case 0xFF47:
         this.gb.ppu.bgp = val;
         return;
@@ -177,10 +186,10 @@ export default class MMU {
           this.gb.ppu.writeVRAM(addr - 0x8000, val);
         } else if (addr <= 0xBFFF) {
           this.cart.write(addr, val); // ERAM
-        } else if (addr <= 0xDFFF) {
-          this.wram[addr - 0xC000] = val; // Work RAM
         } else if (addr <= 0xFDFF) {
-          this.wram[addr - 0xE000] = val; // Echo
+          this.wram[addr & 0x1FFF] = val; // Echo and Work RAM
+        } else if (addr <= 0xFE9F) {
+          this.gb.ppu.writeOAM(addr,val); //OAM
         } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
           this.hram[addr - 0xFF80] = val; // High Ram
         } else {

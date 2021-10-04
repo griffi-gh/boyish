@@ -167,7 +167,8 @@ export default class PPU {
   }
 
   writeOAM(addr, val) {
-    this.oam[addr - 0xFE00] = val;
+    addr -= 0xFE00;
+    this.oam[addr] = val;
     this.oamCache[addr >> 2].setOAMdata(addr & 3, val);
   }
   readOAM(addr) {
@@ -281,9 +282,23 @@ export default class PPU {
       this.wly++;
     }
 
+    //Sprites
+    let csprites;
+    if(this.objEnable) {
+      csprites = new Array(SCREEN_SIZE[0]).fill(0);
+      for(const obj of this.lineSprites) {
+        let tile = this.tileCache[obj.tile][Math.min(this.line - obj.y, 7)];
+        if(!tile){let DEBUG = obj.tile;debugger;}
+        for(let i = 0; i < 8; i++) {
+          if(tile[i]){
+            csprites[obj.x+i] = (tile[i] << 1) | obj.priority;
+          }
+        }
+      }
+    }
+
     //Draw
     let cl = this.canvas.lineStart(this.line);
-
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let color;
       if(((i + 7) == this.wx) || (this.wx == 166)){
@@ -313,17 +328,14 @@ export default class PPU {
           tile = this.tileCache[tileIndex][y];
         }
       }
-      if(this.objEnable) {
-        /*
-        const s = lineSprites;
-        for(let o = 0; o < s.length; o++) {
-          let obj = s[o];
-          let tile = this.tileCache[obj.tile];
-          if(tile[this.line][])
-        }
-        */
-      }
       let pix = this.pallete[color];
+      if(this.objEnable) {
+        if(csprites[i] >> 1) {
+          if(!((csprites[i] & 1) && (color !== 0))) {
+            pix = csprites[i];
+          }
+        }
+      }
       cl.linePut(pix[0],pix[1],pix[2]);
     }
   }
@@ -334,7 +346,7 @@ export default class PPU {
       for(const [i,v] of Object.entries(this.oamCache)) {
         const ydiff = (this.line - v.y);
         if((ydiff >= 0) && (ydiff < 8)) {
-          s.push(ydiff);
+          s.push(v);
         }
       }
       s.sort((a,b) => {
