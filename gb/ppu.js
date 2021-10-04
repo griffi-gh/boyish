@@ -49,16 +49,21 @@ export class OAMObject {
     switch(i) {
       case 0:
         this.y = v - 16;
+        return;
       case 1:
         this.x = v - 8;
+        return;
       case 2:
         this.tile = v;
+        return;
       case 3:
         this.priority = (v & 0b10000000) !== 0;
         this.flipY    = (v & 0b01000000) !== 0;
         this.flipX    = (v & 0b00100000) !== 0;
         this.pal      = (v & 0b00010000) !== 0;
+        return;
     }
+    throw new Error("Invalid OAMdata index");
   }
   isVisible() {
     return (this.x >= 0) && (this.y >= 0) &&
@@ -77,8 +82,14 @@ export class OAMObject {
 export default class PPU {
   constructor(gb, id) {
     this.gb = gb;
-    this.vram = new Uint8Array(0x2000).fill(0);
+
     this.canvas = new PixelCanvas(id, SCREEN_SIZE);
+
+    this.vram = new Uint8Array(0x2000).fill(0);
+    this.oam = [];
+    for(let i = 0; i < 40; i++) {
+      this.oam.push(new OAMObject());
+    }
 
     //from light to dark
     this.pallete = [
@@ -149,6 +160,13 @@ export default class PPU {
     } else {
       return 0xFF;
     }
+  }
+
+  writeOAM(addr) {
+
+  }
+  readOAM(addr) {
+
   }
 
   set bgp(v) {
@@ -258,8 +276,7 @@ export default class PPU {
     }
 
     //Draw
-    let drawOffset = this.canvas.getLineOffset(this.line, 0);
-    const img = this.canvas.img.data;
+    let cl = this.canvas.lineStart(this.line);
 
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let color;
@@ -290,13 +307,8 @@ export default class PPU {
           tile = this.tileCache[tileIndex][y];
         }
       }
-
-      console.assert(color <= 4, color, '<=');
       let pix = this.pallete[color];
-      img[drawOffset] = pix[0];
-      img[drawOffset + 1] = pix[1];
-      img[drawOffset + 2] = pix[2];
-      drawOffset += 4;
+      cl.linePut(pix[0],pix[1],pix[2]);
     }
   }
   step(c) {

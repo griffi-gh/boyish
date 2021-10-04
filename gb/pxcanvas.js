@@ -34,15 +34,33 @@ export default class PixelCanvas {
       data[i] = color[i % 4];
     }
   }
+
+  lineStart(y) {
+    this._i = this.getLineOffset(y);
+    this._d = this.img.data;
+    return this;
+  }
+  linePut(r,g,b) {
+    let _d = this._d;
+    _d[this._i] = r;
+    _d[this._i+1] = g;
+    _d[this._i+2] = b;
+    this._i += 4;
+  }
+
   getLineOffset(y) {
     return 4 * y * this.img.width;
+  }
+  setIndex(i, r, g, b) {
+    const imgData = this.img.data;
+    imgData[i] = r;
+    imgData[i+1] = g;
+    imgData[i+2] = b;
   }
   set(x, y, r, g, b) {
     let index = 4 * (x + y * this.img.width);
     let imgData = this.img.data;
-    imgData[index] = r;
-    imgData[index+1] = g;
-    imgData[index+2] = b;
+    this.setIndex(index, r, g, b)
   }
   setArr(x, y, a) {
     this.set(x, y, a[0], a[1], a[2]);
