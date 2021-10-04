@@ -314,12 +314,14 @@ export default class PPU {
         }
       }
       if(this.objEnable) {
+        /*
         const s = lineSprites;
         for(let o = 0; o < s.length; o++) {
           let obj = s[o];
           let tile = this.tileCache[obj.tile];
           if(tile[this.line][])
         }
+        */
       }
       let pix = this.pallete[color];
       cl.linePut(pix[0],pix[1],pix[2]);
