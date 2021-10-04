@@ -82,14 +82,11 @@ export class OAMObject {
 export default class PPU {
   constructor(gb, id) {
     this.gb = gb;
-
     this.canvas = new PixelCanvas(id, SCREEN_SIZE);
 
+    //init vram and oam
     this.vram = new Uint8Array(0x2000).fill(0);
-    this.oam = [];
-    for(let i = 0; i < 40; i++) {
-      this.oam.push(new OAMObject());
-    }
+    this.oam = new Uint8Array(0xA0).fill(0);
 
     //from light to dark
     this.pallete = [
@@ -100,14 +97,21 @@ export default class PPU {
       hexToRgb('#ff0000') //used for debugging
     ];
 
+    //ppu state machine counters
     this.cycles = 0;
     this.line = 0;
     this.mode = 2;
 
+    // SPRITES
+    this.oamCache = [];
+    for(let i = 0; i < 40; i++) {
+      this.oamCache.push(new OAMObject());
+    }
+    this.lineSprites = [];
+
     // BG
     this.tileCache = [];
     this.bgpal = [0,1,2,3];
-
     this.scx = 0;
     this.scy = 0;
 
@@ -162,11 +166,13 @@ export default class PPU {
     }
   }
 
-  writeOAM(addr) {
-
+  writeOAM(addr, val) {
+    this.oam[addr - 0xFE00] = val;
+    this.oamCache[addr >> 2].setOAMdata(addr & 3, val);
   }
   readOAM(addr) {
-
+    return this.oam[addr - 0xFE00];
+    /*return this.oam[addr >> 2].getOAMdata(addr & 3, val);*/
   }
 
   set bgp(v) {
@@ -311,6 +317,20 @@ export default class PPU {
       cl.linePut(pix[0],pix[1],pix[2]);
     }
   }
+  scanOAM() {
+    const s = this.lineSprites;
+    s.length = 0
+    for(const [i,v] of Object.entries(this.oamCache)) {
+      const ydiff = (this.line - v.y);
+      if((ydiff >= 0) && (ydiff < 8)) {
+        s.push(ydiff);
+        if(s.length >= 10) break;
+      }
+    }
+    s.sort((a,b) => {
+      return b.x - a.x;
+    });
+  }
   step(c) {
     this.lycEq = (this.lyc === this.line);
     this.handleSTATirq();
@@ -346,6 +366,7 @@ export default class PPU {
             this.line = 0;
             this.wly = 0;
             this._window = false;
+            this.scanOAM();
           }
         }
         break;
