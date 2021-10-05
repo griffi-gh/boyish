@@ -348,10 +348,8 @@ export default class PPU {
           if(!(this.tileDataArea) && wTileIndex < 128){ wTileIndex += 0x100 };
           wTile = this.tileCache[wTileIndex][wY];
         }
-        //color = 4
       } else {
-        let data = this.bgWinEnable ? tile[x] : 0;
-        color = this.bgpal[data];
+        color = this.bgWinEnable ? tile[x] : 0;
         x += 1;
         if(x >= 8) {
           lineStart = (lineStart + 1) & 31;
@@ -361,7 +359,7 @@ export default class PPU {
           tile = this.tileCache[tileIndex][y];
         }
       }
-      let pix = color;
+      let pix = this.bgpal[color];
       if(this.objEnable) {
         const obj_color = csprites[i][CS_COLOR];
         if(obj_color !== 0) {
