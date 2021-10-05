@@ -53,16 +53,16 @@ export default class Input {
     }
   }
   inputEventHandler(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(ev.repeat) return;
     if(!this.gb.paused) {
-      if(ev.repeat) return;
       const code = ev.code;
       if(code in kbMap) {
         this.inputHandler(
           event.type === 'keydown',
           kbMap[code]
         );
-        ev.preventDefault();
-        ev.stopPropagation();
       }
     }
   }
