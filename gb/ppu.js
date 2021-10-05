@@ -359,9 +359,10 @@ export default class PPU {
         }
       }
       s.sort((a,b) => {
-        return b.x - a.x;
+        return a.x - b.x;
       });
       s.length = Math.min(s.length, 10);
+      s.reverse();
       /*this.lineSprites.length = 0;
       for(const [i,v] of Object.entries(s)) {
         for(let p = 0; p < 8; p++) {
