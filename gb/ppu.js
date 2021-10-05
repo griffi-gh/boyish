@@ -41,7 +41,8 @@ export const OBJ_SIZE_8 = false;
 export const OBJ_SIZE_16 = true;
 
 export class OAMObject {
-  constructor() {
+  constructor(ppu) {
+    this.ppu = ppu;
     this.x = -8;
     this.y = -16;
     this.tile = 0;
@@ -92,6 +93,11 @@ export class OAMObject {
     return (this.x >= 0) && (this.y >= 0) &&
            (this.x <= SCREEN_SIZE[0]) && (this.y <= SCREEN_SIZE[1]);
   }
+  isInLine(line) {
+    const ydiff = (line - this.y);
+    const size = (this.ppu.objSize ? 16 : 8);
+    return ((ydiff >= 0) && (ydiff < size));
+  }
   isEmpty() {
     let oami = 0;
     let acc = 0;
@@ -122,7 +128,7 @@ export default class PPU {
     // SPRITES
     this.oamCache = [];
     for(let i = 0; i < 40; i++) {
-      this.oamCache.push(new OAMObject());
+      this.oamCache.push(new OAMObject(this));
     }
     this.lineSprites = [];
     this.objpal = [
@@ -340,10 +346,15 @@ export default class PPU {
       csprites = new Array(SCREEN_SIZE[0]).fill([null,0]);
       for(const obj of this.lineSprites) {
         let tiley = this.line - obj.y;
-        if(obj.flipY) { tiley = 7 - tiley; }
-        //
         let tileIndex = obj.tile;
-        if(this.objSize) { tileIndex &= 0xfe; }
+        if(this.objSize) {
+          tileIndex &= 0xfe;
+          if(obj.flipY ? (tiley <= 7) : (tiley > 7)) {
+            tileIndex++;
+          }
+          tiley &= 7;
+        }
+        if(obj.flipY) { tiley = 7 - tiley; }
         let tile = this.tileCache[tileIndex][tiley];
         if(!tile){ debugger; throw new Error("Invalid sprite tile"); }
         //
@@ -406,13 +417,12 @@ export default class PPU {
       const s = this.lineSprites;
       s.length = 0;
       for(const v of this.oamCache) {
-        const ydiff = (this.line - v.y);
-        if((ydiff >= 0) && (ydiff < 8)) {
+        if(v.isInLine(this.line)) {
           s.push(v);
         }
       }
       s.sort(((a,b) => { return a.x - b.x; }));
-      s.splice(10, s.length)
+      s.splice(10, s.length); //10 sprites per line limit
       s.reverse();
     }
   }
