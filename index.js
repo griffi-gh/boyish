@@ -1,4 +1,5 @@
 import {Gameboy} from './gb/gb.js';
+import {arrayToString, stringToArray} from './gb/common.js';
 
 const $ = (i) => { return document.querySelector(i) };
 const $id = (i) => { return document.getElementById(i) };
@@ -6,23 +7,6 @@ const $class = (i) => { return document.getElementsByClassName(i); }
 
 // https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string/10420404
 function humanFileSize(B,i){var e=i?1e3:1024;if(Math.abs(B)<e)return B+" B";var a=i?["kB","MB","GB","TB","PB","EB","ZB","YB"]:["KiB","MiB","GiB","TiB","PiB","EiB","ZiB","YiB"],t=-1;do B/=e,++t;while(Math.abs(B)>=e&&t<a.length-1);return B.toFixed(1)+" "+a[t]}
-
-function arrayToString(arr) {
-  let str = '';
-  arr.forEach((v) => {
-    str += String.fromCharCode(0x20 + v);
-  });
-  return str;
-}
-function stringToArray(str) {
-  let arr = new Uint8Array(str.length).fill(0);
-  let ai = 0;
-  for(let i = 0; i < str.length; i++){
-    let c = str.charCodeAt(i) - 0x20;
-    arr[ai++] = c & 0xFF;
-  }
-  return arr;
-}
 
 function button(id, fn) {
   const btn = document.getElementById(id);

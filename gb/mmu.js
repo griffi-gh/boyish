@@ -26,7 +26,8 @@ export default class MMU {
     this.init();
   }
   init() {
-    this.cart = newCartridge();
+    this.cart = newCartridge(0, {logInfo: false});
+    this.cart.parseHeader();
     this.wram = new Uint8Array(0x2000).fill(0x00);
     this.eram = new Uint8Array(0x2000).fill(0x00);
     this.hram = new Uint8Array(0x7F).fill(0x00);
@@ -34,7 +35,7 @@ export default class MMU {
     this.accessBreakpoints = [];
   }
   loadROM(d) {
-    this.cart = newCartridge(d[0x147]);
+    this.cart = newCartridge(d[0x147], {logInfo: true});
     this.cart.load(d);
   }
   handleBreakpoints(t,addr,val) {

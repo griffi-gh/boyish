@@ -39,6 +39,9 @@ export class Gameboy {
     this.pause();
   }
   destroy() {
+    if('saveEram' in this.mmu.cart){
+      this.mmu.cart.saveEram();
+    }
     this.pause();
     setImmediate(() => {
       this.input.disable();

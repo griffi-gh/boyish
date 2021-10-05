@@ -33,3 +33,20 @@ export function hexToRgb(hex) {
     parseInt(result[3], 16)
   ] : null;
 }
+
+export function arrayToString(arr) {
+  let str = '';
+  arr.forEach((v) => {
+    str += String.fromCharCode(0x20 + v);
+  });
+  return str;
+}
+export function stringToArray(str) {
+  let arr = new Uint8Array(str.length).fill(0);
+  let ai = 0;
+  for(let i = 0; i < str.length; i++){
+    let c = str.charCodeAt(i) - 0x20;
+    arr[ai++] = c & 0xFF;
+  }
+  return arr;
+}
