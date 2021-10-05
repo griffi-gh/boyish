@@ -38,8 +38,7 @@ export default class Input {
   set joyp(v) {
     this.select = v & 0x30;
   }
-  inputHandler(isDown, key) {
-    console.log(isDown, key);
+  inputHandler(isDown, key) {\
     if(!this.gb.paused) {
       const keyMask = keyMap[key];
       const isCurrent = ((keyMask >= 0x10 && this.select == 0x10) || (keyMask < 0x10 && this.select == 0x20));
