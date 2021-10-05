@@ -285,13 +285,20 @@ export default class PPU {
     //Sprites
     let csprites;
     if(this.objEnable) {
-      csprites = new Array(SCREEN_SIZE[0]).fill(0);
+      csprites = new Array(SCREEN_SIZE[0]).fill([null,0]);
       for(const obj of this.lineSprites) {
-        let tile = this.tileCache[obj.tile][Math.min(this.line - obj.y, 7)];
-        if(!tile){let DEBUG = obj.tile;debugger;}
+        let tiley = this.line - obj.y;
+        if(obj.flipY) { tiley = 7 - tiley; }
+        //
+        let tile = this.tileCache[obj.tile][tiley];
+        if(!tile){ debugger; throw new Error("Invalid sprite tile"); }
+        //
         for(let i = 0; i < 8; i++) {
-          if(tile[i]){
-            csprites[obj.x+i] = (tile[i] << 1) | obj.priority;
+          let tilex = i;
+          if(obj.flipX) { tilex = 7 - tilex; }
+          //
+          if(tile[tilex] !== 0){
+            csprites[obj.x+i] = [obj, tile[tilex]];
           }
         }
       }
@@ -328,14 +335,15 @@ export default class PPU {
           tile = this.tileCache[tileIndex][y];
         }
       }
-      let pix = this.pallete[color];
+      let pix = color;
       if(this.objEnable) {
-        if(csprites[i] >> 1) {
-          if(!((csprites[i] & 1) && (color !== 0))) {
-            pix = csprites[i] >> 1;
+        if(csprites[i][1] !== 0) {
+          if(!(csprites[i][0].priority && (color !== 0))) {
+            pix = csprites[i][1];
           }
         }
       }
+      pix = this.pallete[pix];
       cl.linePut(pix[0],pix[1],pix[2]);
     }
   }
@@ -344,6 +352,7 @@ export default class PPU {
       const s = this.lineSprites;
       s.length = 0;
       for(const [i,v] of Object.entries(this.oamCache)) {
+        //console.log(this.line)
         const ydiff = (this.line - v.y);
         if((ydiff >= 0) && (ydiff < 8)) {
           s.push(v);
@@ -396,7 +405,6 @@ export default class PPU {
             this.line = 0;
             this.wly = 0;
             this._window = false;
-            this.scanOAM();
           }
         }
         break;
@@ -410,6 +418,7 @@ export default class PPU {
         if(this.cycles >= 172) {
           this.cycles -= 172;
           this.mode = MODE_HBLANK;
+          this.scanOAM();
           this.drawLine();
         }
         break;
