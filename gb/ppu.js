@@ -1,5 +1,28 @@
 import PixelCanvas from './pxcanvas.js';
-import { toHex, hexToRgb } from './common.js';
+import { toHex, hexToRgb, isArray } from './common.js';
+
+//from light to dark
+export const DEFAULT_PALETTE = 'BGB';
+export const PALETTES = {
+  GRAYSCALE: [
+    hexToRgb('#fafbf6'),
+    hexToRgb('#c6b7be'),
+    hexToRgb('#565a75'),
+    hexToRgb('#0f0f1b'),
+    'Grayscale'
+  ],
+  BGB: [
+    hexToRgb('#e0f8d0'),
+    hexToRgb('#88c070'),
+    hexToRgb('#346856'),
+    hexToRgb('#081820'),
+    'BGB'
+  ],
+  CUSTOM: [
+    [0,0,0],[0,0,0],[0,0,0],[0,0,0],
+    'Custom'
+  ]
+};
 
 export const SCREEN_SIZE = [160, 144];
 
@@ -88,14 +111,8 @@ export default class PPU {
     this.vram = new Uint8Array(0x2000).fill(0);
     this.oam = new Uint8Array(0xA0).fill(0);
 
-    //from light to dark
-    this.pallete = [
-      hexToRgb('#fafbf6'),
-      hexToRgb('#c6b7be'),
-      hexToRgb('#565a75'),
-      hexToRgb('#0f0f1b'),
-      hexToRgb('#ff0000') //used for debugging
-    ];
+    // init palette
+    this.updatePalette('BGB')
 
     //ppu state machine counters
     this.cycles = 0;
@@ -144,6 +161,17 @@ export default class PPU {
     this.intVBlank = false;
     this.intHBlank = false;
     this.lycEq = false;
+  }
+
+  updatePalette(v = DEFAULT_PALETTE) {
+    if(isArray(v)) {
+      for (var i = 0; i <= 4; i++) {
+        PALETTES.CUSTOM[i] = v[i];
+      }
+      v = 'CUSTOM';
+    }
+    this.palette = PALETTES[v].slice(0,4);
+    this.palette.push(hexToRgb('#ff0000')); //used for debugging
   }
 
   handleSTATirq() {
@@ -369,7 +397,7 @@ export default class PPU {
           }
         }
       }
-      pix = this.pallete[pix];
+      pix = this.palette[pix];
       cl.linePut(pix[0],pix[1],pix[2]);
     }
   }
@@ -455,7 +483,7 @@ export default class PPU {
       let v = this.tileCache[i];
       for(let y = 0; y < 8; y++){
         for(let x = 0; x < 8; x++){
-          let c = (v ? this.pallete[v[y][x]] : this.pallete[0]);
+          let c = (v ? this.palette[v[y][x]] : this.palette[0]);
           pc.setArr(dx+x*2+0, dy+y*2+0, c);
           pc.setArr(dx+x*2+0, dy+y*2+1, c);
           pc.setArr(dx+x*2+1, dy+y*2+0, c);
