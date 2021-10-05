@@ -314,7 +314,9 @@ export default class PPU {
         let tiley = this.line - obj.y;
         if(obj.flipY) { tiley = 7 - tiley; }
         //
-        let tile = this.tileCache[obj.tile][tiley];
+        let tileIndex = obj.tile;
+        if(this.objSize) { tileIndex &= 0xfe; }
+        let tile = this.tileCache[tileIndex][tiley];
         if(!tile){ debugger; throw new Error("Invalid sprite tile"); }
         //
         for(let i = 0; i < 8; i++) {
