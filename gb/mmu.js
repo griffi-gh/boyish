@@ -81,6 +81,10 @@ export default class MMU {
         return this.gb.ppu.lyc | 0;
       case 0xFF47:
         return this.gb.ppu.bgp;
+      case 0xFF48:
+        return this.gb.ppu.obp0;
+      case 0xFF49:
+        return this.gb.ppu.obp1;
       case 0xFF4A:
         return this.gb.ppu.wy;
       case 0xFF4B:
@@ -162,6 +166,12 @@ export default class MMU {
         return;
       case 0xFF47:
         this.gb.ppu.bgp = val;
+        return;
+      case 0xFF48:
+        this.gb.ppu.obp0 = val;
+        return;
+      case 0xFF49:
+        this.gb.ppu.obp1 = val;
         return;
       case 0xFF4A:
         this.gb.ppu.wy = val;

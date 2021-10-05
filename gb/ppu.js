@@ -108,6 +108,10 @@ export default class PPU {
       this.oamCache.push(new OAMObject());
     }
     this.lineSprites = [];
+    this.objpal = [
+      [0,1,2,3],
+      [0,1,2,3]
+    ];
 
     // BG
     this.tileCache = [];
@@ -188,8 +192,26 @@ export default class PPU {
       (this.bgpal[1] << 2) |
       (this.bgpal[2] << 4) |
       (this.bgpal[3] << 6)
-    )
+    );
   }
+
+  getOBP(i) {
+    return (
+      (this.objpal[i][1] << 2) |
+      (this.objpal[i][2] << 4) |
+      (this.objpal[i][3] << 6)
+    );
+  }
+  setOBP(i,v) {
+    this.objpal[i][1] = (v & 0b00001100) >> 2;
+    this.objpal[i][2] = (v & 0b00110000) >> 4;
+    this.objpal[i][3] = (v & 0b11000000) >> 6;
+  }
+
+  set obp0(v) { this.setOBP(0,v); }
+  set obp1(v) { this.setOBP(1,v); }
+  get obp0( ) { return this.getOBP(0); }
+  get obp1( ) { return this.getOBP(1); }
 
   set stat(v) {
     this.intLYC    = (v & 0b01000000) !== 0;
@@ -283,6 +305,8 @@ export default class PPU {
     }
 
     //Sprites
+    const CS_OBJECT = 0;
+    const CS_COLOR = 1;
     let csprites;
     if(this.objEnable) {
       csprites = new Array(SCREEN_SIZE[0]).fill([null,0]);
@@ -337,9 +361,11 @@ export default class PPU {
       }
       let pix = color;
       if(this.objEnable) {
-        if(csprites[i][1] !== 0) {
-          if(!(csprites[i][0].priority && (color !== 0))) {
-            pix = csprites[i][1];
+        const obj_color = csprites[i][CS_COLOR];
+        if(obj_color !== 0) {
+          const obj = csprites[i][CS_OBJECT];
+          if(!(obj.priority && (color !== 0))) {
+            pix = this.objpal[obj.pal | 0][obj_color];
           }
         }
       }
@@ -351,24 +377,15 @@ export default class PPU {
     if(this.objEnable) {
       const s = this.lineSprites;
       s.length = 0;
-      for(const [i,v] of Object.entries(this.oamCache)) {
-        //console.log(this.line)
+      for(const v of this.oamCache) {
         const ydiff = (this.line - v.y);
         if((ydiff >= 0) && (ydiff < 8)) {
           s.push(v);
         }
       }
-      s.sort((a,b) => {
-        return a.x - b.x;
-      });
-      s.length = Math.min(s.length, 10);
+      s.sort(((a,b) => { return a.x - b.x; }));
+      s.splice(10, s.length)
       s.reverse();
-      /*this.lineSprites.length = 0;
-      for(const [i,v] of Object.entries(s)) {
-        for(let p = 0; p < 8; p++) {
-          this.lineSprites[v.x + p] = v;
-        }
-      }*/
     }
   }
   step(c) {
@@ -434,7 +451,6 @@ export default class PPU {
     let dx = 0;
     let dy = 0;
     let w = 17;
-    //const [i,v] of this.tileCache.entries()
     for(let i=0;i<=0x17E;i++) {
       let v = this.tileCache[i];
       for(let y = 0; y < 8; y++){
@@ -453,6 +469,5 @@ export default class PPU {
       }
     }
     pc.blit();
-    //console.log('done');
   }
 }
