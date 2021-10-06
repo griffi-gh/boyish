@@ -36,7 +36,7 @@ export default class Input {
     switch (this.select) {
       case 0x10: return (this.actualKeyState >> 4);
       case 0x20: return (this.actualKeyState & 0xFF);
-      default: return 0;
+      default: return 0xCF;
     }
   }
   set joyp(v) {
