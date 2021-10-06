@@ -91,6 +91,7 @@ export class CartridgeMBC1 extends CartridgeNone {
     super.load(d);
     this.eram = new Uint8Array(128 * 1024).fill(0);
     this.loadEram();
+    this._mask = (this.header.romSize / 16) - 1;
   }
 
   read(a) {
@@ -100,6 +101,7 @@ export class CartridgeMBC1 extends CartridgeNone {
         if(this.mode == 0) {
           bank += (this.ramBank << 5);
         }
+        bank &= this._mask;
         return (this.rom[(bank * 0x4000) + (a - 0x4000)] | 0);
       } else {
         return (this.rom[a] | 0);
