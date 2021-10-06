@@ -24,9 +24,9 @@ export function parseHeader(rom) {
       h.ramSize = 0;
       break;
     case 0x01:
-      // Listed in various unofficial docs as 2KB.
-      // However, a 2KB RAM chip was never used in a cartridge.
-      // The source for this value is unknown.
+      //> Listed in various unofficial docs as 2KB.
+      //> However, a 2KB RAM chip was never used in a cartridge.
+      //> The source for this value is unknown.
       h.ramSize = 2;
       break;
     case 0x02:
@@ -79,7 +79,7 @@ export class CartridgeNone {
 export class CartridgeMBC1 extends CartridgeNone {
   constructor(options) {
     super(options);
-    this.name = "MBC1"
+    this.name = "MBC1";
     this.eram = new Uint8Array(1024).fill(0);
     this.ramBank = 0;
     this.ramEnable = false;
@@ -91,7 +91,7 @@ export class CartridgeMBC1 extends CartridgeNone {
     super.load(d);
     this.eram = new Uint8Array(128 * 1024).fill(0);
     this.loadEram();
-    this._mask = (this.header.romSize / 16) - 1;
+    this._mask = (this.header.romSize >> 4) - 1;
   }
 
   read(a) {
@@ -144,14 +144,6 @@ export class CartridgeMBC1 extends CartridgeNone {
         if(this.options.battery) {
           this.eramUnsaved = true;
         }
-        /*console.log(
-          'WRITE => ',
-          'mapped = ' + ((a - 0xA000) + (ramBank * 0x2000)).toString(16),
-          'v = ' + v.toString(16),
-          'a = ' + a.toString(16),
-          'read = ' + this.read(a),
-          'bank = ' + ramBank + `(${this.ramBank})`
-        );*/
       }
       return;
     }
@@ -177,7 +169,6 @@ export class CartridgeMBC1 extends CartridgeNone {
       if(data) {
         this.eram = stringToArray(data);
         console.log('Loaded: ' + saveSlot);
-        //new Uint8Array(Object.values(JSON.parse(data)));
       } else {
         console.warn('No save file found: ' + saveSlot);
       }
@@ -190,14 +181,13 @@ export default function newCartridge(i,o) {
   if(isArray(i)) i = i[0x147];
   let options = o || {};
   switch (i) {
-    case 0x00: //NONE
+    case 0x00: //No MBC
       return new CartridgeNone(options);
     default:
       console.error('Invalid MBC type: ' + i.toString(16));
       console.warn('Falling back to MBC1+RAM+BATTERY');
     case 0x03: //MBC1+RAM+BATTERY
       options.battery = true;
-      // fall through
     case 0x02: //MBC1+RAM
     case 0x01: //MBC1
       return new CartridgeMBC1(options);
