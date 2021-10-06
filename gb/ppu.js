@@ -373,7 +373,7 @@ export default class PPU {
     let cl = this.canvas.lineStart(this.line);
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let color;
-      if(((i + 7) == this.wx) || (this.wx == 166)){
+      if(((i + 7) >= this.wx) || (this.wx == 166)){
         windowX = true;
       }
       let isWin = windowX && winCondY;
