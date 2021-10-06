@@ -156,23 +156,26 @@ export class CartridgeMBC1 extends CartridgeNone {
   getSaveName(slot) {
     if(slot == null) slot = 'DEFAULT';
     const name = `SAVE_${slot}_${this.header.name.replace(' ','_')}`;
-    console.log('SAVE SLOT "'+name+'"');
     return name;
   }
   saveEram(slot, force) {
     if(force || (this.options.battery && this.eramUnsaved)) {
-      localStorage.setItem(this.getSaveName(slot), arrayToString(this.eram));
-      console.log('Saved!');
+      const saveSlot = this.getSaveName(slot);
+      localStorage.setItem(saveSlot, arrayToString(this.eram));
+      this.eramUnsaved = false;
+      console.log('Saved: ' + saveSlot);
     }
   }
   loadEram(slot, force) {
     if(force || this.options.battery) {
-      let data = localStorage.getItem(this.getSaveName(slot));
+      const saveSlot = this.getSaveName(slot);
+      let data = localStorage.getItem(saveSlot);
       if(data) {
         this.eram = stringToArray(data);
+        console.log('Loaded: ' + saveSlot);
         //new Uint8Array(Object.values(JSON.parse(data)));
       } else {
-        console.warn("No save file found!");
+        console.warn('No save file found: ' + saveSlot);
       }
     }
   }

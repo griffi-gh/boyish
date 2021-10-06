@@ -374,6 +374,9 @@ export default class PPU {
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let color;
       if(((i + 7) >= this.wx) || (this.wx == 166)){
+        if(!windowX && (this.wx < 7)) {
+          wX += (7 - this.wx);
+        }
         windowX = true;
       }
       let isWin = windowX && winCondY;
