@@ -50,3 +50,20 @@ export function stringToArray(str) {
   }
   return arr;
 }
+
+export function isBrowser() {
+  return !!(window && navigator);
+}
+
+export function isTouchDevice() {
+  if(isBrowser()) {
+    return (('ontouchstart' in window) ||
+     (navigator.maxTouchPoints > 0) ||
+     (navigator.msMaxTouchPoints > 0));
+  }
+  return false;
+}
+
+export function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
+}

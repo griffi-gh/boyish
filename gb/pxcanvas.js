@@ -1,5 +1,9 @@
 export default class PixelCanvas {
   constructor(id, width, height) {
+    if(!(window && navigator)) {
+      throw new Error("Not a browser");
+      return;
+    }
     if (width instanceof Array) {
       [width, height] = width;
     }
