@@ -26,7 +26,9 @@ export default class Input {
       KeyZ:       'A',
       KeyX:       'B',
       Space:      'SELECT',
+      KeyS:       'SELECT',
       Enter:      'START',
+      KeyA:       'START',
     }
     this.touchMap = {};
   }

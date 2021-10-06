@@ -711,8 +711,7 @@ function RRCA() {
 
 function CPL() {
   return construct(`
-    const result = (this.r.a << 1) | (this.r.a >> 7);
-    this.r.a = (~this.r.a & 0xff);
+    this.r.a = ((~this.r.a) & 0xff);
     this.f.n = true;
     this.f.h = true;
     return [4, pc+1];
@@ -1228,10 +1227,10 @@ function SET_AHL(bit) {
 
 function _SWAP() {
   return (`
-    a = ((a & 0x0F) << 4 | (a & 0xF0) >> 4);
+    a = (((a & 0x0F) << 4) | ((a & 0xF0) >> 4));
     this.f.reset();
     this.f.z = (a === 0);
-   `)
+  `);
 }
 function SWAP_R(r) {
   return construct(`
