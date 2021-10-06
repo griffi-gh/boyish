@@ -123,23 +123,25 @@ export class CartridgeMBC1 extends CartridgeNone {
         if(!this.ramEnable){ this.saveEram(); }
         return;
       } else if(a <= 0x3FFF) {
-        v &= 0x1F;
-        v = ((v == 0) ? 1 : v);
-        this.romBank = v;
+        let newBank = v & 0x1F;
+        newBank = ((newBank === 0) ? 1 : v);
+        this.romBank = newBank;
         return;
       } else if(a <= 0x5FFF) {
-        this.ramBank = (v & 0x03);
+        this.ramBank = v & 3;
         return;
       } else {
         this.mode = v & 1;
         return;
       }
-    } else {
+    } else if((a >= 0xA000) && (a <= 0xBFFF)) {
       if(this.ramEnable) {
         let ramBank = 0;
-        if(this.mode) ramBank = this.ramBank;
+        if(this.mode === 1) ramBank = this.ramBank;
         this.eram[(a - 0xA000) + (ramBank * 0x2000)] = v;
-        if(this.options.battery) this.eramUnsaved = true;
+        if(this.options.battery) {
+          this.eramUnsaved = true;
+        }
         /*console.log(
           'WRITE => ',
           'mapped = ' + ((a - 0xA000) + (ramBank * 0x2000)).toString(16),
