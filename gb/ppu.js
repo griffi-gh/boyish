@@ -9,18 +9,18 @@ export const PALETTES = {
     hexToRgb('#c6b7be'),
     hexToRgb('#565a75'),
     hexToRgb('#0f0f1b'),
-    'Grayscale'
+    'Grayscale', true
   ],
   BGB: [
     hexToRgb('#e0f8d0'),
     hexToRgb('#88c070'),
     hexToRgb('#346856'),
     hexToRgb('#081820'),
-    'BGB'
+    'BGB', true
   ],
   CUSTOM: [
     [0,0,0],[0,0,0],[0,0,0],[0,0,0],
-    'Custom'
+    'Custom', false
   ]
 };
 

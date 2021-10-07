@@ -76,22 +76,61 @@ export class CartridgeNone {
   write(a, v) {}
 }
 
-export class CartridgeMBC1 extends CartridgeNone {
+class CartridgeMBCBase extends CartridgeNone {
   constructor(options) {
     super(options);
-    this.name = "MBC1";
     this.eram = new Uint8Array(1024).fill(0);
     this.ramBank = 0;
     this.ramEnable = false;
     this.romBank = 1;
     this.mode = 0;
   }
-
   load(d) {
     super.load(d);
     this.eram = new Uint8Array(128 * 1024).fill(0);
     this.loadEram();
     this._mask = (this.header.romSize >> 4) - 1;
+  }
+  readROMBank(bank, a) {
+    return (this.rom[(bank * 0x4000) + (a - 0x4000)] | 0);
+  }
+  readRAMBank(ramBank, a) {
+    return (this.eram[(a - 0xA000) + (ramBank * 0x2000)] | 0);
+  }
+  writeRAMBank(ramBank, a, v) {
+    this.eram[(a - 0xA000) + (ramBank * 0x2000)] = v;
+  }
+  getSaveName(slot) {
+    if(slot == null) slot = 'DEFAULT';
+    const name = `SAVE_${slot}_${this.header.name.replace(' ','_')}`;
+    return name;
+  }
+  saveEram(slot, force) {
+    if(force || (this.options.battery && this.eramUnsaved)) {
+      const saveSlot = this.getSaveName(slot);
+      localStorage.setItem(saveSlot, arrayToString(this.eram));
+      this.eramUnsaved = false;
+      console.log('Saved: ' + saveSlot);
+    }
+  }
+  loadEram(slot, force) {
+    if(force || this.options.battery) {
+      const saveSlot = this.getSaveName(slot);
+      let data = localStorage.getItem(saveSlot);
+      if(data) {
+        this.eram = stringToArray(data);
+        console.log('Loaded: ' + saveSlot);
+      } else {
+        console.warn('No save file found: ' + saveSlot);
+      }
+    }
+  }
+}
+
+export class CartridgeMBC1 extends CartridgeMBCBase {
+  constructor(options) {
+    super(options);
+    this.name = "MBC1";
   }
 
   read(a) {
@@ -102,7 +141,7 @@ export class CartridgeMBC1 extends CartridgeNone {
           bank += (this.ramBank << 5);
         }
         bank &= this._mask;
-        return (this.rom[(bank * 0x4000) + (a - 0x4000)] | 0);
+        return this.readROMBank(bank,a);
       } else {
         return (this.rom[a] | 0);
       }
@@ -110,8 +149,7 @@ export class CartridgeMBC1 extends CartridgeNone {
       if(this.ramEnable) {
         let ramBank = 0;
         if(this.mode) ramBank = this.ramBank;
-        let v = (this.eram[(a - 0xA000) + (ramBank * 0x2000)] | 0);
-        return v;
+        return this.readRAMBank(ramBank, a);
       } else {
         return 0;
       }
@@ -140,38 +178,12 @@ export class CartridgeMBC1 extends CartridgeNone {
       if(this.ramEnable) {
         let ramBank = 0;
         if(this.mode === 1) ramBank = this.ramBank;
-        this.eram[(a - 0xA000) + (ramBank * 0x2000)] = v;
+        this.writeRAMBank(ramBank, a, v);
         if(this.options.battery) {
           this.eramUnsaved = true;
         }
       }
       return;
-    }
-  }
-
-  getSaveName(slot) {
-    if(slot == null) slot = 'DEFAULT';
-    const name = `SAVE_${slot}_${this.header.name.replace(' ','_')}`;
-    return name;
-  }
-  saveEram(slot, force) {
-    if(force || (this.options.battery && this.eramUnsaved)) {
-      const saveSlot = this.getSaveName(slot);
-      localStorage.setItem(saveSlot, arrayToString(this.eram));
-      this.eramUnsaved = false;
-      console.log('Saved: ' + saveSlot);
-    }
-  }
-  loadEram(slot, force) {
-    if(force || this.options.battery) {
-      const saveSlot = this.getSaveName(slot);
-      let data = localStorage.getItem(saveSlot);
-      if(data) {
-        this.eram = stringToArray(data);
-        console.log('Loaded: ' + saveSlot);
-      } else {
-        console.warn('No save file found: ' + saveSlot);
-      }
     }
   }
 }
