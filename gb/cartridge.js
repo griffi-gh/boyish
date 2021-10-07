@@ -193,8 +193,6 @@ export default function newCartridge(i,o) {
   if(isArray(i)) i = i[0x147];
   let options = o || {};
   switch (i) {
-    case 0x00: //No MBC
-      return new CartridgeNone(options);
     default:
       console.error('Invalid MBC type: ' + i.toString(16));
       console.warn('Falling back to MBC1+RAM+BATTERY');
@@ -203,5 +201,7 @@ export default function newCartridge(i,o) {
     case 0x02: //MBC1+RAM
     case 0x01: //MBC1
       return new CartridgeMBC1(options);
+    case 0x00: //No MBC
+      return new CartridgeNone(options);
   }
 }

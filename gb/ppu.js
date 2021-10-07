@@ -233,13 +233,15 @@ export default class PPU {
     return (
       (this.objpal[i][1] << 2) |
       (this.objpal[i][2] << 4) |
-      (this.objpal[i][3] << 6)
+      (this.objpal[i][3] << 6) |
+      this.objpal[i][4]
     );
   }
   setOBP(i,v) {
     this.objpal[i][1] = (v & 0b00001100) >> 2;
     this.objpal[i][2] = (v & 0b00110000) >> 4;
     this.objpal[i][3] = (v & 0b11000000) >> 6;
+    this.objpal[i][4] = (v & 0b00000011);
   }
 
   set obp0(v) { this.setOBP(0,v); }
