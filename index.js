@@ -1,3 +1,15 @@
+//============================
+//☢☢☢***WARNING***☢☢☢
+//    300 LINES OF SHITTY
+//        CODE AHEAD!
+//☢☢☢***WARNING***☢☢☢
+//============================
+//  YOU ARE PROBABLY LOOKING
+//    FOR THE "gb" FOLDER
+//============================
+
+// pls dont look at index.css too
+
 import {Gameboy} from './gb/gb.js';
 import {arrayToString, stringToArray} from './gb/common.js';
 
