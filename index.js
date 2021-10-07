@@ -10,6 +10,7 @@ function humanFileSize(B,i){var e=i?1e3:1024;if(Math.abs(B)<e)return B+" B";var 
 
 function button(id, fn) {
   const btn = document.getElementById(id);
+  if(!btn) { throw new Error("no element with id "+id+" found")}
   //btn.onclick = () => { fn(btn); };
   btn.addEventListener("click", (ev) => {
     ev.stopPropagation();
@@ -23,6 +24,7 @@ window.addEventListener("load", function() {
   $id("input-popup").classList.remove("hide");
 });
 
+let loop = ()=>{};
 let gb;
 function newGameboy() {
   const newGb = new Gameboy("gb-canvas");
@@ -48,6 +50,7 @@ function newGameboy() {
   }
   window.GB = newGb; // for debugging
   gb = newGb;
+  loop();
 }
 
 window.addEventListener("DOMContentLoaded", function() {
@@ -55,6 +58,13 @@ window.addEventListener("DOMContentLoaded", function() {
 
   let btn_pause = button("btn-pause", (btn) => {
     if(gb.paused) { gb.resume(); } else { gb.pause(); }
+    loop();
+  });
+
+  const cb_log = $id("cb-log");
+  cb_log.addEventListener("change", () => {
+    gb.disableLog = !(cb_log.checked);
+    if(gb.disableLog) { gb.logData = ''; }
     loop();
   });
 
@@ -94,10 +104,11 @@ window.addEventListener("DOMContentLoaded", function() {
     gb.downloadLog();
   });
 
-  function loop() {
+  loop = function() {
     $id("gb-canvas-wrapper").classList.toggle("scaled", $id("scale2x").checked);
     //gb.vsync = $id("vsync").checked;
     gb.loopMode = $('input[name="flimit"]:checked').value;
+    cb_log.checked = !gb.disableLog;
     //btn_log.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
     btn_pause.innerHTML = gb.paused ? 'Play' : 'Pause';
     
