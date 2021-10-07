@@ -31,6 +31,7 @@ export default class Input {
       KeyA:       'START',
     }
     this.touchMap = {};
+    this.touchCallbacks = [];
   }
   get joyp() {
     switch (this.select) {
@@ -63,7 +64,7 @@ export default class Input {
     if((ks & 0b1100) === 0) ks |= 0b1100;
     return ks;
   }
-  inputEventHandler(ev) {
+  keyboardEventHandler(ev) {
     ev.preventDefault();
     ev.stopPropagation();
     if(ev.repeat) return;
@@ -100,7 +101,7 @@ export default class Input {
     }
   }
   enableKeyboard() {
-    this._kbCallback = this.inputEventHandler.bind(this);
+    this._kbCallback = this.keyboardEventHandler.bind(this);
     document.addEventListener('keydown', this._kbCallback);
     document.addEventListener('keyup', this._kbCallback);
   }
@@ -108,6 +109,14 @@ export default class Input {
     document.removeEventListener('keydown', this._kbCallback);
     document.removeEventListener('keyup', this._kbCallback);
     this._kbCallback = null;
+  }
+  touchEventHandler(isDown, btn, ev) {
+    console.log(typeof this,isDown, btn, typeof ev)
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    if(!this.gb.paused) {
+      this.inputHandler(isDown,btn);
+    }
   }
   initTouch(buttons) {
     if(!(buttons instanceof Object)) {
@@ -120,20 +129,32 @@ export default class Input {
         let e = document.getElementById(v);
         this.touchMap[i] = e;
         e.style.setProperty('display','none');
+        e.style.setProperty('user-select','none');
+        e.style.setProperty('-webkit-user-select','none');
+        e.style.setProperty('-webkit-touch-callout','none');
       }
     }
   }
   enableTouch() {
     if(this._touch) {
-      for(const [i,v] of Object.entries(this.touchMap)) {
-        e.style.setProperty('display','block');
+      for(const [key,el] of Object.entries(this.touchMap)) {
+        el.style.setProperty('display','block');
+        let cb = this.touchEventHandler.bind(this, true, key)
+        this.touchCallbacks.push([el,cb,'touchstart']);
+        el.addEventListener('touchstart',cb);
+        cb = this.touchEventHandler.bind(this, false, key)
+        this.touchCallbacks.push([el,cb,'touchend']);
+        el.addEventListener('touchend',cb);
       }
     }
   }
   disableTouch() {
     if(this._touch) {
-      for(const [i,v] of Object.entries(this.touchMap)) {
+      for(const [key,e] of Object.entries(this.touchMap)) {
         e.style.setProperty('display','none');
+      }
+      for(const v of this.touchCallbacks) {
+        (v[0]).removeEventListener(v[2],v[1]);
       }
     }
   }
