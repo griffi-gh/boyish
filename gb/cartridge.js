@@ -250,8 +250,10 @@ export default function newCartridge(i,o) {
   if(isArray(i)) i = i[0x147];
   let options = o || {};
   switch (i) {
-    case 0x10: //MBC3 TIER
-      console.warn("Falling back to MBC3")
+    case 0x0F: //MBC3+TIMER+BATTERY
+    case 0x10: //MBC3+TIMER+RAM+BATTERY
+      console.warn("MBC3 timer not yet implemented!")
+      console.warn("Falling back to MBC3+RAM+BATTERY");
     case 0x13: //MBC3+RAM+BATTERY
       options.battery = true;
     case 0x12: //MBC3+RAM
@@ -260,6 +262,7 @@ export default function newCartridge(i,o) {
     default:
       console.error('Invalid MBC type: ' + i.toString(16));
       console.warn('Falling back to MBC1+RAM+BATTERY');
+      console.warn('Expect instability and crashes!')
     case 0x03: //MBC1+RAM+BATTERY
       options.battery = true;
     case 0x02: //MBC1+RAM
