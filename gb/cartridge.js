@@ -1,4 +1,4 @@
-import {toHex, isArray, stringToArray, arrayToString} from './common.js';
+import {toHex, isBrowser, isArray, stringToArray, arrayToString} from './common.js';
 
 const validHeader = new Uint8Array([0x00, 0xC3, 0x37, 0x06, 0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D, 0x00, 0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E, 0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99, 0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC, 0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E, 0x43, 0x50, 0x55, 0x5F, 0x49, 0x4E, 0x53, 0x54, 0x52, 0x53, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x3B, 0xF5, 0x30]);
 
@@ -83,7 +83,6 @@ class CartridgeMBCBase extends CartridgeNone {
     this.ramBank = 0;
     this.ramEnable = false;
     this.romBank = 1;
-    this.mode = 0;
   }
   load(d) {
     super.load(d);
@@ -106,6 +105,10 @@ class CartridgeMBCBase extends CartridgeNone {
     return name;
   }
   saveEram(slot, force) {
+    if(!isBrowser()) {
+      console.log('Not a browser');
+      return;
+    }
     if(force || (this.options.battery && this.eramUnsaved)) {
       const saveSlot = this.getSaveName(slot);
       localStorage.setItem(saveSlot, arrayToString(this.eram));
@@ -114,6 +117,10 @@ class CartridgeMBCBase extends CartridgeNone {
     }
   }
   loadEram(slot, force) {
+    if(!isBrowser()) {
+      console.log('Not a browser');
+      return;
+    }
     if(force || this.options.battery) {
       const saveSlot = this.getSaveName(slot);
       let data = localStorage.getItem(saveSlot);
@@ -131,6 +138,7 @@ export class CartridgeMBC1 extends CartridgeMBCBase {
   constructor(options) {
     super(options);
     this.name = "MBC1";
+    this.mode = 1;
   }
 
   read(a) {
@@ -160,7 +168,7 @@ export class CartridgeMBC1 extends CartridgeMBCBase {
     if(a <= 0x7FFF) {
       if(a <= 0x1FFF) {
         this.ramEnable = ((v & 0x0A) === 0x0A);
-        if(!this.ramEnable){ this.saveEram(); }
+        this.saveEram()
         return;
       } else if(a <= 0x3FFF) {
         let newBank = v & 0x1F;
@@ -188,11 +196,65 @@ export class CartridgeMBC1 extends CartridgeMBCBase {
   }
 }
 
+export class CartridgeMBC3 extends CartridgeMBCBase {
+  constructor(options) {
+    super(options);
+    this.name = "MBC3";
+    this.romBank = 1;
+    //this.rtcSelect = 8;
+  }
+  read(a) {
+    if(a <= 0x3FFF) {
+      return this.rom[a];
+    } else if(a <= 0x7FFF) {
+      return this.readROMBank(this.romBank, a);
+    } else {
+      if(this.ramEnable) {
+        return this.readRAMBank(this.ramBank, a);
+      }
+      return 0xff;
+    }
+  }
+  write(a,v) {
+    if(a <= 0x1FFF) {
+      this.ramEnable = ((v & 0x0A) === 0x0A);
+      this.saveEram();
+      return;
+    } else if(a <= 0x3FFF) {
+      let bank = v & this._mask;
+      bank = (bank === 0) ? 1 : bank;
+      this.romBank = bank;
+      return;
+    } else if(a <= 0x5FFF) {
+      if((v >= 0x08) && (v <= 0x0C)) {
+        //this.rtcSelect = v;
+        throw new Error("RTC not done yet");
+      } else {
+        this.ramBank = v & 3;
+      }
+      return;
+    } else if (a >= 0xA000) {
+      if(this.ramEnable) {
+        this.writeRAMBank(this.ramBank, a, v);
+        if(this.options.battery) {
+          this.eramUnsaved = true;
+        }
+      }
+      return;
+    }
+  }
+}
+
 export default function newCartridge(i,o) {
   if(i == null)  i = 0;
   if(isArray(i)) i = i[0x147];
   let options = o || {};
   switch (i) {
+    case 0x13: //MBC3+RAM+BATTERY
+      options.battery = true;
+    case 0x12: //MBC3+RAM
+    case 0x11: //MBC3
+      return new CartridgeMBC3(options);
     default:
       console.error('Invalid MBC type: ' + i.toString(16));
       console.warn('Falling back to MBC1+RAM+BATTERY');
