@@ -47,6 +47,7 @@ export default class Input {
   inputHandler(isDown, key) {
     if(!this.gb.paused) {
       const keyMask = keyMap[key];
+      if(keyMask == null) return;
       const isCurrent = ((keyMask >= 0x10 && this.select == 0x10) || (keyMask < 0x10 && this.select == 0x20));
       if(isDown) {
         this.keyState &= (~keyMask) & 0xFF;
@@ -124,19 +125,18 @@ export default class Input {
       return;
     }
     this._touch = isTouchDevice();
-    if(this._touch) {
-      for(const [i,v] of Object.entries(buttons)) {
-        let e = document.getElementById(v);
-        this.touchMap[i] = e;
-        e.style.setProperty('display','none');
-        e.style.setProperty('user-select','none');
-        e.style.setProperty('-webkit-user-select','none');
-        e.style.setProperty('-webkit-touch-callout','none');
-      }
+    for(const [i,v] of Object.entries(buttons)) {
+      let e = document.getElementById(v);
+      this.touchMap[i] = e;
+      e.style.setProperty('display','none');
+      e.style.setProperty('user-select','none');
+      e.style.setProperty('-webkit-user-select','none');
+      e.style.setProperty('-webkit-touch-callout','none');
     }
   }
   enableTouch() {
-    if(this._touch) {
+    if(this._touch && (!this._ton)) {
+      this._ton = true;
       for(const [key,el] of Object.entries(this.touchMap)) {
         el.style.setProperty('display','block');
         let cb = this.touchEventHandler.bind(this, true, key)
@@ -149,7 +149,7 @@ export default class Input {
     }
   }
   disableTouch() {
-    if(this._touch) {
+    if(this._touch || this._ton) {
       for(const [key,e] of Object.entries(this.touchMap)) {
         e.style.setProperty('display','none');
       }

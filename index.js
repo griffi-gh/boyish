@@ -27,14 +27,6 @@ let gb;
 function newGameboy() {
   const newGb = new Gameboy("gb-canvas");
   newGb.stubLY = $id("stubLY").checked;
-  if($id("skipBR").checked) { newGb.skipBoot(); }
-  if(gb) {
-    if(gb.input.enabled) {
-      gb.input.disable();
-      newGb.input.enable();
-    }
-    gb.destroy();
-  }
   newGb.input.initTouch({
     'A': 'T-A',
     'B': 'T-B',
@@ -43,8 +35,17 @@ function newGameboy() {
     'UP': 'T-U',
     'DOWN': 'T-D',
     'LEFT': 'T-L',
-    'RIGHT': 'T-R'
+    'RIGHT': 'T-R',
+    'NONE': 'T-C'
   });
+  if($id("skipBR").checked) { newGb.skipBoot(); }
+  if(gb) {
+    if(gb.input.enabled) {
+      gb.input.disable();
+      newGb.input.enable();
+    }
+    gb.destroy();
+  }
   window.GB = newGb; // for debugging
   gb = newGb;
 }
@@ -57,11 +58,11 @@ window.addEventListener("DOMContentLoaded", function() {
     loop();
   });
 
-  let btn_log = button("btn-swlog", (btn) => {
+  /*let btn_log = button("btn-swlog", (btn) => {
     gb.disableLog ^= true;
     if(gb.disableLog) { gb.logData = ''; }
     loop();
-  });
+  });*/
 
   button("btn-step", (btn) => {
     gb.step();
@@ -97,7 +98,7 @@ window.addEventListener("DOMContentLoaded", function() {
     $id("gb-canvas-wrapper").classList.toggle("scaled", $id("scale2x").checked);
     //gb.vsync = $id("vsync").checked;
     gb.loopMode = $('input[name="flimit"]:checked').value;
-    btn_log.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
+    //btn_log.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
     btn_pause.innerHTML = gb.paused ? 'Play' : 'Pause';
     
     const emp = (gb.logData.length === 0);

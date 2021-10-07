@@ -10,6 +10,19 @@ main {
 	margin-bottom: 1rem;
 }
 
+.color-darken {
+	--color: rgba(0,0,0,.5);
+	color: rgba(0,0,0,.5);
+}
+.color-black {
+	--color: black;
+	color: black;
+}
+.color-white {
+	--color: white;
+	color: white;
+}
+
 *:is(.mb,.mr,.mt,.ml) {
 	--valueB: .33rem;
 	--valueR: .33rem;
@@ -49,6 +62,13 @@ main {
 	padding-left: .1ch;
 }
 
+.centered-abs {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	text-align: center;
+}
 .centered {
 	display: flex;
 	justify-content: center;
@@ -207,6 +227,9 @@ main {
 .fill {
 	width: 100%;
 }
+.fill-v {
+	height: 100%;
+}
 *.button:not(.disabled):active {
 	transform: scale(0.9);
 }
@@ -321,4 +344,112 @@ main {
 }
 #last-rom {
 	display: none;
+}
+.block {
+	display: block;
+}
+.touch-button {
+	display: none;
+}
+
+#touch-controls {
+	display: none;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+@media(pointer: coarse) {
+	#touch-controls {
+		display: block !important;
+	}
+}
+@media not (pointer: coarse) {
+	#touch-controls, #touch-controls * {
+		display: none !important;
+	}
+}
+#touch-layout {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
+}
+#touch-controls #touch-ab {
+	display: inline-grid;
+	grid-template-columns: repeat(2, 1fr);
+}
+#touch-controls :is(.touch-a,.touch-b) {
+	border-radius: 50%;
+	width: 12.5vw;
+	height: 12.5vw;
+	position: relative;
+}
+#touch-controls :is(.touch-a,.touch-b)::after {
+	position: absolute;
+	color: rgba(0,0,0,.5);
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	font-weight: bold;
+	font-size: 5vw;
+}
+#touch-controls .touch-a {
+	background: #ff7f50;
+}
+#touch-controls .touch-a::after {
+	content: 'A';
+}
+#touch-controls .touch-b {
+	background: #6a5acd;
+}
+#touch-controls .touch-b::after {
+	content: 'B';
+}
+
+.arrow {
+	margin: -4.5px;
+	padding: 3px;
+	line-height: 0;
+	border: solid var(--color);
+	border-width: 0 3px 3px 0;
+	display: inline-block;
+}
+.arrow.right { transform: rotate(-45deg);}
+.arrow.left { transform: rotate(135deg);}
+.arrow.up { transform: rotate(-135deg);}
+.arrow.down { transform: rotate(45deg);}
+
+#touch-controls #touch-dpad {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+}
+
+#touch-controls :is(.touch-arrow,.touch-c) {
+	width: 8.5vw;
+	height: 8.5vw;
+	background: gray;
+	position: relative;
+}
+
+#touch-stsl {
+	font-size: .8em;
+	font-weight: bold;
+	color: white;
+	position: fixed;
+	bottom: .85rem;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: row;
+	grid-gap: 1ch;
+}
+#touch-stsl > * {
+	background: gray;
+	border-radius: .66ch;
+	padding: .33ch;
+	border: 2px solid lightgray;
 }
