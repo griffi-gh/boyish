@@ -36,7 +36,14 @@ function newGameboy() {
     gb.destroy();
   }
   newGb.input.initTouch({
-    'A': 'T-A'
+    'A': 'T-A',
+    'B': 'T-B',
+    'SELECT': 'T-SL',
+    'START': 'T-ST',
+    'UP': 'T-U',
+    'DOWN': 'T-D',
+    'LEFT': 'T-L',
+    'RIGHT': 'T-R'
   });
   window.GB = newGb; // for debugging
   gb = newGb;
