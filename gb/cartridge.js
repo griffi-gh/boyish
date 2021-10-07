@@ -227,8 +227,8 @@ export class CartridgeMBC3 extends CartridgeMBCBase {
       return;
     } else if(a <= 0x5FFF) {
       if((v >= 0x08) && (v <= 0x0C)) {
-        //this.rtcSelect = v;
-        throw new Error("RTC not done yet");
+        this.rtcSelect = v;
+        //console.error("RTC not done yet");
       } else {
         this.ramBank = v & 3;
       }
@@ -250,6 +250,8 @@ export default function newCartridge(i,o) {
   if(isArray(i)) i = i[0x147];
   let options = o || {};
   switch (i) {
+    case 0x10: //MBC3 TIER
+      console.warn("Falling back to MBC3")
     case 0x13: //MBC3+RAM+BATTERY
       options.battery = true;
     case 0x12: //MBC3+RAM
