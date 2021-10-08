@@ -356,12 +356,12 @@ export default class PPU {
         }
         if(obj.flipY) { tiley = 7 - tiley; }
         let tile = this.tileCache[tileIndex][tiley];
-        if(!tile){ debugger; throw new Error("Invalid sprite tile"); }
-        //
+        if(!tile){ throw new Error("Invalid sprite tile"); }
         for(let i = 0; i < 8; i++) {
           let tilex = i;
-          if(obj.flipX) { tilex = 7 - tilex; }
-          //
+          if(obj.flipX) {
+            tilex = 7 - tilex;
+          }
           if(tile[tilex] !== 0){
             csprites[obj.x+i] = [obj, tile[tilex]];
           }
@@ -484,7 +484,6 @@ export default class PPU {
       default:
         throw new Error("Invalid PPU mode");
     }
-    //console.log(this.line)
   }
   debugTileset(id) {
     const el = document.getElementById(id);
