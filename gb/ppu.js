@@ -424,10 +424,10 @@ export default class PPU {
       for(const v of this.oamCache) {
         if(v.isInLine(this.line)) {
           s.push(v);
+          if(s.length >= 10) break;
         }
       }
       s.sort(((a,b) => { return a.x - b.x; }));
-      s.splice(10, s.length); //10 sprites per line limit
       s.reverse();
     }
   }
