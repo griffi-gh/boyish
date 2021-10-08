@@ -42,6 +42,8 @@ export const OBJ_SIZE_16 = true;
 
 const SORT_BY_X = ((a,b) => b.x - a.x + .01);
 const NULL_CSPRITE = [null, 0];
+const CS_OBJECT = 0;
+const CS_COLOR = 1;
 
 export class OAMObject {
   constructor(ppu) {
@@ -303,16 +305,12 @@ export default class PPU {
 
     let arr = this.tileCache;
     if(!arr[index]) { arr[index] = []; }
-    if(!arr[index][y]) { arr[index][y] = []; }
-
-    let sx;
-    //let _t = '';
+    if(!arr[index][y]) { arr[index][y] = new Int8Array(8); }
+    arr = arr[index][y];
     for(let x = 0; x < 8; x++) {
-      sx = 1 << (7 - x);
-      arr[index][y][x] = ((lower & sx) ? 1 : 0) | ((upper & sx) ? 2 : 0);
-      //_t += arr[index][y][x] ? '⬜' : '⬛';
+      let sx = 1 << (7 - x);
+      arr[x] = ((lower & sx) ? 1 : 0) | ((upper & sx) ? 2 : 0);
     }
-    //console.log(index+' '+_t)
   }
   drawLine() {
     //Bg
@@ -340,13 +338,9 @@ export default class PPU {
     let wTileIndex = this.vram[wMapArea+wLineStart];
     if(!(this.tileDataArea) && wTileIndex < 128){ wTileIndex += 0x100 };
     let wTile = this.tileCache[wTileIndex][wY];
-    if(winCondY) {
-      this.wly++;
-    }
+    if(winCondY) this.wly++;
 
     //Sprites
-    const CS_OBJECT = 0;
-    const CS_COLOR = 1;
     let csprites = this._csprites;
     if(this.objEnable) {
       csprites = csprites.fill(NULL_CSPRITE);
@@ -409,9 +403,10 @@ export default class PPU {
       }
       let pix = this.bgpal[color];
       if(this.objEnable) {
-        const obj_color = csprites[i][CS_COLOR];
+        const cs = csprites[i];
+        const obj_color = cs[CS_COLOR];
         if(obj_color !== 0) {
-          const obj = csprites[i][CS_OBJECT];
+          const obj = cs[CS_OBJECT];
           if(!(obj.priority && (color !== 0))) {
             pix = this.objpal[obj.pal | 0][obj_color];
           }
