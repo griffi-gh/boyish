@@ -343,7 +343,7 @@ export default class PPU {
     //Sprites
     let csprites = this._csprites;
     if(this.objEnable) {
-      csprites = csprites.fill(NULL_CSPRITE);
+      csprites.fill(NULL_CSPRITE);
       for(const obj of this.lineSprites) {
         let tiley = this.line - obj.y;
         let tileIndex = obj.tile;
@@ -379,9 +379,8 @@ export default class PPU {
         }
         windowX = true;
       }
-      let isWin = windowX && winCondY;
-      if(isWin) {
-        color = this.bgWinEnable ? wTile[wX] : 0;
+      if(windowX && winCondY) {
+        color = wTile[wX];
         wX++;
         if(wX >= 8) {
           wLineStart = (wLineStart + 1) & 31;
@@ -391,7 +390,7 @@ export default class PPU {
           wTile = this.tileCache[wTileIndex][wY];
         }
       } else {
-        color = this.bgWinEnable ? tile[x] : 0;
+        color = tile[x];
         x += 1;
         if(x >= 8) {
           lineStart = (lineStart + 1) & 31;
@@ -401,6 +400,7 @@ export default class PPU {
           tile = this.tileCache[tileIndex][y];
         }
       }
+      color = (this.bgWinEnable && color) | 0;
       let pix = this.bgpal[color];
       if(this.objEnable) {
         const cs = csprites[i];
