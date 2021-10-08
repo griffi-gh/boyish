@@ -295,8 +295,8 @@ export default class PPU {
   }
 
   updateTile(addr) {
-    const index = Math.floor(addr / 16);
-    const y = Math.floor((addr & 0xF) / 2);
+    const index = addr >> 4;
+    const y = (addr & 0xF) >> 1;
 
     addr &= 0xFFFE; //each line is 2 bytes
     const lower = this.vram[addr];
@@ -324,9 +324,7 @@ export default class PPU {
     let tile = this.tileCache[tileIndex][y];
 
     //Win
-    if(this.line == this.wy) {
-      this._window = true;
-    }
+    if(this.line >= this.wy) this._window = true;
     const winCondY = (this.winEnable && this._window && (this.wx < (SCREEN_SIZE[0] + 7)));
     let windowX = false;
     const wY = (this.wly & 7);
@@ -455,7 +453,7 @@ export default class PPU {
           }
           this.line++;
         }
-        break;
+        return;
       case MODE_VBLANK:
         if(this.cycles >= 456) {
           this.cycles -= 456;
@@ -467,13 +465,13 @@ export default class PPU {
             this._window = false;
           }
         }
-        break;
+        return;
       case MODE_OAM:
         if(this.cycles >= 80) {
           this.cycles -= 80;
           this.mode = MODE_VRAM;
         }
-        break;
+        return;
       case MODE_VRAM:
         if(this.cycles >= 172) {
           this.cycles -= 172;
@@ -481,9 +479,7 @@ export default class PPU {
           this.scanOAM();
           this.drawLine();
         }
-        break;
-      default:
-        throw new Error("Invalid PPU mode");
+        return;
     }
   }
   debugTileset(id) {

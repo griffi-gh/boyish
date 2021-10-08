@@ -39,7 +39,7 @@ export class Gameboy {
     this.pause();
   }
   destroy() {
-    if('saveEram' in this.mmu.cart){
+    if(this.mmu.cart.saveEram){
       this.mmu.cart.saveEram();
     }
     this.pause();
