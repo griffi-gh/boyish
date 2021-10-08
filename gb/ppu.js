@@ -420,7 +420,8 @@ export default class PPU {
     if(this.objEnable) {
       const s = this.lineSprites;
       s.length = 0;
-      for(const v of this.oamCache) {
+      for(let i = 0; i < 40; i++) {
+        const v = this.oamCache[i];
         if(v.isInLine(this.line)) {
           s.push(v);
           if(s.length >= 10) break;
