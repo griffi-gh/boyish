@@ -168,7 +168,7 @@ export class CartridgeMBC1 extends CartridgeMBCBase {
     if(a <= 0x7FFF) {
       if(a <= 0x1FFF) {
         this.ramEnable = ((v & 0x0A) === 0x0A);
-        this.saveEram()
+        if(!this.ramEnable) this.saveEram()
         return;
       } else if(a <= 0x3FFF) {
         let newBank = v & 0x1F;
@@ -218,7 +218,7 @@ export class CartridgeMBC3 extends CartridgeMBCBase {
   write(a,v) {
     if(a <= 0x1FFF) {
       this.ramEnable = ((v & 0x0A) === 0x0A);
-      this.saveEram();
+      if(!this.ramEnable) this.saveEram();
       return;
     } else if(a <= 0x3FFF) {
       let bank = v & this._mask;
