@@ -188,10 +188,10 @@ export default class PPU {
 
   handleSTATirq() {
     const lcdstat = (this.intLYC && this.lycEq) || (this.intOAM && (this.mode === MODE_OAM)) || (this.intVBlank && (this.mode === MODE_VBLANK)) || (this.intHBlank && (this.mode === MODE_HBLANK));
-    if(lcdstat && !(this.lcdstat)) {
+    if(lcdstat && !(this._lcdstat)) {
       this.gb.cpu.irq.if |= 0x02; //raise lcdstat
     }
-    this.lcdstat = lcdstat;
+    this._lcdstat = lcdstat;
   }
 
   writeVRAM(addr, val) {
@@ -217,7 +217,6 @@ export default class PPU {
   }
   readOAM(addr) {
     return this.oam[addr - 0xFE00];
-    /*return this.oam[addr >> 2].getOAMdata(addr & 3, val);*/
   }
 
   set bgp(v) {
@@ -341,9 +340,10 @@ export default class PPU {
     if(winCondY) this.wly++;
 
     //Sprites
-    let csprites = this._csprites;
-    if(this.objEnable) {
-      csprites.fill(NULL_CSPRITE);
+    let doSprites = this.objEnable && (this.lineSprites.length > 0);
+    let csprites;
+    if(doSprites) {
+      csprites = this._csprites.fill(NULL_CSPRITE);
       for(const obj of this.lineSprites) {
         let tiley = this.line - obj.y;
         let tileIndex = obj.tile;
@@ -402,7 +402,7 @@ export default class PPU {
       }
       color = (this.bgWinEnable && color) | 0;
       let pix = this.bgpal[color];
-      if(this.objEnable) {
+      if(doSprites) {
         const cs = csprites[i];
         const obj_color = cs[CS_COLOR];
         if(obj_color !== 0) {
@@ -426,7 +426,7 @@ export default class PPU {
           if(s.length >= 10) break;
         }
       }
-      s.sort(SORT_BY_X);
+      if(s.length > 1) s.sort(SORT_BY_X);
     }
   }
   step(c) {
