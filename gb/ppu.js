@@ -326,16 +326,19 @@ export default class PPU {
     //Win
     if(this.line >= this.wy) this._window = true;
     const winCondY = (this.winEnable && this._window && (this.wx < (SCREEN_SIZE[0] + 7)));
-    let windowX = false;
-    const wY = (this.wly & 7);
-    let wX = 0;
-    let wLineStart = 0;
-    const wMapAreaRaw = (this.winMapArea ? 0x1C00 : 0x1800);
-    const wMapArea = wMapAreaRaw + (((this.wly & 0xFF) >> 3) << 5);
-    let wTileIndex = this.vram[wMapArea+wLineStart];
-    if(!(this.tileDataArea) && wTileIndex < 128){ wTileIndex += 0x100 };
-    let wTile = this.tileCache[wTileIndex][wY];
-    if(winCondY) this.wly++;
+    let windowX,wX,wY,wLineStart,wMapArea,wMapAreaRaw,wTile,wTileIndex;
+    if(winCondY) {
+      windowX = false;
+      wY = (this.wly & 7);
+      wX = 0;
+      wLineStart = 0;
+      wMapAreaRaw = (this.winMapArea ? 0x1C00 : 0x1800);
+      wMapArea = wMapAreaRaw + (((this.wly & 0xFF) >> 3) << 5);
+      wTileIndex = this.vram[wMapArea+wLineStart];
+      if(!(this.tileDataArea) && wTileIndex < 128){ wTileIndex += 0x100 };
+      wTile = this.tileCache[wTileIndex][wY];
+      if(winCondY) this.wly++;
+    }
 
     //Sprites
     let doSprites = this.objEnable && (this.lineSprites.length > 0);
@@ -371,13 +374,15 @@ export default class PPU {
     let cl = this.canvas.lineStart(this.line);
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
       let color;
-      if(((i + 7) >= this.wx) || (this.wx == 166)){
-        if(!windowX && (this.wx < 7)) {
-          wX += (7 - this.wx);
+      if(winCondY && (!windowX)) {
+        if(((i + 7) >= this.wx) || (this.wx == 166)){
+          if(this.wx < 7) {
+            wX += (7 - this.wx);
+          }
+          windowX = true;
         }
-        windowX = true;
       }
-      if(windowX && winCondY) {
+      if(windowX) {
         color = wTile[wX];
         wX++;
         if(wX >= 8) {

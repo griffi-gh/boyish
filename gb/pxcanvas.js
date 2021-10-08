@@ -30,6 +30,10 @@ export default class PixelCanvas {
     this.clear(255,255,255);
     this.blit();
     //console.log(`PixelCanvas created with size ${width}x${height}`);
+    this.offsetCache = [];
+    for(let i = 0; i <= height; i++) {
+      this.offsetCache[i] = this.calcLineOffset(i);
+    }
   }
   clear(r, g, b) {
     const color = [r, g, b, 255];
@@ -54,9 +58,11 @@ export default class PixelCanvas {
   lineSkip() {
     this._i += 4;
   }
-
+  calcLineOffset(y) {
+    return (y * this.img.width) << 2;
+  }
   getLineOffset(y) {
-    return 4 * y * this.img.width;
+    return this.offsetCache[y];
   }
   setIndex(i, r, g, b) {
     const imgData = this.img.data;

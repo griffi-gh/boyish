@@ -50,7 +50,7 @@ export default class MMU {
   }
   read(addr) {
     addr &= 0xFFFF;
-    this.handleBreakpoints('r', addr);
+    if(this.gb._brkSetM) this.handleBreakpoints('r', addr);
     switch (addr) {
       case 0xFF00:
         return this.gb.input.joyp;
@@ -123,7 +123,7 @@ export default class MMU {
   write(addr, val) {
     addr &= 0xFFFF;
     val  &= 0xFF;
-    this.handleBreakpoints('w', addr, val);
+    if(this.gb._brkSetM) this.handleBreakpoints('w', addr, val);
     switch (addr) {
       case 0xFF00:
         this.gb.input.joyp = val;

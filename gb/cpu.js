@@ -51,10 +51,11 @@ export default class CPU {
         OPC = CB_OPS;
         op = this.gb.mmu.read(++this.reg.pc);
       }
-      if(op in OPC) {
-        let [icycles, next] = OPC[op].call(this.OPContext, this.reg.pc);
-        this.reg.pc = next & 0xFFFF;
-        cycles += icycles;
+      let fn = OPC[op];
+      if(fn !== undefined) {
+        let [opCycles, nextPC] = fn.call(this.OPContext, this.reg.pc);
+        this.reg.pc = nextPC & 0xFFFF;
+        cycles += opCycles;
       } else {
         console.error(`Unimplemented instruction: ${isCB ? 'CB ' : ''}${toHex(op)}`);
         throw new Error("UnimplementedInstr");

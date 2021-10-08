@@ -81,11 +81,13 @@ export class Gameboy {
   setBreakpoint(addr, val = true) {
     if(!val) { val = undefined; }
     this.breakpoints[addr] = val;
+    this._brkSetP = true;
   }
   //Modes w,r,a,[undefined]
   setMMUbreakpoint(addr, mode = 'w') {
     if(!mode) { mode = undefined; }
     this.mmu.accessBreakpoints[addr] = mode;
+    this._brkSetM = true;
   }
   loadROM(data) {
     this.mmu.loadROM(data);
@@ -125,7 +127,7 @@ export class Gameboy {
     const cpu = this.cpu;
     try {
       while(!this.frame || this.cycleCounter < CYCLES_PER_FRAME) {
-        this.handleBreakpoints();
+        if(this._brkSetP) this.handleBreakpoints();
         let cycles = this.cpu.step();
         this.timer.step(cycles);
         this.ppu.step(cycles);

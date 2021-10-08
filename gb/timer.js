@@ -33,9 +33,9 @@ export default class Timer {
     this.rate = (v & 0b011);
   }
   step(cycles) {
-    const m = (cycles / 4);
+    const m = (cycles >> 2);
     for(let i = 0; i < m; i++) {
-      this.tick();
+      this.tick(4);
     }
   }
   tick(cycles = 4) {
