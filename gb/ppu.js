@@ -40,6 +40,9 @@ export const MAP_AREA_9C00 = true;
 export const OBJ_SIZE_8 = false;
 export const OBJ_SIZE_16 = true;
 
+const SORT_BY_X = ((a,b) => b.x - a.x + .01);
+const NULL_CSPRITE = [null, 0];
+
 export class OAMObject {
   constructor(ppu) {
     this.ppu = ppu;
@@ -135,6 +138,7 @@ export default class PPU {
       [0,1,2,3],
       [0,1,2,3]
     ];
+    this._csprites = new Array(SCREEN_SIZE[0]);
 
     // BG
     this.tileCache = [];
@@ -343,9 +347,9 @@ export default class PPU {
     //Sprites
     const CS_OBJECT = 0;
     const CS_COLOR = 1;
-    let csprites;
+    let csprites = this._csprites;
     if(this.objEnable) {
-      csprites = new Array(SCREEN_SIZE[0]).fill([null,0]);
+      csprites = csprites.fill(NULL_CSPRITE);
       for(const obj of this.lineSprites) {
         let tiley = this.line - obj.y;
         let tileIndex = obj.tile;
@@ -427,8 +431,7 @@ export default class PPU {
           if(s.length >= 10) break;
         }
       }
-      s.sort(((a,b) => { return a.x - b.x; }));
-      s.reverse();
+      s.sort(SORT_BY_X);
     }
   }
   step(c) {
