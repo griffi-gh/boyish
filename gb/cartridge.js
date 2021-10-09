@@ -88,7 +88,7 @@ class CartridgeMBCBase extends CartridgeNone {
     super.load(d);
     this.eram = new Uint8Array(this.header.ramSize*1024).fill(0);
     this.loadEram();
-    this._mask = ((this.header.romSize >> 4) - 1) & 0b00011111;
+    this._mask = ((this.header.romSize >> 4) - 1);
     this._ramMask = Math.ceil(this.header.ramSize / 8) - 1;
   }
   readROMBank(bank, a) {
