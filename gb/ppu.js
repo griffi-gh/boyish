@@ -100,8 +100,8 @@ export class OAMObject {
   }
   isInLine(line) {
     const ydiff = (line - this.y);
-    const size = (this.ppu.objSize ? 16 : 8);
-    return ((ydiff >= 0) && (ydiff < size));
+    if(ydiff < 0) return false;
+    return ydiff < (8 << this.ppu.objSize);
   }
   isEmpty() {
     let oami = 0;
@@ -186,36 +186,43 @@ export default class PPU {
     this.palette.push(hexToRgb('#ff0000')); //used for debugging
   }
 
+  updateSTATirq() {
+    this.lycEq = (this.lyc === this.line);
+    this._lcdstatCond = (this.intLYC && this.lycEq) || (this.intOAM && (this.mode === MODE_OAM)) || (this.intVBlank && (this.mode === MODE_VBLANK)) || (this.intHBlank && (this.mode === MODE_HBLANK));
+  }
   handleSTATirq() {
-    const lcdstat = (this.intLYC && this.lycEq) || (this.intOAM && (this.mode === MODE_OAM)) || (this.intVBlank && (this.mode === MODE_VBLANK)) || (this.intHBlank && (this.mode === MODE_HBLANK));
+    const lcdstat = this._lcdstatCond;
     if(lcdstat && !(this._lcdstat)) {
       this.gb.cpu.irq.if |= 0x02; //raise lcdstat
     }
     this._lcdstat = lcdstat;
   }
 
-  writeVRAM(addr, val) {
-    if((this.mode !== MODE_VRAM) || this.gb.stubLY) {
+  get VRAMReady() {
+    return (this.mode !== MODE_VRAM) || (!this.lcdon) || this.gb.stubLY;
+  }
+  writeVRAM(addr, val, force = false) {
+    if(this.VRAMReady || force) {
       this.vram[addr] = val;
       if(addr <= 0x17FF) {
         this.updateTile(addr)
       }
     }
   }
-  readVRAM(addr) {
-    if((this.mode !== MODE_VRAM) || this.gb.stubLY) {
+  readVRAM(addr, force = false) {
+    if(this.VRAMReady || force) {
       return (this.vram[addr] | 0);
     } else {
       return 0xFF;
     }
   }
 
-  writeOAM(addr, val) {
+  writeOAM(addr, val, force) {
     addr -= 0xFE00;
     this.oam[addr] = val;
     this.oamCache[addr >> 2].setOAMdata(addr & 3, val);
   }
-  readOAM(addr) {
+  readOAM(addr, force) {
     return this.oam[addr - 0xFE00];
   }
 
@@ -342,9 +349,10 @@ export default class PPU {
 
     //Sprites
     let doSprites = this.objEnable && (this.lineSprites.length > 0);
-    let csprites;
+    let csprites = this._csprites;
     if(doSprites) {
-      csprites = this._csprites.fill(NULL_CSPRITE);
+      //csprites = this._csprites.fill(NULL_CSPRITE);
+      this._csprites.length = 0;
       for(const obj of this.lineSprites) {
         let tiley = this.line - obj.y;
         let tileIndex = obj.tile;
@@ -357,7 +365,7 @@ export default class PPU {
         }
         if(obj.flipY) { tiley = 7 - tiley; }
         let tile = this.tileCache[tileIndex][tiley];
-        if(!tile){ throw new Error("Invalid sprite tile"); }
+        if(!tile){ throw new Error("Invalid sprite tile " + tileIndex + " " + tiley); }
         for(let i = 0; i < 8; i++) {
           let tilex = i;
           if(obj.flipX) {
@@ -406,7 +414,7 @@ export default class PPU {
       color = (this.bgWinEnable && color) | 0;
       let pix = this.bgpal[color];
       if(doSprites) {
-        const cs = csprites[i];
+        const cs = csprites[i] || NULL_CSPRITE;
         const obj_color = cs[CS_COLOR];
         if(obj_color !== 0) {
           const obj = cs[CS_OBJECT];
@@ -434,13 +442,14 @@ export default class PPU {
     }
   }
   step(c) {
-    this.lycEq = (this.lyc === this.line);
     this.handleSTATirq();
     if(!this.lcdon) {
       this.cycles = 0;
       this.mode = 0;
       this.line = 0;
       this.wly = 0;
+      this._window = false;
+      this.updateSTATirq();
       return;
     }
     this.cycles += c;
@@ -448,41 +457,45 @@ export default class PPU {
       case MODE_HBLANK:
         if(this.cycles >= 204) {
           this.cycles -= 204;
-          if(this.line == 143) {
+          if(this.line >= 143) {
             this.mode = MODE_VBLANK;
             this.canvas.blit();
-            this.gb.frame = true;
             this.gb.cpu.irq.if |= 0x01;
           } else {
             this.mode = MODE_OAM;
           }
           this.line++;
+          this.updateSTATirq();
         }
         return;
       case MODE_VBLANK:
         if(this.cycles >= 456) {
           this.cycles -= 456;
           this.line++;
-          if(this.line > 154) {
+          if(this.line >= 155) {
             this.mode = MODE_OAM;
             this.line = 0;
             this.wly = 0;
             this._window = false;
+            this.gb.frame = true;
           }
+          this.updateSTATirq();
         }
         return;
       case MODE_OAM:
         if(this.cycles >= 80) {
           this.cycles -= 80;
           this.mode = MODE_VRAM;
+          this.scanOAM();
+          this.updateSTATirq();
         }
         return;
       case MODE_VRAM:
         if(this.cycles >= 172) {
           this.cycles -= 172;
           this.mode = MODE_HBLANK;
-          this.scanOAM();
           this.drawLine();
+          this.updateSTATirq();
         }
         return;
     }

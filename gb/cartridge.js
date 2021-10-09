@@ -86,9 +86,10 @@ class CartridgeMBCBase extends CartridgeNone {
   }
   load(d) {
     super.load(d);
-    this.eram = new Uint8Array(128 * 1024).fill(0);
+    this.eram = new Uint8Array(this.header.ramSize*1024).fill(0);
     this.loadEram();
-    this._mask = (this.header.romSize >> 4) - 1;
+    this._mask = ((this.header.romSize >> 4) - 1) & 0b00011111;
+    this._ramMask = Math.ceil(this.header.ramSize / 8) - 1;
   }
   readROMBank(bank, a) {
     return (this.rom[(bank * 0x4000) + (a - 0x4000)] | 0);
@@ -138,7 +139,7 @@ export class CartridgeMBC1 extends CartridgeMBCBase {
   constructor(options) {
     super(options);
     this.name = "MBC1";
-    this.mode = 1;
+    this.mode = 0;
   }
 
   read(a) {
@@ -156,10 +157,12 @@ export class CartridgeMBC1 extends CartridgeMBCBase {
     } else {
       if(this.ramEnable) {
         let ramBank = 0;
-        if(this.mode) ramBank = this.ramBank;
+        if(this.mode === 1) {
+          ramBank = this.ramBank & this._ramMask;
+        }
         return this.readRAMBank(ramBank, a);
       } else {
-        return 0;
+        return 0xFF;
       }
     }
     return 0;
@@ -167,8 +170,8 @@ export class CartridgeMBC1 extends CartridgeMBCBase {
   write(a, v) {
     if(a <= 0x7FFF) {
       if(a <= 0x1FFF) {
-        this.ramEnable = ((v & 0x0A) === 0x0A);
-        if(!this.ramEnable) this.saveEram()
+        this.ramEnable = ((v & 0xF) === 0xA);
+        if(!this.ramEnable) this.saveEram();
         return;
       } else if(a <= 0x3FFF) {
         let newBank = v & 0x1F;
@@ -185,7 +188,9 @@ export class CartridgeMBC1 extends CartridgeMBCBase {
     } else if((a >= 0xA000) && (a <= 0xBFFF)) {
       if(this.ramEnable) {
         let ramBank = 0;
-        if(this.mode === 1) ramBank = this.ramBank;
+        if(this.mode === 1) {
+          ramBank = this.ramBank & this._ramMask;
+        }
         this.writeRAMBank(ramBank, a, v);
         if(this.options.battery) {
           this.eramUnsaved = true;
@@ -200,8 +205,7 @@ export class CartridgeMBC3 extends CartridgeMBCBase {
   constructor(options) {
     super(options);
     this.name = "MBC3";
-    this.romBank = 1;
-    //this.rtcSelect = 8;
+    this.rtcSelect = 8;
   }
   read(a) {
     if(a <= 0x3FFF) {
@@ -217,7 +221,7 @@ export class CartridgeMBC3 extends CartridgeMBCBase {
   }
   write(a,v) {
     if(a <= 0x1FFF) {
-      this.ramEnable = ((v & 0x0A) === 0x0A);
+      this.ramEnable = ((v & 0xF) === 0xA);
       if(!this.ramEnable) this.saveEram();
       return;
     } else if(a <= 0x3FFF) {

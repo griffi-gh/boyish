@@ -48,7 +48,7 @@ export default class MMU {
       }
     }
   }
-  read(addr) {
+  read(addr, force) {
     addr &= 0xFFFF;
     if(this.gb._brkSetM) this.handleBreakpoints('r', addr);
     switch (addr) {
@@ -106,13 +106,13 @@ export default class MMU {
         } else if (addr <= 0x7FFF) {
           return this.cart.read(addr);
         } else if (addr <= 0x9FFF) {
-          return this.gb.ppu.readVRAM(addr - 0x8000);
+          return this.gb.ppu.readVRAM(addr - 0x8000, force);
         } else if (addr <= 0xBFFF) {
           return this.cart.read(addr); // External RAM
         } else if (addr <= 0xFDFF) {
           return this.wram[addr & 0x1FFF] | 0; // Work RAM and Echo RAM
         } else if (addr <= 0xFE9F) {
-          return this.gb.ppu.readOAM(addr);
+          return this.gb.ppu.readOAM(addr, force);
         } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
           return this.hram[addr - 0xFF80] | 0; // High Ram
         }
@@ -120,7 +120,7 @@ export default class MMU {
     this.gb.log(`[MMU] READ Addr 0x${toHex(addr,16)} isn't mapped to anything`+'\n');
     return 0;
   }
-  write(addr, val) {
+  write(addr, val, force) {
     addr &= 0xFFFF;
     val  &= 0xFF;
     if(this.gb._brkSetM) this.handleBreakpoints('w', addr, val);
@@ -162,7 +162,7 @@ export default class MMU {
         //OAM DMA TRANSFER
         const source = val * 0x100;
         for(let i = 0; i <= 0x9F; i++) {
-          this.write(0xFE00 | i, this.read(source + i));
+          this.write(0xFE00 | i, this.read(source + i), true);
         }
         return;
       case 0xFF47:
@@ -194,7 +194,7 @@ export default class MMU {
           this.cart.write(addr, val);
           return;
         } else if (addr <= 0x9FFF) {
-          this.gb.ppu.writeVRAM(addr - 0x8000, val);
+          this.gb.ppu.writeVRAM(addr - 0x8000, val, force);
         } else if (addr <= 0xBFFF) {
           this.cart.write(addr, val); // ERAM
         } else if (addr <= 0xFDFF) {
@@ -208,12 +208,12 @@ export default class MMU {
         }
     }
   }
-  readWord(addr) {
-    return (this.read(addr) | this.read(addr+1) << 8);
+  readWord(addr,force) {
+    return (this.read(addr,force) | this.read(addr+1,force) << 8);
   }
-  writeWord(addr, val) {
+  writeWord(addr, val, force) {
     val &= 0xFFFF;
-    this.write(addr, val & 0xFF);
-    this.write(addr + 1, val >> 8);
+    this.write(addr, val & 0xFF, force);
+    this.write(addr + 1, val >> 8, force);
   }
 }
