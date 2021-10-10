@@ -190,8 +190,8 @@ export default class PPU {
     if(this.lcdon) this.lycEq = (this.lyc === this.line);
     this._lcdstatCond = (this.intLYC && this.lycEq) || (this.intOAM && (this.mode === MODE_OAM)) || (this.intVBlank && (this.mode === MODE_VBLANK)) || (this.intHBlank && (this.mode === MODE_HBLANK));
   }
-  handleSTATirq() {
-    const lcdstat = this._lcdstatCond;
+  handleSTATirq(now) {
+    const lcdstat = this._lcdstatCond || now;
     if(lcdstat && !(this._lcdstat)) {
       this.gb.cpu.irq.if |= 0x02; //raise lcdstat
     }
@@ -262,10 +262,23 @@ export default class PPU {
   get obp1( ) { return this.getOBP(1); }
 
   set stat(v) {
+    let statbug = false
+    if((this.mode !== MODE_VRAM) || this.lycEq) {
+      //STAT BUG
+      statbug = true;
+      this.intLYC = true;
+      this.intOAM = true;
+      this.intVBlank = true;
+      this.intHBlank = true;
+      this.updateSTATirq();
+      this.handleSTATirq();
+      //console.log('stat bug');
+    }
     this.intLYC    = (v & 0b01000000) !== 0;
     this.intOAM    = (v & 0b00100000) !== 0;
     this.intVBlank = (v & 0b00010000) !== 0;
     this.intHBlank = (v & 0b00001000) !== 0;
+    if(statbug) this.updateSTATirq();
   }
   get stat() {
     return (
@@ -364,7 +377,7 @@ export default class PPU {
           tiley &= 7;
         }
         if(obj.flipY) { tiley = 7 - tiley; }
-        let tile = this.tileCache[tileIndex][tiley];
+        let tile = this.tileCache[tileIndex][tiley & 7];
         if(!tile){ throw new Error("Invalid sprite tile " + tileIndex + " " + tiley); }
         for(let i = 0; i < 8; i++) {
           let tilex = i;
