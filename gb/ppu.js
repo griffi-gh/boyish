@@ -262,7 +262,7 @@ export default class PPU {
   get obp1( ) { return this.getOBP(1); }
 
   set stat(v) {
-    let statbug = false
+    /*let statbug = false
     if((this.mode !== MODE_VRAM) || this.lycEq) {
       //STAT BUG
       statbug = true;
@@ -273,12 +273,12 @@ export default class PPU {
       this.updateSTATirq();
       this.handleSTATirq();
       //console.log('stat bug');
-    }
+    }*/
     this.intLYC    = (v & 0b01000000) !== 0;
     this.intOAM    = (v & 0b00100000) !== 0;
     this.intVBlank = (v & 0b00010000) !== 0;
     this.intHBlank = (v & 0b00001000) !== 0;
-    if(statbug) this.updateSTATirq();
+    //if(statbug) this.updateSTATirq();
   }
   get stat() {
     return (
