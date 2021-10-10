@@ -187,7 +187,7 @@ export default class PPU {
   }
 
   updateSTATirq() {
-    this.lycEq = (this.lyc === this.line);
+    if(this.lcdon) this.lycEq = (this.lyc === this.line);
     this._lcdstatCond = (this.intLYC && this.lycEq) || (this.intOAM && (this.mode === MODE_OAM)) || (this.intVBlank && (this.mode === MODE_VBLANK)) || (this.intHBlank && (this.mode === MODE_HBLANK));
   }
   handleSTATirq() {
