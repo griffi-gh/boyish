@@ -122,6 +122,10 @@ export class Gameboy {
       return;
     }
   }
+  tickCompByCPU(cycles) {
+    this.timer.step(cycles);
+    this.ppu.step(cycles);
+  }
   step() {
     this.perf = performance.now();
     const cpu = this.cpu;
@@ -129,8 +133,6 @@ export class Gameboy {
       while(!this.frame || this.cycleCounter < CYCLES_PER_FRAME) {
         if(this._brkSetP) this.handleBreakpoints();
         let cycles = this.cpu.step();
-        this.timer.step(cycles);
-        this.ppu.step(cycles);
         this.cycleCounter += cycles;
       }
       this.cycleCounter -= CYCLES_PER_FRAME;

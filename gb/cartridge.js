@@ -140,6 +140,7 @@ export class CartridgeMBC1 extends CartridgeMBCBase {
     super(options);
     this.name = "MBC1";
     this.mode = 0;
+    this._mask &= 0x1F;
   }
 
   read(a) {

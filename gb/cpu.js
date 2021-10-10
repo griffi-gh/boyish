@@ -40,6 +40,7 @@ export default class CPU {
     )
   }
   step() {
+    let off = 0;
     let cycles = 0;
     if(!this.gb.state) { //If state is 0
       this.log();
@@ -50,6 +51,9 @@ export default class CPU {
         isCB = true;
         OPC = CB_OPS;
         op = this.gb.mmu.read(++this.reg.pc);
+        this.gb.tickCompByCPU(4);
+        cycles -= 4;
+        off += 4;
       }
       let fn = OPC[op];
       if(fn !== undefined) {
@@ -65,6 +69,7 @@ export default class CPU {
       cycles += 4;
     }
     cycles += this.irq.tick();
-    return cycles;
+    this.gb.tickCompByCPU(cycles);
+    return (cycles + off);
   }
 }
