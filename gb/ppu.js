@@ -374,10 +374,10 @@ export default class PPU {
           if(obj.flipY ? (tiley <= 7) : (tiley > 7)) {
             tileIndex++;
           }
-          tiley &= 7;
         }
+        tiley &= 7;
         if(obj.flipY) { tiley = 7 - tiley; }
-        let tile = this.tileCache[tileIndex][tiley & 7];
+        let tile = this.tileCache[tileIndex][tiley];
         if(!tile){ throw new Error("Invalid sprite tile " + tileIndex + " " + tiley); }
         for(let i = 0; i < 8; i++) {
           let tilex = i;
