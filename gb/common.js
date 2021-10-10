@@ -72,3 +72,26 @@ export function isTouchDevice() {
 export function getKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value);
 }
+
+export function createAudioContext() {
+  if(!isBrowser()) {
+    throw new Error("Invalid environment");
+  }
+  const AudioContext = window.AudioContext || window.webkitAudioContext || AudioContext;
+  if(AudioContext) {
+    let ctx;
+    try {
+      ctx = new AudioContext();
+    } catch(e) {
+      throw new Error("Failed to create AudioContext");
+      return;
+    }
+    if(!ctx) {
+      throw new Error("AudioContext is null");
+    }
+    return ctx;
+  } else {
+    throw new Error("AudioContext isn't supported");
+    return
+  }
+}
