@@ -33,6 +33,8 @@ export default class MMU {
     this.hram = new Uint8Array(0x7F).fill(0x00);
     this.disableBios = false;
     this.accessBreakpoints = [];
+    this._oamTransfer = false;
+    this._oamValue = 0;
   }
   loadROM(d) {
     this.cart = newCartridge(d[0x147], {logInfo: true});
@@ -51,6 +53,11 @@ export default class MMU {
   read(addr, force) {
     addr &= 0xFFFF;
     if(this.gb._brkSetM) this.handleBreakpoints('r', addr);
+    if((!force) && this._oamTransfer) {
+      if(!((addr >= 0xFF80 && addr <= 0xFFFE) || (addr == 0xFF46))) {
+        return 0;
+      }
+    }
     switch (addr) {
       case 0xFF00:
         return this.gb.input.joyp;
@@ -80,6 +87,8 @@ export default class MMU {
         }
       case 0xFF45:
         return this.gb.ppu.lyc | 0;
+      case 0xFF46:
+        return this._oamValue;
       case 0xFF47:
         return this.gb.ppu.bgp;
       case 0xFF48:
@@ -124,6 +133,11 @@ export default class MMU {
     addr &= 0xFFFF;
     val  &= 0xFF;
     if(this.gb._brkSetM) this.handleBreakpoints('w', addr, val);
+    if((!force) && this._oamTransfer) {
+      if(!( (addr >= 0xFF80 && addr <= 0xFFFE) || (addr === 0xFF46) )) {
+        return;
+      }
+    }
     switch (addr) {
       case 0xFF00:
         this.gb.input.joyp = val;
@@ -160,10 +174,14 @@ export default class MMU {
         return;
       case 0xFF46:
         //OAM DMA TRANSFER
+        this._oamValue = val;
         const source = val * 0x100;
         for(let i = 0; i <= 0x9F; i++) {
-          this.write(0xFE00 | i, this.read(source + i), true);
+          let saddr = source + i;
+          if(saddr > 0xC000) saddr = 0xC000 + (saddr & 0x1FFF);
+          this.write(0xFE00 | i, this.read(saddr), true);
         }
+        this._oamTransfer = 160;
         return;
       case 0xFF47:
         this.gb.ppu.bgp = val;
@@ -215,5 +233,13 @@ export default class MMU {
     val &= 0xFFFF;
     this.write(addr, val & 0xFF, force);
     this.write(addr + 1, val >> 8, force);
+  }
+  step(c) {
+    if(this._oamTransfer !== false) {
+      this._oamTransfer -= c;
+      if(this._oamTransfer <= 0) {
+        this._oamTransfer = false;
+      }
+    }
   }
 }

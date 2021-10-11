@@ -128,6 +128,7 @@ export class Gameboy {
   tickCompByCPU(cycles) {
     this.timer.step(cycles);
     this.ppu.step(cycles);
+    this.mmu.step(cycles);
   }
   step() {
     this.perf = performance.now();
