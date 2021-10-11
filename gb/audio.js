@@ -63,6 +63,8 @@ export default class APU {
   get NR52() {
     return (
       (this.enable << 7) |
+      // (this.chan4.playing << 2) |
+      // (this.chan3.playing << 2) |
       (this.chan2.playing << 1) |
       (this.chan1.playing | 0)
     )
