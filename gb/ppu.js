@@ -229,13 +229,22 @@ export default class PPU {
     }
   }
 
-  writeOAM(addr, val, force) {
-    addr -= 0xFE00;
-    this.oam[addr] = val;
-    this.oamCache[addr >> 2].setOAMdata(addr & 3, val);
+  get OAMReady() {
+    return (this.mode == MODE_HBLANK) || (this.mode == MODE_VBLANK) || (!this.lcdon) || this.gb.stubLY;
   }
-  readOAM(addr, force) {
-    return this.oam[addr - 0xFE00];
+  writeOAM(addr, val, force = false) {
+    if(this.OAMReady || force) {
+      addr -= 0xFE00;
+      this.oam[addr] = val;
+      this.oamCache[addr >> 2].setOAMdata(addr & 3, val);
+    }
+  }
+  readOAM(addr, force = false) {
+    if(this.OAMReady || forcce) {
+      return this.oam[addr - 0xFE00];
+    } else {
+      return 0xFF;
+    }
   }
 
   set bgp(v) {
