@@ -447,7 +447,7 @@ export default class PPU {
       for(let i = 0; i < 40; i++) {
         const v = this.oamCache[i];
         if(v.isInLine(this.line)) {
-          s.push(v);
+          s.push(Object.assign({},v));
           if(s.length >= 10) break;
         }
       }
