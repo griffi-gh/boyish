@@ -23,18 +23,23 @@ export default class PixelCanvas {
       preserveDrawingBuffer: true
     });
     if(!this.ctx) { throw new Error("Failed to get Canvas context"); }
+    if(this.ctx.imageSmoothingEnabled === undefined) {
+      this.ctx.mozImageSmoothingEnabled = false;
+    }
     this.ctx.webkitImageSmoothingEnabled = false;
-    //this.ctx.mozImageSmoothingEnabled = false;
     this.ctx.imageSmoothingEnabled = false;
     this.img = this.ctx.createImageData(width, height);
     this.clear(255,255,255);
     this.blit();
-    //console.log(`PixelCanvas created with size ${width}x${height}`);
     this.offsetCache = [];
     for(let i = 0; i <= height; i++) {
       this.offsetCache[i] = this.calcLineOffset(i);
     }
+    this.frameStart();
   }
+  get width() { return this.canvas.width; }
+  get height() { return this.canvas.height; }
+
   clear(r, g, b) {
     const color = [r, g, b, 255];
     let data = this.img.data;
@@ -42,7 +47,22 @@ export default class PixelCanvas {
       data[i] = color[i % 4];
     }
   }
+  blit() {
+    this.ctx.putImageData(this.img, 0, 0);
+  }
 
+  calcLineOffset(y) {
+    return (y * this.img.width) << 2;
+  }
+  getLineOffset(y) {
+    return this.offsetCache[y];
+  }
+
+  frameStart() {
+    this._i = 0;
+    this._d = this.img.data;
+    return;
+  }
   lineStart(y) {
     this._i = this.getLineOffset(y);
     this._d = this.img.data;
@@ -58,12 +78,8 @@ export default class PixelCanvas {
   lineSkip() {
     this._i += 4;
   }
-  calcLineOffset(y) {
-    return (y * this.img.width) << 2;
-  }
-  getLineOffset(y) {
-    return this.offsetCache[y];
-  }
+
+  // Very slow!
   setIndex(i, r, g, b) {
     const imgData = this.img.data;
     imgData[i] = r;
@@ -78,9 +94,4 @@ export default class PixelCanvas {
   setArr(x, y, a) {
     this.set(x, y, a[0], a[1], a[2]);
   }
-  blit() {
-    this.ctx.putImageData(this.img, 0, 0);
-  }
-  get width() { return this.canvas.width; }
-  get height() { return this.canvas.height; }
 }
