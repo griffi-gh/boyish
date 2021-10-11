@@ -72,14 +72,18 @@ export class Gameboy {
   resume() {
     if(this.paused) {
       this.paused = false;
+      this.apu.gbResume();
       this.step();
     }
   }
   pause() {
-    this.paused = true;
-    if(this._t) { clearTimeout(this._t) };
-    if(this._i) { clearImmediate(this._i) };
-    if(this._a) { window.cancelAnimationFrame(this._a) }
+    if(!this.paused) {
+      this.paused = true;
+      if(this._t) { clearTimeout(this._t) };
+      if(this._i) { clearImmediate(this._i) };
+      if(this._a) { window.cancelAnimationFrame(this._a) }
+      this.apu.gbPause();
+    }
   }
   setBreakpoint(addr, val = true) {
     if(!val) { val = undefined; }
