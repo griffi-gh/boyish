@@ -55,6 +55,18 @@ export class OAMObject {
     this.flipX = false;
     this.flipY = false;
     this.priority = false;
+    this._frozenData = {}
+  }
+  updateFrozenData() {
+    const f = this._frozenData;
+    f.x = this.x;
+    f.y = this.y;
+    f.tile = this.tile;
+    f.pal = this.pal;
+    f.flipX = this.flipX;
+    f.flipY = this.flipY;
+    f.priority = this.priority;
+    return f;
   }
   getOAMdata(i) {
     switch(i) {
@@ -447,7 +459,7 @@ export default class PPU {
       for(let i = 0; i < 40; i++) {
         const v = this.oamCache[i];
         if(v.isInLine(this.line)) {
-          s.push(Object.assign({},v));
+          s.push(v.updateFrozenData());
           if(s.length >= 10) break;
         }
       }
