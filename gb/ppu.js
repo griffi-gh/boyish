@@ -208,7 +208,6 @@ export default class PPU {
     const lcdstat = this._lcdstatCond || now;
     if(lcdstat && !(this._lcdstat)) {
       this.gb.cpu.irq.if |= 0x02; //raise lcdstat
-      //this._debugThisLine = true;
     }
     this._lcdstat = lcdstat;
   }
@@ -484,8 +483,10 @@ export default class PPU {
     }
   }
   step(c) {
+    //TODO sched
     this.handleSTATirq();
     if(!this.lcdon) {
+      //TODO opt
       this.cycles = 0;
       this.mode = 0;
       this.line = 0;
