@@ -230,7 +230,7 @@ export default class PPU {
   }
 
   get OAMReady() {
-    return (this.mode == MODE_HBLANK) || (this.mode == MODE_VBLANK) || (!this.lcdon) || this.gb.stubLY;
+    return (this.mode !== MODE_OAM) || (!this.lcdon) || this.gb.stubLY;
   }
   writeOAM(addr, val, force = false) {
     if(this.OAMReady || force) {
@@ -240,7 +240,7 @@ export default class PPU {
     }
   }
   readOAM(addr, force = false) {
-    if(this.OAMReady || forcce) {
+    if(this.OAMReady || force) {
       return this.oam[addr - 0xFE00];
     } else {
       return 0xFF;
