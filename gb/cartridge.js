@@ -1,24 +1,38 @@
+import './lib/localforage.min.js';
 import {toHex, isBrowser, isArray, stringToArray, arrayToString} from './common.js';
 
 const validHeader = new Uint8Array([0x00, 0xC3, 0x37, 0x06, 0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D, 0x00, 0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E, 0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99, 0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC, 0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E, 0x43, 0x50, 0x55, 0x5F, 0x49, 0x4E, 0x53, 0x54, 0x52, 0x53, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x3B, 0xF5, 0x30]);
 
 export function parseHeader(rom) {
   let h = {};
+  h.sgb = (rom[0x146] == 0x03);
+  switch(rom[0x143]) {
+    case 0x80:
+      h.cgb = 'CGB_COMPATIBLE';
+      break;
+    case 0xC0:
+      h.cgb = 'CGB_ONLY';
+      break;
+    default:
+      h.cgb = false;
+  }
   h.name = '';
-  for(let i = 0x0134; i <= 0x0143; i++) {
+  let nameLoc = 0x134;
+  let nameSize = h.cgb ? 11 : 16;
+  for(let i = nameLoc; i < (nameLoc + nameSize); i++) {
     const v = rom[i];
-    if(v) {
-      h.name += String.fromCharCode(v)
+    if(v !== 0x00) {
+      h.name += String.fromCharCode(v);
     } else {
       break;
     }
   }
+  h.name = h.name.trim();
   h.type = rom[0x147];
   // Note: Rom/Ram sizes are measured in kb
-  h._romSize = rom[0x148]
-  h.romSize  = 32 << h._romSize;
-  h._ramSize = rom[0x149];
-  switch (h._ramSize) {
+  h.romSize  = 32 << rom[0x148];
+  let ramSize = rom[0x149];
+  switch (ramSize) {
     default:
     case 0x00:
       h.ramSize = 0;
@@ -42,6 +56,19 @@ export function parseHeader(rom) {
       h.ramSize = 64;
       break;
   }
+  h.japanese = rom[0x14A] === 1;
+  h.version = rom[0x14C];
+  h.headerChecksum = rom[0x14D];
+  let sum = 0;
+  for(let i = 0x134; i <= 0x014C; i++) {
+    sum -= rom[i] + 1;
+  }
+  sum &= 0xFF;
+  h.headerChecksumReal = sum;
+  h.headerChecksumValid = (sum === h.headerChecksum);
+  h.globalChecksum = rom[0x14E] + (rom[0x14F] << 8);
+  h.licenseeOld = rom[0x14B];
+  h.licenseeNew = String.fromCharCode(rom[0x144]) + String.fromCharCode(rom[0x145]);
   return h;
 }
 
@@ -112,7 +139,7 @@ class CartridgeMBCBase extends CartridgeNone {
     }
     if(force || (this.options.battery && this.eramUnsaved)) {
       const saveSlot = this.getSaveName(slot);
-      localStorage.setItem(saveSlot, arrayToString(this.eram));
+      localforage.setItem(saveSlot, arrayToString(this.eram));
       this.eramUnsaved = false;
       console.log('Saved: ' + saveSlot);
     }
@@ -124,13 +151,28 @@ class CartridgeMBCBase extends CartridgeNone {
     }
     if(force || this.options.battery) {
       const saveSlot = this.getSaveName(slot);
-      let data = localStorage.getItem(saveSlot);
-      if(data) {
-        this.eram = stringToArray(data);
-        console.log('Loaded: ' + saveSlot);
-      } else {
-        console.warn('No save file found: ' + saveSlot);
+      let cb = (data) => {
+        if(!data) {
+          data = localStorage.getItem(saveSlot);
+          if(data) {
+            console.log('Migrating save "'+ saveSlot +'" to localforage...');
+            localforage.setItem(saveSlot, data).then(() => {
+              try {
+                localStorage.removeItem(saveSlot);
+                delete localforage[saveSlot];
+              } catch {}
+              console.log("Migration done");
+            });
+          }
+        }
+        if(data) {
+          this.eram = stringToArray(data);
+          console.log('Loaded: ' + saveSlot);
+        } else {
+          console.warn('No save file found: ' + saveSlot);
+        }
       }
+      let data = localforage.getItem(saveSlot).then(cb);
     }
   }
 }
