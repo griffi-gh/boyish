@@ -198,14 +198,17 @@ export default class PPU {
     this.palette.push(hexToRgb('#ff0000')); //used for debugging
   }
 
-  updateSTATirq() {
-    if(this.lcdon) this.lycEq = (this.lyc === this.line);
+  updateState() {
+    if(this.lcdon) {
+      this.lycEq = (this.lyc === this.line);
+    }
     this._lcdstatCond = (this.intLYC && this.lycEq) || (this.intOAM && (this.mode === MODE_OAM)) || (this.intVBlank && (this.mode === MODE_VBLANK)) || (this.intHBlank && (this.mode === MODE_HBLANK));
   }
   handleSTATirq(now) {
     const lcdstat = this._lcdstatCond || now;
     if(lcdstat && !(this._lcdstat)) {
       this.gb.cpu.irq.if |= 0x02; //raise lcdstat
+      //this._debugThisLine = true;
     }
     this._lcdstat = lcdstat;
   }
@@ -291,7 +294,7 @@ export default class PPU {
       this.intOAM = true;
       this.intVBlank = true;
       this.intHBlank = true;
-      this.updateSTATirq();
+      this.updateState();
       this.handleSTATirq();
       //console.log('stat bug');
     }*/
@@ -299,7 +302,7 @@ export default class PPU {
     this.intOAM    = (v & 0b00100000) !== 0;
     this.intVBlank = (v & 0b00010000) !== 0;
     this.intHBlank = (v & 0b00001000) !== 0;
-    //if(statbug) this.updateSTATirq();
+    //if(statbug) this.updateState();
   }
   get stat() {
     return (
@@ -415,6 +418,10 @@ export default class PPU {
     //Draw
     let cl = this.canvas.lineStart(this.line);
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
+      /*if(this._debugThisLine) {
+        cl.linePut(255,0,0);
+        continue;
+      }*/
       let color;
       if(winCondY && (!windowX)) {
         if(((i + 7) >= this.wx) || (this.wx == 166)){
@@ -460,6 +467,7 @@ export default class PPU {
       pix = this.palette[pix];
       cl.linePut(pix[0],pix[1],pix[2]);
     }
+    //this._debugThisLine = false;
   }
   scanOAM() {
     if(this.objEnable) {
@@ -483,7 +491,7 @@ export default class PPU {
       this.line = 0;
       this.wly = 0;
       this._window = false;
-      this.updateSTATirq();
+      this.updateState();
       return;
     }
     this.cycles += c;
@@ -499,7 +507,7 @@ export default class PPU {
             this.mode = MODE_OAM;
           }
           this.line++;
-          this.updateSTATirq();
+          this.updateState();
         }
         return;
       case MODE_VBLANK:
@@ -513,7 +521,7 @@ export default class PPU {
             this._window = false;
             this.gb.frame = true;
           }
-          this.updateSTATirq();
+          this.updateState();
         }
         return;
       case MODE_OAM:
@@ -521,7 +529,7 @@ export default class PPU {
           this.cycles -= 80;
           this.mode = MODE_VRAM;
           this.scanOAM();
-          this.updateSTATirq();
+          this.updateState();
         }
         return;
       case MODE_VRAM:
@@ -529,7 +537,7 @@ export default class PPU {
           this.cycles -= 172;
           this.mode = MODE_HBLANK;
           this.drawLine();
-          this.updateSTATirq();
+          this.updateState();
         }
         return;
     }
