@@ -55,7 +55,7 @@ export default class MMU {
     if(this.gb._brkSetM) this.handleBreakpoints('r', addr);
     if((!force) && this._oamTransfer) {
       if(!((addr >= 0xFF80 && addr <= 0xFFFE) || (addr == 0xFF46))) {
-        return 0;
+        return 0xFF;
       }
     }
     switch (addr) {
