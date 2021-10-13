@@ -105,6 +105,14 @@ export default class MMU {
         return ((this.disableBios | 0) & 0xFF);
       case 0xFFFF:
         return this.gb.cpu.irq.ie | 0;
+      //AUDIO:
+      case 0xFF10:
+      case 0xFF11:
+      case 0xFF12:
+      case 0xFF13:
+      case 0xFF14:
+      case 0xFF26:
+        return this.gb.apu.read(addr);
       default:
         if (addr <= 0xFF) {
           if (this.disableBios === false) {
@@ -203,6 +211,15 @@ export default class MMU {
         return;
       case 0xFFFF:
         this.gb.cpu.irq.ie = val;
+        return;
+      //AUDIO:
+      case 0xFF10:
+      case 0xFF11:
+      case 0xFF12:
+      case 0xFF13:
+      case 0xFF14:
+      case 0xFF26:
+        this.gb.apu.write(addr, val);
         return;
       default:
         if(addr <= 0x7FFF) {

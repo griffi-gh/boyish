@@ -40,7 +40,15 @@ export class Gameboy {
     this.loopMode = 'vsync';
 
     this.pause();
+
+    this._enableSound = false;
   }
+  set enableSound(v) {
+    this._enableSound = v;
+    if(!v) this.apu.gbPause();
+    if(v && (!this.paused)) this.apu.gbResume();
+  }
+  get enableSound() { return this._enableSound; }
   destroy() {
     if(this.mmu.cart.saveEram){
       this.mmu.cart.saveEram();
@@ -72,7 +80,9 @@ export class Gameboy {
   resume() {
     if(this.paused) {
       this.paused = false;
-      this.apu.gbResume();
+      if(this._enableSound) {
+        this.apu.gbResume();
+      }
       this.step();
     }
   }
@@ -133,6 +143,7 @@ export class Gameboy {
     this.timer.step(cycles);
     this.ppu.step(cycles);
     this.mmu.step(cycles);
+    this.apu.step(cycles);
   }
   step() {
     this.perf = performance.now();

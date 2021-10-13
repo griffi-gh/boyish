@@ -270,6 +270,20 @@ window.addEventListener("DOMContentLoaded", function() {
     }
   });
 
+  const snd = $id("sound");
+  //let sndWasChecked = snd.checked;
+  snd.addEventListener('change', () => {
+    //let chk = snd.checked;
+    gb.enableSound = snd.checked;
+    /*if(sndWasChecked && (!chk)) {
+      gb.enableSound = false;
+    }
+    if((!sndWasChecked) && chk) {
+      gb.enableSound = true;
+    }*/
+    //sndWasChecked = chk;
+  });
+
   //Remove deferred and noscript
   const deferred = $class("defer");
   for (let i = 0; i < deferred.length; i++) {

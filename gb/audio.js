@@ -36,7 +36,9 @@ export class Channel1 {
     this.sweepShifts = 0;
     this.sweepSign = 0;
   }
-  get frequency() { return _freq; }
+  get frequency() {
+    return this._freq;
+  }
   set frequency(v) {
     this._freq = v;
     this.oscillator.frequency.value = 131072 / (2048 - v);
@@ -66,6 +68,12 @@ export class Channel1 {
       this.clkLength = 0;
       this.clockEnvelop = 0;
       this.clkSweep = 0;
+    }
+  }
+  stop() {
+    if(this.playing) {
+      this.playing = false;
+      this.gainNode.disconnect();
     }
   }
   update(c) {
@@ -100,6 +108,7 @@ export class Channel1 {
       }
     }
   }
+
   disable() {
     if(!this._enabled) return;
     this._enabled = false;
@@ -110,8 +119,57 @@ export class Channel1 {
     this._enabled = true;
     this.oscillator.connect(this.gainNode);
   }
-  set nr13(v) {
+
+  set nr0(v) {
+    this.sweepTime = (v & 0b1110000) >> 4;
+    this.sweepSign = (v & 0b1000) ? -1 : 1;
+    this.sweepShifts = v & 0b111;
+    this.sweepCount = this.sweepShifts;
+    this.clkSweep = 0;
+  }
+  get nr0() {
+    return (
+      (this.sweepTime << 4) |
+      ((this.sweepSign === -1) << 3) |
+      this.sweepShifts
+    );
+  }
+
+  set nr1(v) {
+    this.setLength(v & 0b111111);
+    // todo Wave Pattern Duty
+  }
+  get nr1() {
+    return 0b10000000;
+  }
+
+  set nr2(v) {
+    this.envelopeSign = (v & 0b1000) ? 1 : -1;
+    this.setEnvelopeVolume((v & 0xF0) >> 4);
+    this.envelopeStep = v & 0b111;
+  }
+  get nr2() {
+    return (
+      (this.envelopeVolume << 4) |
+      (this.envelopeSign << 3) |
+      this.envelopeStep
+    )
+  }
+
+  set nr3(v) {
     this.frequency = (this.frequency & 0x700) | v;
+  }
+  get nr3() {
+    return 0xFF; // Write-only
+  }
+
+  set nr4(v) {
+    this.frequency = (this.frequency & 0xff) | ((v & 0b111) << 8);
+    this.lengthCheck = (v & 0b01000000) !== 0;
+    if(v & 0b10000000) this.play();
+  }
+  get nr4() {
+    return this.lengthCheck << 6;
   }
 }
 
@@ -130,32 +188,81 @@ export default class APU {
     this.chan1 = new Channel1(this, 1);
     this.chan2 = new Channel1(this, 2);
     this.enable = true;
+    this.gbDisable = true;
   }
   gbPause() {
     this.ctx.suspend();
+    this.gbDisable = true;
   }
   gbResume() {
     this.ctx.resume();
+    this.gbDisable = false;
   }
-  update(c) {
+  step(c) {
+    if((!this.enable) || this.gbDisable) return;
     this.chan1.update(c);
     this.chan2.update(c);
   }
   write(a,v) {
+    if(this.gbDisable) return;
     if(this.enable || (a === 0xFF26)) {
       switch(a) {
+        case 0xFF10:
+          this.chan1.nr0 = v;
+          return;
+        case 0xFF11:
+          this.chan1.nr1 = v;
+          return;
+        case 0xFF12:
+          this.chan1.nr2 = v;
+          return;
         case 0xFF13:
-          this.chan1.nr13 = v;
+          this.chan1.nr3 = v;
+          return;
+        case 0xFF14:
+          this.chan1.nr4 = v;
+          return;
+        case 0xFF16:
+          this.chan2.nr1 = v;
+          return;
+        case 0xFF17:
+          this.chan2.nr2 = v;
+          return;
+        case 0xFF18:
+          this.chan2.nr3 = v;
+          return;
+        case 0xFF19:
+          this.chan2.nr4 = v;
           return;
         case 0xFF26:
-          this.enable = (v & 0xb10000000) !== 0;
+          this.enable = true;//(v & 0xb10000000) !== 0;
+          console.log("f "+this.enable)
           return;
       }
     }
   }
   read(a,v) {
+    if(this.gbDisable) return 0;
     if(this.enable || (a === 0xFF26)) {
       switch(a) {
+        case 0xFF10:
+          return this.chan1.nr0;
+        case 0xFF11:
+          return this.chan1.nr1;
+        case 0xFF12:
+          return this.chan1.nr2;
+        case 0xFF13:
+          return this.chan1.nr3;
+        case 0xFF14:
+          return this.chan1.nr4;
+        case 0xFF16:
+          return this.chan2.nr1;
+        case 0xFF17:
+          return this.chan2.nr2;
+        case 0xFF18:
+          return this.chan2.nr3;
+        case 0xFF19:
+          return this.chan2.nr4;
         case 0xFF26:
           return (
             (this.enable << 7) |
