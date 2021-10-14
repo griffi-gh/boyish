@@ -40,7 +40,8 @@ export const MAP_AREA_9C00 = true;
 export const OBJ_SIZE_8 = false;
 export const OBJ_SIZE_16 = true;
 
-const SORT_BY_X = ((a,b) => b.x - a.x + .01);
+const SORT_BY_X = ((a,b) => b.x - a.x + .1);
+
 const NULL_CSPRITE = [null, 0];
 const CS_OBJECT = 0;
 const CS_COLOR = 1;
@@ -521,6 +522,7 @@ export default class PPU {
         return;
       case MODE_VBLANK:
         this.cycles -= VBLANK_LENGTH;
+        this.target = VBLANK_LENGTH;
         this.line++;
         if(this.line >= 155) {
           this.mode = MODE_OAM;
