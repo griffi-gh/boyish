@@ -203,6 +203,7 @@ export default class PPU {
       this.lycEq = (this.lyc === this.line);
     }
     this._lcdstatCond = (this.intLYC && this.lycEq) || (this.intOAM && (this.mode === MODE_OAM)) || (this.intVBlank && (this.mode === MODE_VBLANK)) || (this.intHBlank && (this.mode === MODE_HBLANK));
+    this.handleSTATirq();
   }
   handleSTATirq(now) {
     const lcdstat = this._lcdstatCond || now;
@@ -484,7 +485,6 @@ export default class PPU {
   }
   step(c) {
     //TODO sched
-    this.handleSTATirq();
     if(!this.lcdon) {
       //TODO opt
       this.cycles = 0;

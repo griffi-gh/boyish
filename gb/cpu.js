@@ -39,21 +39,33 @@ export default class CPU {
       `${ toHex(m.read(r.pc+2)) } ${ toHex(m.read(r.pc+3)) })`+'\n'
     )
   }
+  mmuWrite(a,v) {
+    this.gb.tickCompByCPU(4);
+    this.gb.mmu.write(a,v);
+  }
+  mmuWriteWord(a,v) {
+    v &= 0xFFFF;
+    this.mmuWrite(a, v);
+    this.mmuWrite(a + 1, v >> 8);
+  }
+  mmuRead(a) {
+    this.gb.tickCompByCPU(4);
+    return this.gb.mmu.read(a);
+  }
+  mmuReadWord(a) {
+    return (this.mmuRead(a) | (this.mmuRead(a+1) << 8));
+  }
   step() {
-    let off = 0;
     let cycles = 0;
     if(!this.gb.state) { //If state is 0
       this.log();
-      let op = this.gb.mmu.read(this.reg.pc);
+      let op = this.mmuRead(this.reg.pc);
       let OPC = OPS;
       let isCB = false;
       if(op === 0xCB) {
         isCB = true;
         OPC = CB_OPS;
-        op = this.gb.mmu.read(++this.reg.pc);
-        this.gb.tickCompByCPU(4);
-        cycles -= 4;
-        off += 4;
+        op = this.mmuRead(++this.reg.pc);
       }
       let fn = OPC[op];
       if(fn !== undefined) {
@@ -66,10 +78,10 @@ export default class CPU {
         return;
       }
     } else {
+      this.gb.tickCompByCPU(4);
       cycles += 4;
     }
-    cycles += this.irq.tick();
-    this.gb.tickCompByCPU(cycles);
-    return (cycles + off);
+    cycles += this.gb.tickCompByCPU(this.irq.tick());
+    return cycles;
   }
 }

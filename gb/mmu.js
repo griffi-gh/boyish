@@ -248,7 +248,7 @@ export default class MMU {
   }
   writeWord(addr, val, force) {
     val &= 0xFFFF;
-    this.write(addr, val & 0xFF, force);
+    this.write(addr, val, force);
     this.write(addr + 1, val >> 8, force);
   }
   step(c) {

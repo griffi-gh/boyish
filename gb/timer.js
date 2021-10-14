@@ -33,12 +33,16 @@ export default class Timer {
     this.rate = (v & 0b011);
   }
   step(cycles) {
-    const m = (cycles >> 2);
-    for(let i = 0; i < m; i++) {
+    if(cycles === 4) {
       this.tick(4);
+    } else {
+      const m = (cycles >> 2);
+      for(let i = 0; i < m; i++) {
+        this.tick(4);
+      }
     }
   }
-  tick(cycles = 4) {
+  tick(cycles) {
     if(this.gb.state === this.gb.STATE_STOP) {
       this.clk.div = 0;
     } else {
