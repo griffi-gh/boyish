@@ -45,6 +45,11 @@ const NULL_CSPRITE = [null, 0];
 const CS_OBJECT = 0;
 const CS_COLOR = 1;
 
+const HBLANK_LENGTH = 204;
+const VBLANK_LENGTH = 456;
+const OAM_LENGTH = 80;
+const VRAM_LENGTH = 172;
+
 export class OAMObject {
   constructor(ppu) {
     this.ppu = ppu;
@@ -141,6 +146,7 @@ export default class PPU {
     this.cycles = 0;
     this.line = 0;
     this.mode = 2;
+    this.target = 0;
 
     // SPRITES
     this.oamCache = [];
@@ -496,16 +502,20 @@ export default class PPU {
       return;
     }
     this.cycles += c;
+    if(this.cycles < this.target) return;
     switch(this.mode){
       case MODE_HBLANK:
-        if(this.cycles >= 204) {
-          this.cycles -= 204;
+        if(this.cycles >= HBLANK_LENGTH) {
+          this.cycles -= HBLANK_LENGTH;
           if(this.line >= 143) {
             this.mode = MODE_VBLANK;
+            this.target = VBLANK_LENGTH;
             this.canvas.blit();
             this.gb.cpu.irq.if |= 0x01;
           } else {
             this.mode = MODE_OAM;
+            this.target = OAM_LENGTH;
+            this.target = 80;
           }
           this.line++;
           this.updateState();
@@ -517,6 +527,7 @@ export default class PPU {
           this.line++;
           if(this.line >= 155) {
             this.mode = MODE_OAM;
+            this.target = OAM_LENGTH;
             this.line = 0;
             this.wly = 0;
             this._window = false;
@@ -529,6 +540,7 @@ export default class PPU {
         if(this.cycles >= 80) {
           this.cycles -= 80;
           this.mode = MODE_VRAM;
+          this.target = VRAM_LENGTH;
           this.scanOAM();
           this.updateState();
         }
@@ -537,6 +549,7 @@ export default class PPU {
         if(this.cycles >= 172) {
           this.cycles -= 172;
           this.mode = MODE_HBLANK;
+          this.target = HBLANK_LENGTH;
           this.drawLine();
           this.updateState();
         }
