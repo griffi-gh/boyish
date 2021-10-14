@@ -145,8 +145,8 @@ export default class PPU {
     //ppu state machine counters
     this.cycles = 0;
     this.line = 0;
-    this.mode = 2;
-    this.target = 0;
+    this.mode = MODE_OAM;
+    this.target = OAM_LENGTH;
 
     // SPRITES
     this.oamCache = [];
@@ -505,54 +505,46 @@ export default class PPU {
     if(this.cycles < this.target) return;
     switch(this.mode){
       case MODE_HBLANK:
-        if(this.cycles >= HBLANK_LENGTH) {
-          this.cycles -= HBLANK_LENGTH;
-          if(this.line >= 143) {
-            this.mode = MODE_VBLANK;
-            this.target = VBLANK_LENGTH;
-            this.canvas.blit();
-            this.gb.cpu.irq.if |= 0x01;
-          } else {
-            this.mode = MODE_OAM;
-            this.target = OAM_LENGTH;
-            this.target = 80;
-          }
-          this.line++;
-          this.updateState();
+        this.cycles -= HBLANK_LENGTH;
+        if(this.line >= 143) {
+          this.mode = MODE_VBLANK;
+          this.target = VBLANK_LENGTH;
+          this.canvas.blit();
+          this.gb.cpu.irq.if |= 0x01;
+        } else {
+          this.mode = MODE_OAM;
+          this.target = OAM_LENGTH;
+          this.target = 80;
         }
+        this.line++;
+        this.updateState();
         return;
       case MODE_VBLANK:
-        if(this.cycles >= 456) {
-          this.cycles -= 456;
-          this.line++;
-          if(this.line >= 155) {
-            this.mode = MODE_OAM;
-            this.target = OAM_LENGTH;
-            this.line = 0;
-            this.wly = 0;
-            this._window = false;
-            this.gb.frame = true;
-          }
-          this.updateState();
+        this.cycles -= VBLANK_LENGTH;
+        this.line++;
+        if(this.line >= 155) {
+          this.mode = MODE_OAM;
+          this.target = OAM_LENGTH;
+          this.line = 0;
+          this.wly = 0;
+          this._window = false;
+          this.gb.frame = true;
         }
+        this.updateState();
         return;
       case MODE_OAM:
-        if(this.cycles >= 80) {
-          this.cycles -= 80;
-          this.mode = MODE_VRAM;
-          this.target = VRAM_LENGTH;
-          this.scanOAM();
-          this.updateState();
-        }
+        this.cycles -= OAM_LENGTH;
+        this.mode = MODE_VRAM;
+        this.target = VRAM_LENGTH;
+        this.scanOAM();
+        this.updateState();
         return;
       case MODE_VRAM:
-        if(this.cycles >= 172) {
-          this.cycles -= 172;
-          this.mode = MODE_HBLANK;
-          this.target = HBLANK_LENGTH;
-          this.drawLine();
-          this.updateState();
-        }
+        this.cycles -= VRAM_LENGTH;
+        this.mode = MODE_HBLANK;
+        this.target = HBLANK_LENGTH;
+        this.drawLine();
+        this.updateState();
         return;
     }
   }
