@@ -186,29 +186,45 @@ export default class APU {
     }
     this.chan1 = new Channel1(this, 1);
     this.chan2 = new Channel1(this, 2);
-    this.enable = true;
-    this.gbPause();
+    this.enabled = true;
+    this.gbDisable = true;
   }
   gbPause() {
-    this.ctx.suspend();
     this.gbDisable = true;
+    this.disable();
+  }
+  gbResume() {
+    this.gbDisable = false;
+    this.enable();
+  }
+
+  disable() {
+    this.ctx.suspend();
     this.chan1.disable();
     this.chan2.disable();
   }
-  gbResume() {
+  enable() {
     this.ctx.resume();
-    this.gbDisable = false;
     this.chan1.enable();
     this.chan2.enable();
   }
+
+  set enabled(v) {
+    this._enabled = !!v;
+    v ? this.enable() : this.disable();
+  }
+  get enabled() {
+    return this._enabled;
+  }
+
   step(c) {
-    if((!this.enable) || this.gbDisable) return;
+    if((!this.enabled) || this.gbDisable) return;
     this.chan1.update(c);
     this.chan2.update(c);
   }
   write(a,v) {
     if(this.gbDisable) return;
-    if(this.enable || (a === 0xFF26)) {
+    if(this.enabled || (a === 0xFF26)) {
       switch(a) {
         case 0xFF10:
           this.chan1.nr0 = v;
@@ -238,15 +254,14 @@ export default class APU {
           this.chan2.nr4 = v;
           return;
         case 0xFF26:
-          this.enable = true;//(v & 0xb10000000) !== 0;
-          console.log("f "+this.enable)
+          this.enabled = (v & 0b10000000) !== 0;
           return;
       }
     }
   }
   read(a,v) {
     if(this.gbDisable) return 0;
-    if(this.enable || (a === 0xFF26)) {
+    if(this.enabled || (a === 0xFF26)) {
       switch(a) {
         case 0xFF10:
           return this.chan1.nr0;
@@ -267,8 +282,9 @@ export default class APU {
         case 0xFF19:
           return this.chan2.nr4;
         case 0xFF26:
+          if(!this.enabled) return 0;
           return (
-            (this.enable << 7) |
+            (this.enabled << 7) |
             // (this.chan4.playing << 2) | // NYI
             // (this.chan3.playing << 2) | // NYI
             (this.chan2.playing << 1) |
