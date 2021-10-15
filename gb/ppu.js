@@ -40,7 +40,7 @@ export const MAP_AREA_9C00 = true;
 export const OBJ_SIZE_8 = false;
 export const OBJ_SIZE_16 = true;
 
-const SORT_BY_X = ((a,b) => b.x - a.x + .1);
+const SORT_BY_X = ((a,b) => (b.x - a.x) || (b.index - a.index));
 
 const NULL_CSPRITE = [null, 0];
 const CS_OBJECT = 0;
@@ -52,7 +52,7 @@ const OAM_LENGTH = 80;
 const VRAM_LENGTH = 172;
 
 export class OAMObject {
-  constructor(ppu) {
+  constructor(ppu, index = 0) {
     this.ppu = ppu;
     this.x = -8;
     this.y = -16;
@@ -62,6 +62,7 @@ export class OAMObject {
     this.flipY = false;
     this.priority = false;
     this._frozenData = {}
+    this.index = index;
   }
   updateFrozenData() {
     const f = this._frozenData;
@@ -72,6 +73,7 @@ export class OAMObject {
     f.flipX = this.flipX;
     f.flipY = this.flipY;
     f.priority = this.priority;
+    f.index = this.index;
     return f;
   }
   getOAMdata(i) {
@@ -152,7 +154,7 @@ export default class PPU {
     // SPRITES
     this.oamCache = [];
     for(let i = 0; i < 40; i++) {
-      this.oamCache.push(new OAMObject(this));
+      this.oamCache.push(new OAMObject(this, i));
     }
     this.lineSprites = [];
     this.objpal = [
