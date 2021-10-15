@@ -1,5 +1,5 @@
 import PixelCanvas from './pxcanvas.js';
-import { toHex, hexToRgb, isArray } from './common.js';
+import {toHex, hexToRgb, isArray} from './common.js';
 
 //from light to dark
 export const DEFAULT_PALETTE = 'BGB';
@@ -496,6 +496,7 @@ export default class PPU {
       //TODO opt
       this.cycles = 0;
       this.mode = 0;
+      this.target = HBLANK_LENGTH;
       this.line = 0;
       this.wly = 0;
       this._window = false;
@@ -515,7 +516,6 @@ export default class PPU {
         } else {
           this.mode = MODE_OAM;
           this.target = OAM_LENGTH;
-          this.target = 80;
         }
         this.line++;
         this.updateState();
