@@ -52,6 +52,7 @@ function newGameboy() {
     'RIGHT': 'T-R',
     'NONE': 'T-C'
   });
+  newGb.enableSound = $id("sound").checked;
   if($id("skipBR").checked) { newGb.skipBoot(); }
   if(gb) {
     if(gb.input.enabled) {
@@ -271,17 +272,8 @@ window.addEventListener("DOMContentLoaded", function() {
   });
 
   const snd = $id("sound");
-  //let sndWasChecked = snd.checked;
   snd.addEventListener('change', () => {
-    //let chk = snd.checked;
     gb.enableSound = snd.checked;
-    /*if(sndWasChecked && (!chk)) {
-      gb.enableSound = false;
-    }
-    if((!sndWasChecked) && chk) {
-      gb.enableSound = true;
-    }*/
-    //sndWasChecked = chk;
   });
 
   //Remove deferred and noscript

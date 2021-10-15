@@ -54,12 +54,14 @@ export class Gameboy {
       this.mmu.cart.saveEram();
     }
     this.pause();
-    setImmediate(() => {
-      this.input.disable();
-      let c = this.ppu.canvas;
-      c.clear(255,255,255);
-      c.blit();
-    });
+    this.input.disable();
+    this.apu.gbPause();
+    this.apu.disable();
+    let c = this.ppu.canvas;
+    c.clear(255,255,255);
+    c.blit();
+    for(let i in this) delete this[i];
+    Object.freeze(this);
   }
   log(str) {
     if(!this.disableLog) {
