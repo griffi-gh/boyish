@@ -145,7 +145,11 @@ window.addEventListener("DOMContentLoaded", function() {
     }
     //_input = gb.input.enabled;
     $id("input-popup").classList.toggle("hide", gb.input.enabled);
-    document.title = title + ' (' + Math.round(fixnum(1000 / fixnum(gb.perf, 0))) + '/' + Math.round(fixnum(1000 / fixnum(gb.perf2, 0))) + ' fps)';
+    if(gb.paused){
+      document.title = title;
+    } else {
+      document.title = title + ' (' + Math.round(fixnum(1000 / fixnum(gb.perf, 0))) + '/' + Math.round(fixnum(1000 / fixnum(gb.perf2, 0))) + ' fps)';
+    }
   }
   setInterval(loop, 1000);
   loop();
