@@ -185,6 +185,8 @@ export default class PPU {
     this.objEnable = false;
     this.bgWinEnable = false;
 
+    this._lcdon = false;
+
     this.lyc = 0;
     this.lcdstat = false;
 
@@ -333,6 +335,7 @@ export default class PPU {
     this.objSize      = (v & 0b00000100) !== 0;
     this.objEnable    = (v & 0b00000010) !== 0;
     this.bgWinEnable  = (v & 0b00000001) !== 0;
+    if(!this.lcdon) { this._lcdon = false; }
   }
   get lcdc() {
     return (
@@ -397,7 +400,6 @@ export default class PPU {
     let doSprites = this.objEnable && (this.lineSprites.length > 0);
     let csprites = this._csprites;
     if(doSprites) {
-      //csprites = this._csprites.fill(NULL_CSPRITE);
       this._csprites.length = 0;
       for(const obj of this.lineSprites) {
         let tiley = this.line - obj.y;
@@ -427,10 +429,6 @@ export default class PPU {
     //Draw
     let cl = this.canvas.lineStart(this.line);
     for(let i=0; i < SCREEN_SIZE[0]; i++) {
-      /*if(this._debugThisLine) {
-        cl.linePut(255,0,0);
-        continue;
-      }*/
       let color;
       if(winCondY && (!windowX)) {
         if(((i + 7) >= this.wx) || (this.wx == 166)){
@@ -476,7 +474,6 @@ export default class PPU {
       pix = this.palette[pix];
       cl.linePut(pix[0],pix[1],pix[2]);
     }
-    //this._debugThisLine = false;
   }
   scanOAM() {
     if(this.objEnable) {
@@ -493,16 +490,20 @@ export default class PPU {
     }
   }
   step(c) {
-    //TODO sched
     if(!this.lcdon) {
-      //TODO opt
-      this.cycles = 0;
-      this.mode = 0;
-      this.target = HBLANK_LENGTH;
-      this.line = 0;
-      this.wly = 0;
-      this._window = false;
-      this.updateState();
+      if(!this._lcdon) {
+        this.cycles = 0;
+        this.mode = 0;
+        this.target = HBLANK_LENGTH;
+        this.line = 0;
+        this.wly = 0;
+        this._window = false;
+        this.updateState();
+        this.canvas.clear(...this.palette[0]);
+        this.canvas.blit();
+        this.gb.frame = true;
+      }
+      this._lcdon = true;
       return;
     }
     this.cycles += c;
