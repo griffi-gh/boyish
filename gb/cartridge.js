@@ -56,7 +56,7 @@ export function parseHeader(rom) {
       h.ramSize = 64;
       break;
   }
-  h.japanese = rom[0x14A] !== 1;
+  h.japanese = rom[0x14A] == 1;
   h.version = rom[0x14C];
   h.headerChecksum = rom[0x14D];
   let sum = 0;

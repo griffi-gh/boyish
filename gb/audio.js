@@ -41,7 +41,7 @@ export class Channel1 {
   }
   set frequency(v) {
     this._freq = v;
-    this.oscillator.frequency.value = 131072 / (2048 - v);
+    this.oscillator.frequency.value = Math.min(Math.max(131072 / (2048 - v),-24000),24000);
   }
   setLength(v) {
     this.soundLength = 64 - (v & 0x3F);

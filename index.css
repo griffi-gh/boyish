@@ -10,6 +10,10 @@ main {
 	margin-bottom: 1rem;
 }
 
+.hide {
+	display: none;
+}
+
 .color-darken {
 	--color: rgba(0,0,0,.5);
 	color: rgba(0,0,0,.5);
