@@ -186,7 +186,7 @@ export class Gameboy {
           }
           // fall through if isn't focused
         case 'real':
-          this._t = setTimeout(this._step, 16 - diff);
+          this._t = setTimeout(this._step, 16.66 - diff);
           break;
         case 'fast':
           this._i = setImmediate(this._step);
@@ -196,5 +196,6 @@ export class Gameboy {
     let tim = performance.now();
     this.perf = tim - this._ptime;
     this._ptime = tim;
+    this.perf2 = diff;
   }
 }

@@ -66,6 +66,9 @@ function newGameboy() {
   loop();
 }
 
+function fixnum(a, b = 0) {
+  return (a && isFinite(a))? a : b;
+}
 window.addEventListener("DOMContentLoaded", function() {
   let title = document.title;
 
@@ -142,7 +145,7 @@ window.addEventListener("DOMContentLoaded", function() {
     }
     //_input = gb.input.enabled;
     $id("input-popup").classList.toggle("hide", gb.input.enabled);
-    document.title = title + ' (' + Math.round(1000 / (gb.perf | 0)) + ' fps)';
+    document.title = title + ' (' + Math.round(fixnum(1000 / fixnum(gb.perf, 0))) + '/' + Math.round(fixnum(1000 / fixnum(gb.perf2, 0))) + ' fps)';
   }
   setInterval(loop, 1000);
   loop();
