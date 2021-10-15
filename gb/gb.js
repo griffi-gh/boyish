@@ -140,7 +140,6 @@ export class Gameboy {
     }
   }
   tickCompByCPU(cycles) {
-    this.cpu.fuck += cycles;
     this.timer.step(cycles);
     this.ppu.step(cycles);
     this.mmu.step(cycles);
