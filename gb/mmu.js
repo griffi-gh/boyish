@@ -111,6 +111,10 @@ export default class MMU {
       case 0xFF12:
       case 0xFF13:
       case 0xFF14:
+      case 0xFF16:
+      case 0xFF17:
+      case 0xFF18:
+      case 0xFF19:
       case 0xFF26:
         return this.gb.apu.read(addr);
       default:
@@ -218,6 +222,10 @@ export default class MMU {
       case 0xFF12:
       case 0xFF13:
       case 0xFF14:
+      case 0xFF16:
+      case 0xFF17:
+      case 0xFF18:
+      case 0xFF19:
       case 0xFF26:
         this.gb.apu.write(addr, val);
         return;

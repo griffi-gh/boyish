@@ -184,19 +184,22 @@ export default class APU {
       throw new Error("AudioCtxFailure");
       return;
     }
-    this.gbPause();
     this.chan1 = new Channel1(this, 1);
     this.chan2 = new Channel1(this, 2);
     this.enable = true;
-    this.gbDisable = true;
+    this.gbPause();
   }
   gbPause() {
     this.ctx.suspend();
     this.gbDisable = true;
+    this.chan1.disable();
+    this.chan2.disable();
   }
   gbResume() {
     this.ctx.resume();
     this.gbDisable = false;
+    this.chan1.enable();
+    this.chan2.enable();
   }
   step(c) {
     if((!this.enable) || this.gbDisable) return;
