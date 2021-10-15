@@ -1,6 +1,5 @@
 import './lib/setImmediate.js';
-
-import { toHex, downloadString } from './common.js';
+import {toHex, downloadString, isBrowser} from './common.js';
 
 import CPU from './cpu.js';
 import MMU from './mmu.js';
@@ -12,6 +11,17 @@ import Timer from './timer.js';
 const CYCLES_PER_FRAME = 70224;
 
 const PARTS = ['timer','input','mmu','cpu','ppu','apu'];
+
+let focused = true;
+if(window) {
+  window.onfocus = function() {
+    focused = true;
+  };
+  window.onblur = function() {
+    focused = false;
+  };
+}
+
 export class Gameboy {
   constructor(id) {
     this.mmu = new MMU(this);
@@ -149,7 +159,7 @@ export class Gameboy {
     return cycles;
   }
   step() {
-    this.perf = performance.now();
+    let st = performance.now();
     const cpu = this.cpu;
     try {
       while(!this.frame || this.cycleCounter < CYCLES_PER_FRAME) {
@@ -165,20 +175,26 @@ export class Gameboy {
       return;
     }
     this.frame = false;
-    this.perf = performance.now() - this.perf;
+    let diff = performance.now() - st;
     if(!this.paused) {
       switch(this.loopMode) {
+        default:
         case 'vsync':
-          this._a = window.requestAnimationFrame(this._step);
-          return;
+          if(focused) {
+            this._a = window.requestAnimationFrame(this._step);
+            break;
+          }
+          // fall through if isn't focused
+        case 'real':
+          this._t = setTimeout(this._step, 16 - diff);
+          break;
         case 'fast':
           this._i = setImmediate(this._step);
-          return;
-        default: // fall through
-        case 'real':
-          this._t = setTimeout(this._step, 16.6 - this.perf);
-          return;
+          break;
       }
     }
+    let tim = performance.now();
+    this.perf = tim - this._ptime;
+    this._ptime = tim;
   }
 }

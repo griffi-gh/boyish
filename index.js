@@ -67,6 +67,8 @@ function newGameboy() {
 }
 
 window.addEventListener("DOMContentLoaded", function() {
+  let title = document.title;
+
   newGameboy();
 
   let btn_pause = button("btn-pause", (btn) => {
@@ -140,6 +142,7 @@ window.addEventListener("DOMContentLoaded", function() {
     }
     //_input = gb.input.enabled;
     $id("input-popup").classList.toggle("hide", gb.input.enabled);
+    document.title = title + ' (' + Math.round(1000 / (gb.perf | 0)) + ' fps)';
   }
   setInterval(loop, 1000);
   loop();
