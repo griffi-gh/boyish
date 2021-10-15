@@ -9,6 +9,7 @@ Work-In-Progress Gameboy Emulator written in JavaScript
 * MBC1 and MBC3 Memory Bank Controller support  
 * Runs Pokemon Gen1/2 games  
 * Automatic Game saves  
-* Modular-*ish* structure  
+* Modular-*ish* structure 
+* Basic audio emulation 
 
 <sub>**owo**</sub>
