@@ -1,11 +1,15 @@
 # **boy***ish*    
 Work-In-Progress Gameboy Emulator written in JavaScript  
   
-## Features  
-* Semi-accurate PPU emulation  
+## Features    
+* Passes blarggs memory-timing tests  
+* Passes cpu_instrs and instr_timing tests  
+* Passes dmg-acid2  
+* Semi-accurate-*ish* PPU emulation  
 * MBC1 and MBC3 Memory Bank Controller support  
-* *Runs Pokemon Gen1/2 games*  
+* Runs Pokemon Gen1/2 games  
 * Automatic Game saves  
-* Modular structure  
+* Modular-*ish* structure 
+* Basic audio emulation 
 
 <sub>**owo**</sub>
