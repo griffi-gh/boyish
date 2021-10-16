@@ -52,6 +52,9 @@ export class Gameboy {
     this.pause();
 
     this._enableSound = false;
+
+    this.perf = 16.6;
+    this.peerf2 = 16.6;
   }
   set enableSound(v) {
     this._enableSound = v;

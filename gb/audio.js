@@ -3,6 +3,7 @@ import {createAudioContext} from './common.js';
 const SOUND_LENGTH_UNIT = 0x4000;
 const SWEEP_STEP_LENGTH = 0x8000;
 const ENVELOPE_STEP_LENGTH = 0x8000;
+const FREQ_CLAMP = 22000;
 
 export class Channel1 {
   constructor(apu, chan) {
@@ -41,7 +42,7 @@ export class Channel1 {
   }
   set frequency(v) {
     this._freq = v;
-    this.oscillator.frequency.value = Math.min(Math.max(131072 / (2048 - v),-24000),24000);
+    this.oscillator.frequency.value = Math.min(Math.max(131072 / (2048 - v),-FREQ_CLAMP),FREQ_CLAMP);
   }
   setLength(v) {
     this.soundLength = 64 - (v & 0x3F);
@@ -177,7 +178,10 @@ export default class APU {
   constructor(gb) {
     this.gb = gb;
     try {
-      this.ctx = createAudioContext();
+      this.ctx = createAudioContext({
+        latencyHint: 'interactive',
+        sampleRate: 44100,
+      });
     } catch(e) {
       console.error("Failed to create AudioContext\nDetails:");
       console.dir(e);

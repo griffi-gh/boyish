@@ -75,7 +75,7 @@ export function getKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value);
 }
 
-export function createAudioContext() {
+export function createAudioContext(options) {
   if(!isBrowser()) {
     throw new Error("Invalid environment");
   }
@@ -83,9 +83,10 @@ export function createAudioContext() {
   if(AudioContext) {
     let ctx;
     try {
-      ctx = new AudioContext();
+      ctx = new AudioContext(options);
     } catch(e) {
-      throw new Error("Failed to create AudioContext");
+      throw e;
+      //throw new Error("Failed to create AudioContext");
       return;
     }
     if(!ctx) {
