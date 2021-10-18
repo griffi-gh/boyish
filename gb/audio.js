@@ -56,7 +56,6 @@ export class Channel1 {
   }
   calcSweepFreq() {
     let freq = this.frequency;
-    if(this.chan === 2) return freq;
     freq += this.sweepSign * (freq >> this.sweepShifts);
     if(freq > 0x7FF) {
       this.stop();
@@ -67,7 +66,7 @@ export class Channel1 {
   setEnvelopeVolume(vol) {
     this.envelopeCheck = (vol > 0) && (vol < 16);
     this.envelopeVolume = vol;
-    this.gain.gain.value = vol * .01;
+    this.gain.gain.setValueAtTime(vol * .01);
   }
   play() {
     if(!this.playing) {
@@ -85,7 +84,7 @@ export class Channel1 {
     }
   }
   update(c) {
-    if(this.chan === 1) {
+    if(this.chan !== 2) {
       this.clkSweep += c;
       if((this.sweepCount || this.sweepTime) && (this.clockSweep > (SWEEP_STEP_LENGTH * this.sweepTime))) {
         this.clkSweep -= SWEEP_STEP_LENGTH * this.sweepTime;
@@ -104,7 +103,7 @@ export class Channel1 {
         this.envelopeCheck = false;
       }
     }
-    if (this.lengthCheck) {
+    if(this.lengthCheck) {
       this.clkLength += c;
       if (this.clockLength > SOUND_LENGTH_UNIT) {
         this.soundLength--;
