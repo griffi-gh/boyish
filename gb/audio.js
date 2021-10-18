@@ -85,7 +85,7 @@ export class Channel1 {
   update(c) {
     if(this.chan !== 2) {
       this.clkSweep += c;
-      if((this.sweepCount || this.sweepTime) && (this.clkSweep > (SWEEP_STEP_LENGTH * this.sweepTime))) {
+      if((this.sweepCount || this.sweepTime) && (this.clkSweep >= (SWEEP_STEP_LENGTH * this.sweepTime))) {
         this.clkSweep -= SWEEP_STEP_LENGTH * this.sweepTime;
         this.sweepCount--;
         let freq = this.calcSweepFreq();
@@ -98,13 +98,13 @@ export class Channel1 {
       this.clkEnvelope -= this.envelopeStepLength;
       this.envelopeStep--;
       this.setEnvelopeVolume(this.envelopeVolume + this.envelopeSign);
-      if (this.envelopeStep <= 0) {
+      if(this.envelopeStep <= 0) {
         this.envelopeCheck = false;
       }
     }
     if(this.lengthCheck) {
       this.clkLength += c;
-      if(this.clkLength > SOUND_LENGTH_UNIT) {
+      if(this.clkLength >= SOUND_LENGTH_UNIT) {
         this.soundLength--;
         this.clkLength -= SOUND_LENGTH_UNIT;
         if(this.soundLength <= 0) {
