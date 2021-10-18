@@ -46,7 +46,6 @@ export class Channel1 {
   set waveDuty(v) {
     this._waveDuty = v;
     this.pulse.width.setValueAtTime(WAVE_WIDTHS[v]);
-    //console.log(v.toString(2))
   }
   get waveDuty() {
     return this._waveDuty;
@@ -148,7 +147,7 @@ export class Channel1 {
     // WIP Wave Pattern Duty
   }
   get nr1() {
-    return 0b10000000;
+    return this.waveDuty << 6;
   }
 
   set nr2(v) {
