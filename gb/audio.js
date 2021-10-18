@@ -73,7 +73,7 @@ export class Channel1 {
       this.playing = true;
       this.pulse.connect(this.gain);
       this.clkLength = 0;
-      this.clockEnvelop = 0;
+      this.clkEnvelop = 0;
       this.clkSweep = 0;
     }
   }
@@ -86,16 +86,16 @@ export class Channel1 {
   update(c) {
     if(this.chan !== 2) {
       this.clkSweep += c;
-      if((this.sweepCount || this.sweepTime) && (this.clockSweep > (SWEEP_STEP_LENGTH * this.sweepTime))) {
+      if((this.sweepCount || this.sweepTime) && (this.clkSweep > (SWEEP_STEP_LENGTH * this.sweepTime))) {
         this.clkSweep -= SWEEP_STEP_LENGTH * this.sweepTime;
         this.sweepCount--;
-        let freq = this.calcFreqSweep();
+        let freq = this.calcSweepFreq();
         this.frequency = freq;
-        this.calcFreqSweep();
+        this.calcSweepFreq();
       }
     }
     this.clkEnvelope += c;
-    if(this.envelopeCheck && (this.clockEnvelop > ENVELOPE_STEP_LENGTH)) {
+    if(this.envelopeCheck && (this.clkEnvelop > ENVELOPE_STEP_LENGTH)) {
       this.clkEnvelope -= this.envelopeStepLength;
       this.envelopeStep--;
       this.setEnvelopeVolume(this.envelopeVolume + this.envelopeSign);
@@ -105,7 +105,7 @@ export class Channel1 {
     }
     if(this.lengthCheck) {
       this.clkLength += c;
-      if (this.clockLength > SOUND_LENGTH_UNIT) {
+      if(this.clkLength > SOUND_LENGTH_UNIT) {
         this.soundLength--;
         this.clkLength -= SOUND_LENGTH_UNIT;
         if(this.soundLength <= 0) {
