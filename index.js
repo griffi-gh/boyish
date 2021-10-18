@@ -122,14 +122,20 @@ window.addEventListener("DOMContentLoaded", function() {
     gb.downloadLog();
   });
 
+  let fastLoop = function() {
+    if(gb.paused){
+      document.title = title;
+    } else {
+      document.title = title + ' (' + Math.round(fixnum(1000 / fixnum(gb.perf, 0))) + '/' + Math.round(fixnum(1000 / fixnum(gb.perf2, 0))) + ' fps)';
+    }
+  }
+  setInterval(fastLoop, 100);
+  fastLoop();
   loop = function() {
     $id("gb-canvas-wrapper").classList.toggle("scaled", $id("scale2x").checked);
-    //gb.vsync = $id("vsync").checked;
     gb.loopMode = $('input[name="flimit"]:checked').value;
     cb_log.checked = !gb.disableLog;
-    //btn_log.innerHTML = gb.disableLog ? 'Enable logging' : 'Disable logging';
     btn_pause.innerHTML = gb.paused ? 'Play' : 'Pause';
-    
     const emp = (gb.logData.length === 0);
     if(!gb.disableLog) {
       const log = gb.logData;
@@ -138,18 +144,11 @@ window.addEventListener("DOMContentLoaded", function() {
     }
     $id('log-info').style.display = (gb.disableLog || emp) ? 'none' : 'unset';
     $id('log-empty').style.display = (emp & (!gb.disableLog)) ? 'unset' : 'none';
-
     $id('log-disabled').style.display = gb.disableLog ? 'unset' : 'none';
     if($id('cdebug-toggle').checked) {
       gb.ppu.debugTileset("cdebug");
     }
-    //_input = gb.input.enabled;
     $id("input-popup").classList.toggle("hide", gb.input.enabled);
-    if(gb.paused){
-      document.title = title;
-    } else {
-      document.title = title + ' (' + Math.round(fixnum(1000 / fixnum(gb.perf, 0))) + '/' + Math.round(fixnum(1000 / fixnum(gb.perf2, 0))) + ' fps)';
-    }
   }
   setInterval(loop, 1000);
   loop();
