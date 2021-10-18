@@ -5,7 +5,7 @@ const SOUND_LENGTH_UNIT = 0x4000;
 const SWEEP_STEP_LENGTH = 0x8000;
 const ENVELOPE_STEP_LENGTH = 0x8000;
 const FREQ_CLAMP = 22000;
-const WAVE_WIDTHS = [0.75, 0.5, 0, -0.5];
+const WAVE_WIDTHS = new Float64Array([0.75, 0.5, 0, -0.5]);
 
 export class Channel1 {
   constructor(apu, chan) {
@@ -101,8 +101,8 @@ export class Channel1 {
         this.envelopeCheck = false;
       }
     }
+    this.clkLength += c;
     if(this.lengthCheck) {
-      this.clkLength += c;
       if(this.clkLength >= SOUND_LENGTH_UNIT) {
         this.soundLength--;
         this.clkLength -= SOUND_LENGTH_UNIT;
@@ -141,7 +141,7 @@ export class Channel1 {
   }
 
   set nr1(v) {
-    this.setLength(v & 0b111111);
+    this.setLength(v);
     this.waveDuty = (v & 0xC0) >> 6;
     // WIP Wave Pattern Duty
   }
@@ -171,7 +171,7 @@ export class Channel1 {
 
   set nr4(v) {
     this.frequency = (this.frequency & 0xff) | ((v & 0b111) << 8);
-    this.lengthCheck = (v & 0b01000000) !== 0;
+    this.lengthCheck = (v & 0x40) !== 0;
     if(v & 0b10000000) this.play();
   }
   get nr4() {
