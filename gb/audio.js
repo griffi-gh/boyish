@@ -5,15 +5,14 @@ const SOUND_LENGTH_UNIT = 0x4000;
 const SWEEP_STEP_LENGTH = 0x8000;
 const ENVELOPE_STEP_LENGTH = 0x8000;
 const FREQ_CLAMP = 22000;
-
-const WAVE_WIDTHS = [-0.69, -0.5, 0, 0.5];
+const WAVE_WIDTHS = [0.75, 0.5, 0, -0.5];
 
 export class Channel1 {
   constructor(apu, chan) {
     this.apu = apu;
     this.ctx = apu.ctx;
     this.chan = chan;
-    //
+    // Tone.js objects
     this.gain = new Tone.Gain().toDestination();
     this.pulse = new Tone.PulseOscillator(0,0).connect(this.gain);
     //
