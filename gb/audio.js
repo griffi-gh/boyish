@@ -1,9 +1,12 @@
 import {createAudioContext} from './common.js';
+import './lib/Tone.js';
 
 const SOUND_LENGTH_UNIT = 0x4000;
 const SWEEP_STEP_LENGTH = 0x8000;
 const ENVELOPE_STEP_LENGTH = 0x8000;
 const FREQ_CLAMP = 22000;
+
+const WAVE_WIDTHS = [-0.69, -0.5, 0, 0.5];
 
 export class Channel1 {
   constructor(apu, chan) {
@@ -11,16 +14,12 @@ export class Channel1 {
     this.ctx = apu.ctx;
     this.chan = chan;
     //
-    this.gainNode = this.ctx.createGain();
-    this.gainNode.gain.value = 0;
-    this.oscillator = this.ctx.createOscillator();
-    this.oscillator.type = 'square';
-    this.oscillator.frequency.value = 1000;
-    this.oscillator.connect(this.gainNode);
-    this.oscillator.start(0);
+    this.gain = new Tone.Gain().toDestination();
+    this.pulse = new Tone.PulseOscillator(0,0).connect(this.gain);
     //
     this._enabled = false;
     this._freq = 0;
+    this._waveDuty = 0xb10;
     // LENGTH
     this.clkLength = 0;
     this.lengthCheck = false;
@@ -42,7 +41,15 @@ export class Channel1 {
   }
   set frequency(v) {
     this._freq = v;
-    this.oscillator.frequency.value = Math.min(Math.max(131072 / (2048 - v),-FREQ_CLAMP),FREQ_CLAMP);
+    this.pulse.frequency.setValueAtTime(Math.min(Math.max(131072 / (2048 - v),-FREQ_CLAMP),FREQ_CLAMP));
+  }
+  set waveDuty(v) {
+    this._waveDuty = v;
+    this.pulse.width.setValueAtTime(WAVE_WIDTHS[v]);
+    //console.log(v.toString(2))
+  }
+  get waveDuty() {
+    return this._waveDuty;
   }
   setLength(v) {
     this.soundLength = 64 - (v & 0x3F);
@@ -60,12 +67,12 @@ export class Channel1 {
   setEnvelopeVolume(vol) {
     this.envelopeCheck = (vol > 0) && (vol < 16);
     this.envelopeVolume = vol;
-    this.gainNode.gain.value = vol * .01;
+    this.gain.gain.value = vol * .01;
   }
   play() {
     if(!this.playing) {
       this.playing = true;
-      this.gainNode.connect(this.ctx.destination);
+      this.pulse.connect(this.gain);
       this.clkLength = 0;
       this.clockEnvelop = 0;
       this.clkSweep = 0;
@@ -74,7 +81,7 @@ export class Channel1 {
   stop() {
     if(this.playing) {
       this.playing = false;
-      this.gainNode.disconnect();
+      this.pulse.disconnect();
     }
   }
   update(c) {
@@ -113,12 +120,12 @@ export class Channel1 {
   disable() {
     if(!this._enabled) return;
     this._enabled = false;
-    this.oscillator.disconnect();
+    this.pulse.stop();
   }
   enable() {
     if(this._enabled) return;
     this._enabled = true;
-    this.oscillator.connect(this.gainNode);
+    this.pulse.start();
   }
 
   set nr0(v) {
@@ -138,7 +145,8 @@ export class Channel1 {
 
   set nr1(v) {
     this.setLength(v & 0b111111);
-    // todo Wave Pattern Duty
+    this.waveDuty = (v & 0xC0) >> 6;
+    // WIP Wave Pattern Duty
   }
   get nr1() {
     return 0b10000000;
@@ -177,17 +185,6 @@ export class Channel1 {
 export default class APU {
   constructor(gb) {
     this.gb = gb;
-    try {
-      this.ctx = createAudioContext({
-        latencyHint: 'interactive',
-        sampleRate: 44100,
-      });
-    } catch(e) {
-      console.error("Failed to create AudioContext\nDetails:");
-      console.dir(e);
-      throw new Error("AudioCtxFailure");
-      return;
-    }
     this.chan1 = new Channel1(this, 1);
     this.chan2 = new Channel1(this, 2);
     this.enabled = true;
@@ -203,12 +200,10 @@ export default class APU {
   }
 
   disable() {
-    this.ctx.suspend();
     this.chan1.disable();
     this.chan2.disable();
   }
   enable() {
-    this.ctx.resume();
     this.chan1.enable();
     this.chan2.enable();
   }
