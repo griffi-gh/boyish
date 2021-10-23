@@ -7,7 +7,7 @@ const ENVELOPE_STEP_LENGTH = 0x8000;
 const FREQ_CLAMP = 22000;
 const WAVE_WIDTHS = new Float64Array([0.75, 0.5, 0, -0.5]);
 
-export class Channel1 {
+class Channel1 {
   constructor(apu, chan) {
     this.apu = apu;
     this.ctx = apu.ctx;
@@ -176,6 +176,12 @@ export class Channel1 {
   }
   get nr4() {
     return this.lengthCheck << 6;
+  }
+}
+
+class Channel3 {
+  constructor(apu) {
+    
   }
 }
 
