@@ -96,6 +96,7 @@ class Channel1 {
     if(this.envelopeCheck && (this.clkEnvelope > ENVELOPE_STEP_LENGTH)) {
       this.clkEnvelope -= ENVELOPE_STEP_LENGTH;
       this.setEnvelopeVolume(this.envelopeVolume + this.envelopeSign);
+      console.log(this.envelopeVolume)
       this.envelopeStep--;
       if(this.envelopeStep <= 0) {
         this.envelopeCheck = false;
@@ -143,7 +144,6 @@ class Channel1 {
   set nr1(v) {
     this.setLength(v);
     this.waveDuty = (v & 0xC0) >> 6;
-    // WIP Wave Pattern Duty
   }
   get nr1() {
     return this.waveDuty << 6;
@@ -153,6 +153,7 @@ class Channel1 {
     this.envelopeSign = (v & 0b1000) ? 1 : -1;
     this.setEnvelopeVolume((v & 0xF0) >> 4);
     this.envelopeStep = v & 0b111;
+    this.envelopeCheck = this.envelopeStep > 0;
   }
   get nr2() {
     return (
