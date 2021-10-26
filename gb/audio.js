@@ -96,7 +96,7 @@ class Channel1 {
     if(this.envelopeCheck && (this.clkEnvelope > ENVELOPE_STEP_LENGTH)) {
       this.clkEnvelope -= ENVELOPE_STEP_LENGTH;
       this.setEnvelopeVolume(this.envelopeVolume + this.envelopeSign);
-      console.log(this.envelopeVolume)
+      //console.log(this.envelopeVolume)
       this.envelopeStep--;
       if(this.envelopeStep <= 0) {
         this.envelopeCheck = false;
