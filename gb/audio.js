@@ -71,7 +71,7 @@ class Channel1 {
       this.playing = true;
       this.pulse.connect(this.gain);
       this.clkLength = 0;
-      this.clkEnvelop = 0;
+      this.clkEnvelope = 0;
       this.clkSweep = 0;
     }
   }
@@ -93,10 +93,10 @@ class Channel1 {
       }
     }
     this.clkEnvelope += c;
-    if(this.envelopeCheck && (this.clkEnvelop > ENVELOPE_STEP_LENGTH)) {
-      this.clkEnvelope -= this.envelopeStepLength;
-      this.envelopeStep--;
+    if(this.envelopeCheck && (this.clkEnvelope > ENVELOPE_STEP_LENGTH)) {
+      this.clkEnvelope -= ENVELOPE_STEP_LENGTH;
       this.setEnvelopeVolume(this.envelopeVolume + this.envelopeSign);
+      this.envelopeStep--;
       if(this.envelopeStep <= 0) {
         this.envelopeCheck = false;
       }
