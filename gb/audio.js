@@ -13,7 +13,9 @@ class Channel1 {
     this.ctx = apu.ctx;
     this.chan = chan;
     // Tone.js objects
-    this.gain = new Tone.Gain().toDestination();
+    this.panGain = new Tone.Gain().connect(apu.gain)
+    this.pan = new Tone.Panner().connect(this.panGain);
+    this.gain = new Tone.Gain().connect(this.pan);
     this.pulse = new Tone.PulseOscillator(0,0).connect(this.gain);
     //
     this._enabled = false;
@@ -98,8 +100,9 @@ class Channel1 {
       this.setEnvelopeVolume(this.envelopeVolume + this.envelopeSign);
       //console.log(this.envelopeVolume)
       this.envelopeStep--;
-      if(this.envelopeStep <= 0) {
-        this.envelopeCheck = false;
+      if(this.envelopeStep <= 0) this.envelopeCheck = false;
+      if(!this.envelopeCheck) {
+        this.envelopeStep = this.envelopeStepValue;
       }
     }
     this.clkLength += c;
@@ -124,6 +127,12 @@ class Channel1 {
     if(this._enabled) return;
     this._enabled = true;
     this.pulse.start();
+  }
+
+  setOutputTerminals(so1,so2) {
+    // << SO2 LEFT << >> SO1 RIGHT >>
+    this.panGain.gain.setValueAtTime(Math.min(1,so1+so2));
+    this.pan.pan.setValueAtTime((so1|0) - (so2|0));
   }
 
   set nr0(v) {
@@ -152,14 +161,15 @@ class Channel1 {
   set nr2(v) {
     this.envelopeSign = (v & 0b1000) ? 1 : -1;
     this.setEnvelopeVolume((v & 0xF0) >> 4);
-    this.envelopeStep = v & 0b111;
+    this.envelopeStepValue = v & 0b111;
+    this.envelopeStep = this.envelopeStepValue;
     this.envelopeCheck = this.envelopeStep > 0;
   }
   get nr2() {
     return (
       (this.envelopeVolume << 4) |
       (this.envelopeSign << 3) |
-      this.envelopeStep
+      this.envelopeStepValue
     )
   }
 
@@ -189,6 +199,8 @@ class Channel3 {
 export default class APU {
   constructor(gb) {
     this.gb = gb;
+    this.panner = new Tone.Panner().toDestination();
+    this.gain = new Tone.Gain().connect(this.panner);
     this.chan1 = new Channel1(this, 1);
     this.chan2 = new Channel1(this, 2);
     this.enabled = true;
@@ -206,10 +218,12 @@ export default class APU {
   disable() {
     this.chan1.disable();
     this.chan2.disable();
+    this.panner.disconnect();
   }
   enable() {
     this.chan1.enable();
     this.chan2.enable();
+    this.panner.toDestination();
   }
 
   set enabled(v) {
