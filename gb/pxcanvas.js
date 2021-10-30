@@ -17,15 +17,17 @@ export default class PixelCanvas {
     this.canvas.style.setProperty('image-rendering', 'optimizeSpeed');
     this.canvas.style.setProperty('image-rendering', 'pixelated');
     this.canvas.style.setProperty('-ms-interpolation-mode', 'nearest-neighbor');
-    let shouldUseDesync = true;
-    if(navigator && navigator.userAgentData) {
-      navigator.userAgentData.brands.forEach((v,i) => {
-        if(!shouldUseDesync) return;
-        if(v.brand && (v.brand.toLowerCase().search('edge') > 0)) {
-          shouldUseDesync = false;
-          console.warn('MS Edge detected. Falling back non-desynchronized canvas');
-        }
-      });
+    let shouldUseDesync = false; //todo
+    if(shouldUseDesync) {
+      if(navigator && navigator.userAgentData) {
+        navigator.userAgentData.brands.forEach((v,i) => {
+          if(!shouldUseDesync) return;
+          if(v.brand && (v.brand.toLowerCase().search('edge') > 0)) {
+            shouldUseDesync = false;
+            console.warn('MS Edge detected. Falling back non-desynchronized canvas');
+          }
+        });
+      }
     }
     this.ctx = this.canvas.getContext('2d', {
       alpha: false,
