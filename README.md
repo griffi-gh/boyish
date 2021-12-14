@@ -1,5 +1,5 @@
 # **boy***ish*    
-Work-In-Progress Gameboy Emulator written in JavaScript  
+Gameboy Emulator written in JavaScript  
   
 ## Features    
 * Passes blarggs memory-timing tests  
@@ -11,5 +11,11 @@ Work-In-Progress Gameboy Emulator written in JavaScript
 * Automatic Game saves  
 * Modular-*ish* structure 
 * Basic audio emulation 
+
+## Screenshots  
+| **Pokemon Red**<br>![Pokemon Red](README/pokemon.gif) | **Super Mario Land**<br>![Super Mario Land](README/marioland.gif) |
+| :---: | :---: |
+| **Gejmbåj**<br>![Gejmbåj](README/demo.gif) | **Deez Nutz** <br> ![Mr Nutz](README/deez_nuts.png) |
+| **mem_timing**<br>![mem_timing](README/mem.png) | |
 
 <sub>**owo**</sub>
